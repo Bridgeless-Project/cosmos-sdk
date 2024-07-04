@@ -1,5 +1,5 @@
 package types
 
 const (
-	NativeToken = "aemvos"
+	NativeToken = "aevmos"
 )

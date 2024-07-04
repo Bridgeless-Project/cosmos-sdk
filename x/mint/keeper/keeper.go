@@ -59,25 +59,6 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
 }
 
-// get the minter
-func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	b := store.Get(types.MinterKey)
-	if b == nil {
-		panic("stored minter should not have been nil")
-	}
-
-	k.cdc.MustUnmarshal(b, &minter)
-	return
-}
-
-// set the minter
-func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	b := k.cdc.MustMarshal(&minter)
-	store.Set(types.MinterKey, b)
-}
-
 // GetParams returns the total set of minting parameters.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramSpace.GetParamSet(ctx, &params)
@@ -112,7 +93,9 @@ func (k Keeper) SendFromAccumulator(ctx context.Context, moduleName string, amou
 	msgServer := accumulatorKeeper.NewMsgServerImpl(k.accumulatorKeeper)
 	_, err := msgServer.DistributeTokens(ctx, &request)
 	if err != nil {
-		return errors.Wrap(err, "failed to call accumulator module")
+		err = errors.Wrap(err, "failed to call accumulator module")
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
+		return err
 	}
 
 	return nil
