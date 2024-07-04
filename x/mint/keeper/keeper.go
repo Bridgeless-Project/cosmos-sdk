@@ -1,7 +1,12 @@
 package keeper
 
 import (
+	"context"
 	"cosmossdk.io/math"
+	"fmt"
+	"github.com/cosmos/cosmos-sdk/types/errors"
+	accumulatorKeeper "github.com/evmos/evmos/v12/x/accumulator/keeper"
+	accumulatortypes "github.com/evmos/evmos/v12/x/accumulator/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,18 +18,19 @@ import (
 
 // Keeper of the mint store
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	paramSpace       paramtypes.Subspace
-	stakingKeeper    types.StakingKeeper
-	bankKeeper       types.BankKeeper
-	feeCollectorName string
+	cdc               codec.BinaryCodec
+	storeKey          storetypes.StoreKey
+	paramSpace        paramtypes.Subspace
+	stakingKeeper     types.StakingKeeper
+	bankKeeper        types.BankKeeper
+	accumulatorKeeper accumulatorKeeper.Keeper
+	feeCollectorName  string
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper,
+	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, acc accumulatorKeeper.Keeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -38,12 +44,13 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:              cdc,
-		storeKey:         key,
-		paramSpace:       paramSpace,
-		stakingKeeper:    sk,
-		bankKeeper:       bk,
-		feeCollectorName: feeCollectorName,
+		cdc:               cdc,
+		storeKey:          key,
+		paramSpace:        paramSpace,
+		stakingKeeper:     sk,
+		bankKeeper:        bk,
+		feeCollectorName:  feeCollectorName,
+		accumulatorKeeper: acc,
 	}
 }
 
@@ -94,15 +101,21 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	return k.stakingKeeper.BondedRatio(ctx)
 }
 
-// MintCoins implements an alias call to the underlying supply keeper's
-// MintCoins to be used in BeginBlocker.
-func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
-	if newCoins.Empty() {
-		// skip as no coins need to be minted
-		return nil
+func (k Keeper) SendFromAccumulator(ctx context.Context, moduleName string, amount sdk.Coins) error {
+	fmt.Println("SendFromModuleToAddressViaAccumulator")
+	request := accumulatortypes.DistributeTokensRequest{
+		Amount:         amount,
+		ModuleNameFrom: accumulatortypes.ModuleName,
+		ModuleNameTo:   moduleName,
 	}
 
-	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
+	msgServer := accumulatorKeeper.NewMsgServerImpl(k.accumulatorKeeper)
+	_, err := msgServer.DistributeTokens(ctx, &request)
+	if err != nil {
+		return errors.Wrap(err, "failed to call accumulator module")
+	}
+
+	return nil
 }
 
 // AddCollectedFees implements an alias call to the underlying supply keeper's

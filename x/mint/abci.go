@@ -28,9 +28,10 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	mintedCoin := minter.BlockProvision(params)
 	mintedCoins := sdk.NewCoins(mintedCoin)
 
-	err := k.MintCoins(ctx, mintedCoins)
+	err := k.SendFromAccumulator(ctx, types.ModuleName, mintedCoins)
 	if err != nil {
-		panic(err)
+		k.Logger(ctx).Error("failed to send tokens from accumulator")
+		return
 	}
 
 	// send the minted coins to the fee collector account

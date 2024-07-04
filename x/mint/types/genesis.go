@@ -17,9 +17,8 @@ func DefaultInflationCalculationFn(_ sdk.Context, minter Minter, params Params, 
 }
 
 // NewGenesisState creates a new GenesisState object
-func NewGenesisState(minter Minter, params Params) *GenesisState {
+func NewGenesisState(params Params) *GenesisState {
 	return &GenesisState{
-		Minter: minter,
 		Params: params,
 	}
 }
