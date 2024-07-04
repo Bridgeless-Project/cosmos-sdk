@@ -1,0 +1,33 @@
+syntax = "proto3";
+package accumulator;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+// this line is used by starport scaffolding # proto/tx/import
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (gogoproto.goproto_stringer) = false;
+  map<string, ModuleInfo> modulesInfo = 2;
+}
+
+// Define a message that contains the map
+message ModuleInfo {
+  string moduleName = 1;
+  repeated cosmos.base.v1beta1.Coin amount = 2
+  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+  string address = 3;
+  VestingInfo vesting  = 4;
+}
+
+message VestingInfo {
+  int64 startTime = 1;
+  int64 stepTime = 2;
+  int64 vesting_step_amount = 3; // count of coins
+  repeated cosmos.base.v1beta1.Coin total_locked_amount = 4
+  [(gogoproto.nullable) = false, (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"];
+}

@@ -1,0 +1,31 @@
+=============== Jul 3, 2024 (EEST) ===============
+12:52:24.149439 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:52:24.221005 db@open opening
+12:52:24.223534 version@stat F·[] S·0B[] Sc·[]
+12:52:24.267482 db@janitor F·2 G·0
+12:52:24.267549 db@open done T·46.455024ms
+12:52:24.629627 db@close closing
+12:52:24.629896 db@close done T·266.382µs
+=============== Jul 3, 2024 (EEST) ===============
+15:41:41.066823 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:41:41.067940 version@stat F·[] S·0B[] Sc·[]
+15:41:41.067977 db@open opening
+15:41:41.068059 journal@recovery F·1
+15:41:41.070154 journal@recovery recovering @1
+15:41:41.091414 memdb@flush created L0@2 N·25 S·565B "s/k..ion,v6":"s/k..ion,v8"
+15:41:41.093436 version@stat F·[1] S·565B[565B] Sc·[0.25]
+15:41:41.182096 db@janitor F·3 G·0
+15:41:41.182533 db@open done T·114.535129ms
+15:41:41.532344 db@close closing
+15:41:41.532467 db@close done T·122.484µs
+=============== Jul 3, 2024 (EEST) ===============
+16:01:14.038709 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+16:01:14.040968 version@stat F·[1] S·565B[565B] Sc·[0.25]
+16:01:14.041034 db@open opening
+16:01:14.041152 journal@recovery F·1
+16:01:14.042811 journal@recovery recovering @3
+16:01:14.043903 version@stat F·[1] S·565B[565B] Sc·[0.25]
+16:01:14.139749 db@janitor F·3 G·0
+16:01:14.139842 db@open done T·98.784776ms
+16:01:14.485821 db@close closing
+16:01:14.485984 db@close done T·159.756µs
