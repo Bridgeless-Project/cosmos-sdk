@@ -1,4 +1,4 @@
-package vesting
+package main
 
 import (
 	"encoding/json"
