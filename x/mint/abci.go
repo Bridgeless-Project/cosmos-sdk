@@ -1,7 +1,6 @@
 package mint
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -13,7 +12,6 @@ import (
 // BeginBlocker mints new tokens for the previous block.
 func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
-	fmt.Println("Mint")
 	// fetch stored minter & params
 	params := k.GetParams(ctx)
 
