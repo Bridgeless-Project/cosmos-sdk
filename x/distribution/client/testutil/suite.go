@@ -46,11 +46,6 @@ func (s *IntegrationTestSuite) SetupSuite() {
 	var mintData minttypes.GenesisState
 	s.Require().NoError(s.cfg.Codec.UnmarshalJSON(genesisState[minttypes.ModuleName], &mintData))
 
-	inflation := sdk.MustNewDecFromStr("1.0")
-	mintData.Minter.Inflation = inflation
-	mintData.Params.InflationMin = inflation
-	mintData.Params.InflationMax = inflation
-
 	mintDataBz, err := s.cfg.Codec.MarshalJSON(&mintData)
 	s.Require().NoError(err)
 	genesisState[minttypes.ModuleName] = mintDataBz
