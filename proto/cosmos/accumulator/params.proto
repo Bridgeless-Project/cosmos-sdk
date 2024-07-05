@@ -9,12 +9,4 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
 
 // Params defines the parameters for the module.
 message Params {
-  option (gogoproto.goproto_stringer) = false;
-  map<string, ModuleInfo> modulesInfo = 2;
 }
-
-// Define a message that contains the map
-message ModuleInfo {
-  string address = 1;
-}
-

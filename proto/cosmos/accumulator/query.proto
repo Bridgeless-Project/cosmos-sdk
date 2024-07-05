@@ -4,7 +4,7 @@ package accumulator;
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
-import "accumulator/params.proto";
+import "cosmos/accumulator/params.proto";
 // this line is used by starport scaffolding # proto/tx/import
 // this line is used by starport scaffolding # 1
 

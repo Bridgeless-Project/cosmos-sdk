@@ -22,7 +22,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	mintedCoin := sdk.NewCoin(params.MintDenom, mintedAmount.TruncateInt())
 	mintedCoins := sdk.NewCoins(mintedCoin)
 
-	err := k.SendFromAccumulator(ctx, types.ModuleName, mintedCoins)
+	err := k.SendFromAccumulator(ctx, mintedCoins)
 	if err != nil {
 		k.Logger(ctx).Error("failed to send tokens from accumulator")
 		return

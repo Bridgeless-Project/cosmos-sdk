@@ -1,12 +1,8 @@
 package keeper
 
 import (
-	"context"
 	"cosmossdk.io/math"
-	"fmt"
 	"github.com/cosmos/cosmos-sdk/types/errors"
-	accumulatorKeeper "github.com/cosmos/cosmos-sdk/x/accumulator/keeper"
-	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -23,14 +19,14 @@ type Keeper struct {
 	paramSpace        paramtypes.Subspace
 	stakingKeeper     types.StakingKeeper
 	bankKeeper        types.BankKeeper
-	accumulatorKeeper accumulatorKeeper.Keeper
+	accumulatorKeeper types.AccumulatorKeeper
 	feeCollectorName  string
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, acc accumulatorKeeper.Keeper,
+	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, acc types.AccumulatorKeeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -82,17 +78,8 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	return k.stakingKeeper.BondedRatio(ctx)
 }
 
-func (k Keeper) SendFromAccumulator(ctx context.Context, moduleName string, amount sdk.Coins) error {
-	fmt.Println("SendFromModuleToAddressViaAccumulator")
-	request := accumulatortypes.DistributeTokensRequest{
-		Amount:         amount,
-		ModuleNameFrom: accumulatortypes.ModuleName,
-		ModuleNameTo:   moduleName,
-	}
-
-	msgServer := accumulatorKeeper.NewMsgServerImpl(k.accumulatorKeeper)
-	_, err := msgServer.DistributeTokens(ctx, &request)
-	if err != nil {
+func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
+	if err := k.accumulatorKeeper.DistributeValidatorsPool(ctx, amount); err != nil {
 		err = errors.Wrap(err, "failed to call accumulator module")
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
 		return err
