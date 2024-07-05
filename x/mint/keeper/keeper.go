@@ -5,8 +5,8 @@ import (
 	"cosmossdk.io/math"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/types/errors"
-	accumulatorKeeper "github.com/evmos/evmos/v12/x/accumulator/keeper"
-	accumulatortypes "github.com/evmos/evmos/v12/x/accumulator/types"
+	accumulatorKeeper "github.com/cosmos/cosmos-sdk/x/accumulator/keeper"
+	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"

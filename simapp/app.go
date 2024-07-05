@@ -3,9 +3,9 @@ package simapp
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/evmos/evmos/v12/x/accumulator"
-	accumulatorkeeper "github.com/evmos/evmos/v12/x/accumulator/keeper"
-	accumulatortypes "github.com/evmos/evmos/v12/x/accumulator/types"
+	"github.com/cosmos/cosmos-sdk/x/accumulator"
+	accumulatorkeeper "github.com/cosmos/cosmos-sdk/x/accumulator/keeper"
+	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cast"
