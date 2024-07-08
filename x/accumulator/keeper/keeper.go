@@ -21,7 +21,7 @@ type (
 		GetParams(c sdk.Context) types.Params
 		SetParams(c sdk.Context, params types.Params)
 		Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error)
-		DistributeValidatorsPool(ctx sdk.Context, amount sdk.Coins) error
+		DistributeTokens(ctx sdk.Context, fromPool string, isSentToModule bool, amount sdk.Coins, receiverModule string, receiverAddress *sdk.AccAddress) error
 	}
 
 	BaseKeeper struct {

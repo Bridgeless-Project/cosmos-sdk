@@ -4,20 +4,23 @@ import (
 	"cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/accumulator/types"
-	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
-func (k BaseKeeper) DistributeValidatorsPool(ctx sdk.Context, amount sdk.Coins) error {
-	return k.distributeTokens(ctx, types.ValidatorPoolName, minttypes.ModuleName, amount)
-}
-
-func (k BaseKeeper) distributeTokens(ctx sdk.Context, fromPool string, receiverModule string, amount sdk.Coins) error {
+func (k BaseKeeper) DistributeTokens(ctx sdk.Context, fromPool string, isSentToModule bool, amount sdk.Coins, receiverModule string, receiverAddress *sdk.AccAddress) error {
 	poolAddress := GetPoolAddress(fromPool)
 	if poolAddress == nil {
 		return types.ErrInvalidPool
 	}
 
-	return k.sendFromAddressToModule(ctx, poolAddress, receiverModule, amount)
+	if isSentToModule {
+		return k.sendFromAddressToModule(ctx, poolAddress, receiverModule, amount)
+	}
+
+	if receiverAddress == nil {
+		return types.ErrInvalidReceiver
+	}
+	return k.sendFromAddressToAddress(ctx, poolAddress, *receiverAddress, amount)
+
 }
 
 func (k BaseKeeper) sendFromAddressToModule(ctx sdk.Context, poolAddress sdk.AccAddress, receiverAddress string, amount sdk.Coins) error {
@@ -30,6 +33,36 @@ func (k BaseKeeper) sendFromAddressToModule(ctx sdk.Context, poolAddress sdk.Acc
 
 	if err != nil {
 		err = errors.Wrap(err, "sending native coins to address")
+		k.Logger(ctx).Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (k BaseKeeper) sendFromAddressToAddress(ctx sdk.Context, poolAddress sdk.AccAddress, receiverAddress sdk.AccAddress, amount sdk.Coins) error {
+	err := k.bankKeeper.SendCoinsFromAccountToModule(
+		ctx,
+		poolAddress,
+		types.ModuleName,
+		amount,
+	)
+
+	if err != nil {
+		err = errors.Wrap(err, "sending native coins to module")
+		k.Logger(ctx).Error(err.Error())
+		return err
+	}
+
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(
+		ctx,
+		types.ModuleName,
+		receiverAddress,
+		amount,
+	)
+
+	if err != nil {
+		err = errors.Wrap(err, "sending native coins to module")
 		k.Logger(ctx).Error(err.Error())
 		return err
 	}

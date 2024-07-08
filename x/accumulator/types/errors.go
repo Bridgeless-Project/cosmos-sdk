@@ -8,5 +8,6 @@ import (
 
 // x/accumulator module sentinel errors
 var (
-	ErrInvalidPool = sdkerrors.Register(ModuleName, 1100, "invalid pool address")
+	ErrInvalidPool     = sdkerrors.Register(ModuleName, 1100, "invalid pool address")
+	ErrInvalidReceiver = sdkerrors.Register(ModuleName, 1101, "invalid receiver address")
 )

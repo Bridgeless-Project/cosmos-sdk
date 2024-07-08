@@ -3,6 +3,7 @@ package keeper
 import (
 	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -79,7 +80,8 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 }
 
 func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
-	if err := k.accumulatorKeeper.DistributeValidatorsPool(ctx, amount); err != nil {
+	err := k.accumulatorKeeper.DistributeTokens(ctx, accumulatortypes.ValidatorPoolName, true, amount, types.ModuleName, nil)
+	if err != nil {
 		err = errors.Wrap(err, "failed to call accumulator module")
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
 		return err
