@@ -21,7 +21,8 @@ type (
 		GetParams(c sdk.Context) types.Params
 		SetParams(c sdk.Context, params types.Params)
 		Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error)
-		DistributeTokens(ctx sdk.Context, fromPool string, isSentToModule bool, amount sdk.Coins, receiverModule string, receiverAddress *sdk.AccAddress) error
+		DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
+		DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
 	}
 
 	BaseKeeper struct {

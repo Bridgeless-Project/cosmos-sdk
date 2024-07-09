@@ -30,5 +30,5 @@ type BankKeeper interface {
 }
 
 type AccumulatorKeeper interface {
-	DistributeTokens(ctx sdk.Context, fromPool string, isSentToModule bool, amount sdk.Coins, receiverModule string, receiverAddress *sdk.AccAddress) error
+	DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
 }

@@ -80,7 +80,7 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 }
 
 func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
-	err := k.accumulatorKeeper.DistributeTokens(ctx, accumulatortypes.ValidatorPoolName, true, amount, types.ModuleName, nil)
+	err := k.accumulatorKeeper.DistributeToModule(ctx, accumulatortypes.ValidatorPoolName, amount, types.ModuleName)
 	if err != nil {
 		err = errors.Wrap(err, "failed to call accumulator module")
 		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
