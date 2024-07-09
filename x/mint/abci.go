@@ -10,27 +10,26 @@ import (
 )
 
 // BeginBlocker mints new tokens for the previous block.
-func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculationFn) {
+func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
-
 	// fetch stored minter & params
-	minter := k.GetMinter(ctx)
 	params := k.GetParams(ctx)
 
-	// recalculate inflation rate
-	totalStakingSupply := k.StakingTokenSupply(ctx)
-	bondedRatio := k.BondedRatio(ctx)
-	minter.Inflation = ic(ctx, minter, params, bondedRatio)
-	minter.AnnualProvisions = minter.NextAnnualProvisions(params, totalStakingSupply)
-	k.SetMinter(ctx, minter)
+	// skip if all tokens already minted
+	if uint64(ctx.BlockHeight()) >= params.EndBlock {
+		return
+	}
+	monthReward := sdk.NewDecFromInt(params.MonthReward.Amount)
+	mintedAmount := monthReward.QuoInt(sdk.NewInt(int64(params.BlocksPerMonth)))
 
 	// mint coins, update supply
-	mintedCoin := minter.BlockProvision(params)
+	mintedCoin := sdk.NewCoin(params.MintDenom, mintedAmount.TruncateInt())
 	mintedCoins := sdk.NewCoins(mintedCoin)
 
-	err := k.MintCoins(ctx, mintedCoins)
+	err := k.SendFromAccumulator(ctx, mintedCoins)
 	if err != nil {
-		panic(err)
+		k.Logger(ctx).Error("failed to send tokens from accumulator")
+		return
 	}
 
 	// send the minted coins to the fee collector account
@@ -46,9 +45,6 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper, ic types.InflationCalculatio
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeMint,
-			sdk.NewAttribute(types.AttributeKeyBondedRatio, bondedRatio.String()),
-			sdk.NewAttribute(types.AttributeKeyInflation, minter.Inflation.String()),
-			sdk.NewAttribute(types.AttributeKeyAnnualProvisions, minter.AnnualProvisions.String()),
 			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
 		),
 	)

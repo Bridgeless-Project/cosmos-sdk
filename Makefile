@@ -1,22 +1,31 @@
 #!/usr/bin/make -f
 
 PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
-PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
-export VERSION := $(shell echo $(shell git describe --always --match "v*") | sed 's/^v//')
-export TMVERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::')
-export COMMIT := $(shell git log -1 --format='%H')
+VERSION ?= $(shell echo $(shell git describe --tags --always) | sed 's/^v//')
+TMVERSION := $(shell go list -m github.com/tendermint/tendermint | sed 's:.* ::')
+COMMIT := $(shell git log -1 --format='%H')
 LEDGER_ENABLED ?= true
 BINDIR ?= $(GOPATH)/bin
+EVMOS_BINARY = evmosd
+EVMOS_DIR = evmos
 BUILDDIR ?= $(CURDIR)/build
-SIMAPP = ./simapp
-MOCKS_DIR = $(CURDIR)/tests/mocks
-HTTPS_GIT := https://github.com/cosmos/cosmos-sdk.git
+HTTPS_GIT := https://github.com/evmos/evmos.git
 DOCKER := $(shell which docker)
-DOCKER_BUF := $(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace bufbuild/buf:1.0.0-rc8
-PROJECT_NAME = $(shell git remote get-url origin | xargs basename -s .git)
-DOCS_DOMAIN=docs.cosmos.network
+NAMESPACE := tharsishq
+PROJECT := evmos
+DOCKER_IMAGE := $(NAMESPACE)/$(PROJECT)
+COMMIT_HASH := $(shell git rev-parse --short=7 HEAD)
+DOCKER_TAG := $(COMMIT_HASH)
+# e2e env
+MOUNT_PATH := $(shell pwd)/build/:/root/
+E2E_SKIP_CLEANUP := false
 
 export GO111MODULE = on
+
+# Default target executed when no arguments are given to make.
+default_target: all
+
+.PHONY: default_target
 
 # process build tags
 
@@ -44,40 +53,44 @@ ifeq ($(LEDGER_ENABLED),true)
   endif
 endif
 
-ifeq (secp,$(findstring secp,$(COSMOS_BUILD_OPTIONS)))
-  build_tags += libsecp256k1_sdk
-endif
-
-whitespace :=
-whitespace += $(whitespace)
-comma := ,
-build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
-
-# process linker flags
-
-ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=sim \
-		  -X github.com/cosmos/cosmos-sdk/version.AppName=simd \
-		  -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
-		  -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
-		  -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)" \
-		  -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TMVERSION)
-
-# DB backend selection
 ifeq (cleveldb,$(findstring cleveldb,$(COSMOS_BUILD_OPTIONS)))
   build_tags += gcc
 endif
+build_tags += $(BUILD_TAGS)
+build_tags := $(strip $(build_tags))
+
+# process linker flags
+
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=evmos \
+          -X github.com/cosmos/cosmos-sdk/version.AppName=$(EVMOS_BINARY) \
+          -X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+          -X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+          -X github.com/tendermint/tendermint/version.TMCoreSemVer=$(TMVERSION)
+
+# DB backend selection
+ifeq (cleveldb,$(findstring cleveldb,$(COSMOS_BUILD_OPTIONS)))
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=cleveldb
+endif
 ifeq (badgerdb,$(findstring badgerdb,$(COSMOS_BUILD_OPTIONS)))
-  build_tags += badgerdb
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=badgerdb
 endif
 # handle rocksdb
 ifeq (rocksdb,$(findstring rocksdb,$(COSMOS_BUILD_OPTIONS)))
   CGO_ENABLED=1
   build_tags += rocksdb
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=rocksdb
 endif
 # handle boltdb
 ifeq (boltdb,$(findstring boltdb,$(COSMOS_BUILD_OPTIONS)))
   build_tags += boltdb
+  ldflags += -X github.com/cosmos/cosmos-sdk/types.DBBackend=boltdb
 endif
+
+# add build tags to linker flags
+whitespace := $(subst ,, )
+comma := ,
+build_tags_comma_sep := $(subst $(whitespace),$(comma),$(build_tags))
+ldflags += -X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags_comma_sep)"
 
 ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
   ldflags += -w -s
@@ -85,24 +98,20 @@ endif
 ldflags += $(LDFLAGS)
 ldflags := $(strip $(ldflags))
 
-build_tags += $(BUILD_TAGS)
-build_tags := $(strip $(build_tags))
-
 BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
 # check for nostrip option
 ifeq (,$(findstring nostrip,$(COSMOS_BUILD_OPTIONS)))
   BUILD_FLAGS += -trimpath
 endif
 
-# Check for debug option
-ifeq (debug,$(findstring debug,$(COSMOS_BUILD_OPTIONS)))
+# check if no optimization option is passed
+# used for remote debugging
+ifneq (,$(findstring nooptimization,$(COSMOS_BUILD_OPTIONS)))
   BUILD_FLAGS += -gcflags "all=-N -l"
 endif
 
-all: tools build lint test
-
-# The below include contains the tools and runsim targets.
-include contrib/devtools/Makefile
+# # The below include contains the tools and runsim targets.
+# include contrib/devtools/Makefile
 
 ###############################################################################
 ###                                  Build                                  ###
@@ -112,53 +121,148 @@ BUILD_TARGETS := build install
 
 build: BUILD_ARGS=-o $(BUILDDIR)/
 build-linux:
-	GOOS=linux GOARCH=$(if $(findstring aarch64,$(shell uname -m)) || $(findstring arm64,$(shell uname -m)),arm64,amd64) LEDGER_ENABLED=false $(MAKE) build
+	GOOS=linux GOARCH=amd64 LEDGER_ENABLED=false $(MAKE) build
 
 $(BUILD_TARGETS): go.sum $(BUILDDIR)/
-	go $@ -mod=readonly $(BUILD_FLAGS) $(BUILD_ARGS) ./...
+	go $@ $(BUILD_FLAGS) $(BUILD_ARGS) ./...
 
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)/
 
-cosmovisor:
-	$(MAKE) -C cosmovisor cosmovisor
+build-reproducible: go.sum
+	$(DOCKER) rm latest-build || true
+	$(DOCKER) run --volume=$(CURDIR):/sources:ro \
+        --env TARGET_PLATFORMS='linux/amd64' \
+        --env APP=evmosd \
+        --env VERSION=$(VERSION) \
+        --env COMMIT=$(COMMIT) \
+        --env CGO_ENABLED=1 \
+        --env LEDGER_ENABLED=$(LEDGER_ENABLED) \
+        --name latest-build tendermintdev/rbuilder:latest
+	$(DOCKER) cp -a latest-build:/home/builder/artifacts/ $(CURDIR)/
 
-.PHONY: build build-linux cosmovisor
 
-mockgen_cmd=go run github.com/golang/mock/mockgen
+build-docker:
+	# TODO replace with kaniko
+	$(DOCKER) build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+	$(DOCKER) tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+	# docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:${COMMIT_HASH}
+	# update old container
+	$(DOCKER) rm evmos || true
+	# create a new container from the latest image
+	$(DOCKER) create --name evmos -t -i ${DOCKER_IMAGE}:latest evmos
+	# move the binaries to the ./build directory
+	mkdir -p ./build/
+	$(DOCKER) cp evmos:/usr/bin/evmosd ./build/
 
-mocks: $(MOCKS_DIR)
-	$(mockgen_cmd) -source=client/account_retriever.go -package mocks -destination tests/mocks/account_retriever.go
-	$(mockgen_cmd) -package mocks -destination tests/mocks/tendermint_tm_db_DB.go github.com/tendermint/tm-db DB
-	$(mockgen_cmd) -source db/types.go -package mocks -destination tests/mocks/db/types.go
-	$(mockgen_cmd) -source=types/module/module.go -package mocks -destination tests/mocks/types_module_module.go
-	$(mockgen_cmd) -source=types/invariant.go -package mocks -destination tests/mocks/types_invariant.go
-	$(mockgen_cmd) -source=types/router.go -package mocks -destination tests/mocks/types_router.go
-	$(mockgen_cmd) -package mocks -destination tests/mocks/grpc_server.go github.com/gogo/protobuf/grpc Server
-	$(mockgen_cmd) -package mocks -destination tests/mocks/tendermint_tendermint_libs_log_DB.go github.com/tendermint/tendermint/libs/log Logger
-	$(mockgen_cmd) -source=orm/model/ormtable/hooks.go -package ormmocks -destination orm/testing/ormmocks/hooks.go
-.PHONY: mocks
+push-docker: build-docker
+	$(DOCKER) push ${DOCKER_IMAGE}:${DOCKER_TAG}
+	$(DOCKER) push ${DOCKER_IMAGE}:latest
 
 $(MOCKS_DIR):
 	mkdir -p $(MOCKS_DIR)
 
 distclean: clean tools-clean
+
 clean:
 	rm -rf \
     $(BUILDDIR)/ \
     artifacts/ \
     tmp-swagger-gen/
 
-.PHONY: distclean clean
+all: build
+
+build-all: tools build lint test vulncheck
+
+.PHONY: distclean clean build-all
 
 ###############################################################################
 ###                          Tools & Dependencies                           ###
 ###############################################################################
 
+TOOLS_DESTDIR  ?= $(GOPATH)/bin
+STATIK         = $(TOOLS_DESTDIR)/statik
+RUNSIM         = $(TOOLS_DESTDIR)/runsim
+
+# Install the runsim binary with a temporary workaround of entering an outside
+# directory as the "go get" command ignores the -mod option and will polute the
+# go.{mod, sum} files.
+#
+# ref: https://github.com/golang/go/issues/30515
+runsim: $(RUNSIM)
+$(RUNSIM):
+	@echo "Installing runsim..."
+	@(cd /tmp && ${GO_MOD} go install github.com/cosmos/tools/cmd/runsim@master)
+
+statik: $(STATIK)
+$(STATIK):
+	@echo "Installing statik..."
+	@(cd /tmp && go install github.com/rakyll/statik@v0.1.6)
+
+contract-tools:
+ifeq (, $(shell which stringer))
+	@echo "Installing stringer..."
+	@go install golang.org/x/tools/cmd/stringer@latest
+else
+	@echo "stringer already installed; skipping..."
+endif
+
+ifeq (, $(shell which go-bindata))
+	@echo "Installing go-bindata..."
+	@go install github.com/kevinburke/go-bindata/go-bindata@latest
+else
+	@echo "go-bindata already installed; skipping..."
+endif
+
+ifeq (, $(shell which gencodec))
+	@echo "Installing gencodec..."
+	@go install github.com/fjl/gencodec@latest
+else
+	@echo "gencodec already installed; skipping..."
+endif
+
+ifeq (, $(shell which protoc-gen-go))
+	@echo "Installing protoc-gen-go..."
+	@go install github.com/fjl/gencodec@latest
+	@go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+else
+	@echo "protoc-gen-go already installed; skipping..."
+endif
+
+ifeq (, $(shell which protoc-gen-go-grpc))
+	@go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+else
+	@echo "protoc-gen-go-grpc already installed; skipping..."
+endif
+
+ifeq (, $(shell which solcjs))
+	@echo "Installing solcjs..."
+	@npm install -g solc@0.5.11
+else
+	@echo "solcjs already installed; skipping..."
+endif
+
+tools: tools-stamp
+tools-stamp: contract-tools docs-tools statik runsim
+	# Create dummy file to satisfy dependency and avoid
+	# rebuilding when this Makefile target is hit twice
+	# in a row.
+	touch $@
+
+tools-clean:
+	rm -f $(RUNSIM)
+	rm -f tools-stamp
+
+.PHONY: runsim statik tools contract-tools tools-stamp tools-clean
+
 go.sum: go.mod
 	echo "Ensure dependencies have not been modified ..." >&2
 	go mod verify
 	go mod tidy
+
+vulncheck: $(BUILDDIR)/
+	GOBIN=$(BUILDDIR) go install golang.org/x/vuln/cmd/govulncheck@latest
+	$(BUILDDIR)/govulncheck ./...
 
 ###############################################################################
 ###                              Documentation                              ###
@@ -175,150 +279,64 @@ update-swagger-docs: statik
 .PHONY: update-swagger-docs
 
 godocs:
-	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/cosmos/cosmos-sdk/types"
+	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/evmos/evmos"
 	godoc -http=:6060
-
-# This builds a docs site for each branch/tag in `./docs/versions`
-# and copies each site to a version prefixed path. The last entry inside
-# the `versions` file will be the default root index.html (and it should be main).
-build-docs:
-	@cd docs && \
-	while read -r branch path_prefix; do \
-		echo "building branch $${branch}" ; \
-		(git clean -fdx && git reset --hard && git checkout $${branch} && npm install && VUEPRESS_BASE="/$${path_prefix}/" npm run build) ; \
-		mkdir -p ~/output/$${path_prefix} ; \
-		cp -r .vuepress/dist/* ~/output/$${path_prefix}/ ; \
-		cp ~/output/$${path_prefix}/index.html ~/output ; \
-		cp ~/output/$${path_prefix}/404.html ~/output ; \
-	done < versions ;
-	@echo $(DOCS_DOMAIN) > ~/output/CNAME
-
-.PHONY: build-docs
 
 ###############################################################################
 ###                           Tests & Simulation                            ###
 ###############################################################################
 
 test: test-unit
-test-all: test-unit test-ledger-mock test-race test-cover
-
+test-all: test-unit test-race
+# For unit tests we don't want to execute the upgrade tests in tests/e2e but
+# we want to include all unit tests in the subfolders (tests/e2e/*)
+PACKAGES_UNIT=$(shell go list ./... | grep -v '/tests/e2e$$')
 TEST_PACKAGES=./...
-TEST_TARGETS := test-unit test-unit-amino test-unit-proto test-ledger-mock test-race test-ledger test-race
+TEST_TARGETS := test-unit test-unit-cover test-race
 
 # Test runs-specific rules. To add a new test target, just add
 # a new rule, customise ARGS or TEST_PACKAGES ad libitum, and
 # append the new rule to the TEST_TARGETS list.
-test-unit: test_tags += cgo ledger test_ledger_mock norace
-test-unit-amino: test_tags += ledger test_ledger_mock test_amino norace
-test-ledger: test_tags += cgo ledger norace
-test-ledger-mock: test_tags += ledger test_ledger_mock norace
-test-race: test_tags += cgo ledger test_ledger_mock
+test-unit: ARGS=-timeout=15m -race
+test-unit: TEST_PACKAGES=$(PACKAGES_UNIT)
+
 test-race: ARGS=-race
 test-race: TEST_PACKAGES=$(PACKAGES_NOSIMULATION)
 $(TEST_TARGETS): run-tests
 
-# check-* compiles and collects tests without running them
-# note: go test -c doesn't support multiple packages yet (https://github.com/golang/go/issues/15513)
-CHECK_TEST_TARGETS := check-test-unit check-test-unit-amino
-check-test-unit: test_tags += cgo ledger test_ledger_mock norace
-check-test-unit-amino: test_tags += ledger test_ledger_mock test_amino norace
-$(CHECK_TEST_TARGETS): EXTRA_ARGS=-run=none
-$(CHECK_TEST_TARGETS): run-tests
+test-unit-cover: ARGS=-timeout=15m -race -coverprofile=coverage.txt -covermode=atomic
+test-unit-cover: TEST_PACKAGES=$(PACKAGES_UNIT)
 
-ARGS += -tags "$(test_tags)"
-SUB_MODULES = $(shell find . -type f -name 'go.mod' -print0 | xargs -0 -n1 dirname | sort)
-CURRENT_DIR = $(shell pwd)
+test-e2e:
+	@if [ -z "$(TARGET_VERSION)" ]; then \
+		echo "Building docker image from local codebase"; \
+		make build-docker; \
+	fi
+	@mkdir -p ./build
+	@rm -rf build/.evmosd
+	@INITIAL_VERSION=$(INITIAL_VERSION) TARGET_VERSION=$(TARGET_VERSION) \
+	E2E_SKIP_CLEANUP=$(E2E_SKIP_CLEANUP) MOUNT_PATH=$(MOUNT_PATH) CHAIN_ID=$(CHAIN_ID) \
+	go test -v ./tests/e2e -run ^TestIntegrationTestSuite$
+
 run-tests:
 ifneq (,$(shell which tparse 2>/dev/null))
-	@echo "Starting unit tests"; \
-	for module in $(SUB_MODULES); do \
-		cd ${CURRENT_DIR}/$$module; \
-		echo "Running unit tests for module $$module"; \
-		go test -mod=readonly -json $(ARGS) $(TEST_PACKAGES) ./... | tparse; \
-    done
+	go test -mod=readonly -json $(ARGS) $(EXTRA_ARGS) $(TEST_PACKAGES) | tparse
 else
-	@echo "Starting unit tests"; \
-	for module in $(SUB_MODULES); do \
-		cd ${CURRENT_DIR}/$$module; \
-		echo "Running unit tests for module $$module"; \
-		go test -mod=readonly $(ARGS) $(TEST_PACKAGES) ./... ; \
-	done
+	go test -mod=readonly $(ARGS)  $(EXTRA_ARGS) $(TEST_PACKAGES)
 endif
 
-.PHONY: run-tests test test-all $(TEST_TARGETS)
+test-import:
+	@go test ./tests/importer -v --vet=off --run=TestImportBlocks --datadir tmp \
+	--blockchain blockchain
+	rm -rf tests/importer/tmp
 
-test-sim-nondeterminism:
-	@echo "Running non-determinism test..."
-	@go test -mod=readonly $(SIMAPP) -run TestAppStateDeterminism -Enabled=true \
-		-NumBlocks=100 -BlockSize=200 -Commit=true -Period=0 -v -timeout 24h
+test-rpc:
+	./scripts/integration-test-all.sh -t "rpc" -q 1 -z 1 -s 2 -m "rpc" -r "true"
 
-test-sim-custom-genesis-fast:
-	@echo "Running custom genesis simulation..."
-	@echo "By default, ${HOME}/.gaiad/config/genesis.json will be used."
-	@go test -mod=readonly $(SIMAPP) -run TestFullAppSimulation -Genesis=${HOME}/.gaiad/config/genesis.json \
-		-Enabled=true -NumBlocks=100 -BlockSize=200 -Commit=true -Seed=99 -Period=5 -v -timeout 24h
+test-rpc-pending:
+	./scripts/integration-test-all.sh -t "pending" -q 1 -z 1 -s 2 -m "pending" -r "true"
 
-test-sim-import-export: runsim
-	@echo "Running application import/export simulation. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppImportExport
-
-test-sim-after-import: runsim
-	@echo "Running application simulation-after-import. This may take several minutes..."
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 5 TestAppSimulationAfterImport
-
-test-sim-custom-genesis-multi-seed: runsim
-	@echo "Running multi-seed custom genesis simulation..."
-	@echo "By default, ${HOME}/.gaiad/config/genesis.json will be used."
-	@$(BINDIR)/runsim -Genesis=${HOME}/.gaiad/config/genesis.json -SimAppPkg=$(SIMAPP) -ExitOnFail 400 5 TestFullAppSimulation
-
-test-sim-multi-seed-long: runsim
-	@echo "Running long multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 500 50 TestFullAppSimulation
-
-test-sim-multi-seed-short: runsim
-	@echo "Running short multi-seed application simulation. This may take awhile!"
-	@$(BINDIR)/runsim -Jobs=4 -SimAppPkg=$(SIMAPP) -ExitOnFail 50 10 TestFullAppSimulation
-
-test-sim-benchmark-invariants:
-	@echo "Running simulation invariant benchmarks..."
-	@go test -mod=readonly $(SIMAPP) -benchmem -bench=BenchmarkInvariants -run=^$ \
-	-Enabled=true -NumBlocks=1000 -BlockSize=200 \
-	-Period=1 -Commit=true -Seed=57 -v -timeout 24h
-
-.PHONY: \
-test-sim-nondeterminism \
-test-sim-custom-genesis-fast \
-test-sim-import-export \
-test-sim-after-import \
-test-sim-custom-genesis-multi-seed \
-test-sim-multi-seed-short \
-test-sim-multi-seed-long \
-test-sim-benchmark-invariants
-
-SIM_NUM_BLOCKS ?= 500
-SIM_BLOCK_SIZE ?= 200
-SIM_COMMIT ?= true
-
-test-sim-benchmark:
-	@echo "Running application benchmark for numBlocks=$(SIM_NUM_BLOCKS), blockSize=$(SIM_BLOCK_SIZE). This may take awhile!"
-	@go test -mod=readonly -benchmem -run=^$$ $(SIMAPP) -bench ^BenchmarkFullAppSimulation$$  \
-		-Enabled=true -NumBlocks=$(SIM_NUM_BLOCKS) -BlockSize=$(SIM_BLOCK_SIZE) -Commit=$(SIM_COMMIT) -timeout 24h
-
-test-sim-profile:
-	@echo "Running application benchmark for numBlocks=$(SIM_NUM_BLOCKS), blockSize=$(SIM_BLOCK_SIZE). This may take awhile!"
-	@go test -mod=readonly -benchmem -run=^$$ $(SIMAPP) -bench ^BenchmarkFullAppSimulation$$ \
-		-Enabled=true -NumBlocks=$(SIM_NUM_BLOCKS) -BlockSize=$(SIM_BLOCK_SIZE) -Commit=$(SIM_COMMIT) -timeout 24h -cpuprofile cpu.out -memprofile mem.out
-
-.PHONY: test-sim-profile test-sim-benchmark
-
-test-cover:
-	@export VERSION=$(VERSION); bash -x contrib/test_cover.sh
-.PHONY: test-cover
-
-test-rosetta:
-	docker build -t rosetta-ci:latest -f contrib/rosetta/rosetta-ci/Dockerfile .
-	docker-compose -f contrib/rosetta/docker-compose.yaml up --abort-on-container-exit --exit-code-from test_rosetta --build
-.PHONY: test-rosetta
+.PHONY: run-tests test test-all test-import test-rpc $(TEST_TARGETS)
 
 benchmark:
 	@go test -mod=readonly -bench=. $(PACKAGES_NOSIMULATION)
@@ -328,167 +346,271 @@ benchmark:
 ###                                Linting                                  ###
 ###############################################################################
 
-golangci_lint_cmd=golangci-lint
-golangci_version=v1.49.0
-
 lint:
-	@echo "--> Running linter"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run --timeout=10m
+	golangci-lint run --out-format=tab
+	solhint contracts/**/*.sol
+
+lint-contracts:
+	@cd contracts && \
+	npm i && \
+	npm run lint
 
 lint-fix:
-	@echo "--> Running linter"
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	@$(golangci_lint_cmd) run --fix --out-format=tab --issues-exit-code=0
+	golangci-lint run --fix --out-format=tab --issues-exit-code=0
+
+lint-fix-contracts:
+	@cd contracts && \
+	npm i && \
+	npm run lint-fix
+	solhint --fix contracts/**/*.sol
 
 .PHONY: lint lint-fix
 
 format:
-	@go install mvdan.cc/gofumpt@latest
-	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(golangci_version)
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -path "./tests/mocks/*" -not -name "*.pb.go" -not -name "*.pb.gw.go" -not -name "*.pulsar.go" -not -path "./crypto/keys/secp256k1/*" | xargs gofumpt -w -l
-	golangci-lint run --fix
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" -not -path "./client/docs/statik/statik.go" -not -name '*.pb.go' | xargs gofumpt -w -l
+
 .PHONY: format
-
-###############################################################################
-###                                 Devdoc                                  ###
-###############################################################################
-
-DEVDOC_SAVE = docker commit `docker ps -a -n 1 -q` devdoc:local
-
-devdoc-init:
-	$(DOCKER) run -it -v "$(CURDIR):/go/src/github.com/cosmos/cosmos-sdk" -w "/go/src/github.com/cosmos/cosmos-sdk" tendermint/devdoc echo
-	# TODO make this safer
-	$(call DEVDOC_SAVE)
-
-devdoc:
-	$(DOCKER) run -it -v "$(CURDIR):/go/src/github.com/cosmos/cosmos-sdk" -w "/go/src/github.com/cosmos/cosmos-sdk" devdoc:local bash
-
-devdoc-save:
-	# TODO make this safer
-	$(call DEVDOC_SAVE)
-
-devdoc-clean:
-	docker rmi -f $$(docker images -f "dangling=true" -q)
-
-devdoc-update:
-	docker pull tendermint/devdoc
-
-.PHONY: devdoc devdoc-clean devdoc-init devdoc-save devdoc-update
 
 ###############################################################################
 ###                                Protobuf                                 ###
 ###############################################################################
 
+# ------
+# NOTE: Link to the tendermintdev/sdk-proto-gen docker images:
+#       https://hub.docker.com/r/tendermintdev/sdk-proto-gen/tags
+#
 protoVer=v0.7
 protoImageName=tendermintdev/sdk-proto-gen:$(protoVer)
-containerProtoGen=$(PROJECT_NAME)-proto-gen-$(protoVer)
-containerProtoGenAny=$(PROJECT_NAME)-proto-gen-any-$(protoVer)
-containerProtoGenSwagger=$(PROJECT_NAME)-proto-gen-swagger-$(protoVer)
-containerProtoFmt=$(PROJECT_NAME)-proto-fmt-$(protoVer)
+protoImage=$(DOCKER) run --network host --rm -v $(CURDIR):/workspace --workdir /workspace $(protoImageName)
+# ------
+# NOTE: cosmos/proto-builder image is needed because clang-format is not installed
+#       on the tendermintdev/sdk-proto-gen docker image.
+#		Link to the cosmos/proto-builder docker images:
+#       https://github.com/cosmos/cosmos-sdk/pkgs/container/proto-builder
+#
+protoCosmosVer=0.11.2
+protoCosmosName=ghcr.io/cosmos/proto-builder:$(protoCosmosVer)
+protoCosmosImage=$(DOCKER) run --network host --rm -v $(CURDIR):/workspace --workdir /workspace $(protoCosmosName)
+# ------
+# NOTE: Link to the yoheimuta/protolint docker images:
+#       https://hub.docker.com/r/yoheimuta/protolint/tags
+#
+protolintVer=0.42.2
+protolintName=yoheimuta/protolint:$(protolintVer)
+protolintImage=$(DOCKER) run --network host --rm -v $(CURDIR):/workspace --workdir /workspace $(protolintName)
 
+
+# ------
+# NOTE: If you are experiencing problems running these commands, try deleting
+#       the docker images and execute the desired command again.
+#
 proto-all: proto-format proto-lint proto-gen
 
 proto-gen:
 	@echo "Generating Protobuf files"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGen}$$"; then docker start -a $(containerProtoGen); else docker run --name $(containerProtoGen) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protocgen.sh; fi
-	@go mod tidy
-
-# This generates the SDK's custom wrapper for google.protobuf.Any. It should only be run manually when needed
-proto-gen-any:
-	@echo "Generating Protobuf Any"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenAny}$$"; then docker start -a $(containerProtoGenAny); else docker run --name $(containerProtoGenAny) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protocgen-any.sh; fi
+	$(protoImage) sh ./scripts/protocgen.sh
 
 proto-swagger-gen:
+	@echo "Downloading Protobuf dependencies"
+	@make proto-download-deps
 	@echo "Generating Protobuf Swagger"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoGenSwagger}$$"; then docker start -a $(containerProtoGenSwagger); else docker run --name $(containerProtoGenSwagger) -v $(CURDIR):/workspace --workdir /workspace $(protoImageName) \
-		sh ./scripts/protoc-swagger-gen.sh; fi
+	$(protoCosmosImage) sh ./scripts/protoc-swagger-gen.sh
 
 proto-format:
 	@echo "Formatting Protobuf files"
-	@if docker ps -a --format '{{.Names}}' | grep -Eq "^${containerProtoFmt}$$"; then docker start -a $(containerProtoFmt); else docker run --name $(containerProtoFmt) -v $(CURDIR):/workspace --workdir /workspace tendermintdev/docker-build-proto \
-		find ./ -not -path "./third_party/*" -name "*.proto" -exec clang-format -i {} \; ; fi
+	$(protoCosmosImage) find ./ -name *.proto -exec clang-format -i {} \;
 
+# NOTE: The linter configuration lives in .protolint.yaml
 proto-lint:
-	@$(DOCKER_BUF) lint --error-format=json
+	@echo "Linting Protobuf files"
+	$(protolintImage) lint ./proto
 
 proto-check-breaking:
-	@$(DOCKER_BUF) breaking --against $(HTTPS_GIT)#branch=main
+	@echo "Checking Protobuf files for breaking changes"
+	$(protoImage) buf breaking --against $(HTTPS_GIT)#branch=main
 
-TM_URL              = https://raw.githubusercontent.com/cometbft/cometbft/v0.34.28/proto/tendermint
+SWAGGER_DIR=./swagger-proto
+THIRD_PARTY_DIR=$(SWAGGER_DIR)/third_party
 
-TM_CRYPTO_TYPES     = proto/tendermint/crypto
-TM_ABCI_TYPES       = proto/tendermint/abci
-TM_TYPES            = proto/tendermint/types
-TM_VERSION          = proto/tendermint/version
-TM_LIBS             = proto/tendermint/libs/bits
-TM_P2P              = proto/tendermint/p2p
+proto-download-deps:
+	mkdir -p "$(THIRD_PARTY_DIR)/cosmos_tmp" && \
+	cd "$(THIRD_PARTY_DIR)/cosmos_tmp" && \
+	git init && \
+	git remote add origin "https://github.com/cosmos/cosmos-sdk.git" && \
+	git config core.sparseCheckout true && \
+	printf "proto\nthird_party\n" > .git/info/sparse-checkout && \
+	git pull origin main && \
+	rm -f ./proto/buf.* && \
+	mv ./proto/* ..
+	rm -rf "$(THIRD_PARTY_DIR)/cosmos_tmp"
 
-proto-update-deps:
-	@echo "Updating Protobuf dependencies"
+	mkdir -p "$(THIRD_PARTY_DIR)/ibc_tmp" && \
+	cd "$(THIRD_PARTY_DIR)/ibc_tmp" && \
+	git init && \
+	git remote add origin "https://github.com/cosmos/ibc-go.git" && \
+	git config core.sparseCheckout true && \
+	printf "proto\n" > .git/info/sparse-checkout && \
+	git pull origin main && \
+	rm -f ./proto/buf.* && \
+	mv ./proto/* ..
+	rm -rf "$(THIRD_PARTY_DIR)/ibc_tmp"
 
-	@mkdir -p $(TM_ABCI_TYPES)
-	@curl -sSL $(TM_URL)/abci/types.proto > $(TM_ABCI_TYPES)/types.proto
+	mkdir -p "$(THIRD_PARTY_DIR)/cosmos_proto_tmp" && \
+	cd "$(THIRD_PARTY_DIR)/cosmos_proto_tmp" && \
+	git init && \
+	git remote add origin "https://github.com/cosmos/cosmos-proto.git" && \
+	git config core.sparseCheckout true && \
+	printf "proto\n" > .git/info/sparse-checkout && \
+	git pull origin main && \
+	rm -f ./proto/buf.* && \
+	mv ./proto/* ..
+	rm -rf "$(THIRD_PARTY_DIR)/cosmos_proto_tmp"
 
-	@mkdir -p $(TM_VERSION)
-	@curl -sSL $(TM_URL)/version/types.proto > $(TM_VERSION)/types.proto
+	mkdir -p "$(THIRD_PARTY_DIR)/gogoproto" && \
+	curl -SSL https://raw.githubusercontent.com/cosmos/gogoproto/main/gogoproto/gogo.proto > "$(THIRD_PARTY_DIR)/gogoproto/gogo.proto"
 
-	@mkdir -p $(TM_TYPES)
-	@curl -sSL $(TM_URL)/types/types.proto > $(TM_TYPES)/types.proto
-	@curl -sSL $(TM_URL)/types/evidence.proto > $(TM_TYPES)/evidence.proto
-	@curl -sSL $(TM_URL)/types/params.proto > $(TM_TYPES)/params.proto
-	@curl -sSL $(TM_URL)/types/validator.proto > $(TM_TYPES)/validator.proto
-	@curl -sSL $(TM_URL)/types/block.proto > $(TM_TYPES)/block.proto
+	mkdir -p "$(THIRD_PARTY_DIR)/google/api" && \
+	curl -sSL https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto > "$(THIRD_PARTY_DIR)/google/api/annotations.proto"
+	curl -sSL https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto > "$(THIRD_PARTY_DIR)/google/api/http.proto"
 
-	@mkdir -p $(TM_CRYPTO_TYPES)
-	@curl -sSL $(TM_URL)/crypto/proof.proto > $(TM_CRYPTO_TYPES)/proof.proto
-	@curl -sSL $(TM_URL)/crypto/keys.proto > $(TM_CRYPTO_TYPES)/keys.proto
+	mkdir -p "$(THIRD_PARTY_DIR)/cosmos/ics23/v1" && \
+	curl -sSL https://raw.githubusercontent.com/cosmos/ics23/master/proto/cosmos/ics23/v1/proofs.proto > "$(THIRD_PARTY_DIR)/cosmos/ics23/v1/proofs.proto"
 
-	@mkdir -p $(TM_LIBS)
-	@curl -sSL $(TM_URL)/libs/bits/types.proto > $(TM_LIBS)/types.proto
 
-	@mkdir -p $(TM_P2P)
-	@curl -sSL $(TM_URL)/p2p/types.proto > $(TM_P2P)/types.proto
-
-.PHONY: proto-all proto-gen proto-gen-any proto-swagger-gen proto-format proto-lint proto-check-breaking proto-update-deps
+.PHONY: proto-all proto-gen proto-format proto-lint proto-check-breaking proto-swagger-gen
 
 ###############################################################################
 ###                                Localnet                                 ###
 ###############################################################################
 
-localnet-build-env:
-	$(MAKE) -C contrib/images simd-env
-localnet-build-dlv:
-	$(MAKE) -C contrib/images simd-dlv
+# Build image for a local testnet
+localnet-build:
+	@$(MAKE) -C networks/local
 
-localnet-build-nodes:
-	$(DOCKER) run --rm -v $(CURDIR)/.testnets:/data cosmossdk/simd \
-			  testnet init-files --v 4 -o /data --starting-ip-address 192.168.10.2 --keyring-backend=test
+# Start a 4-node testnet locally
+localnet-start: localnet-stop localnet-build
+	@if ! [ -f build/node0/$(EVMOS_BINARY)/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/evmos:Z evmos/node "./evmosd testnet init-files --v 4 -o /evmos --keyring-backend=test --starting-ip-address 192.167.10.2"; fi
 	docker-compose up -d
 
+# Stop testnet
 localnet-stop:
 	docker-compose down
 
-# localnet-start will run a 4-node testnet locally. The nodes are
-# based off the docker images in: ./contrib/images/simd-env
-localnet-start: localnet-stop localnet-build-env localnet-build-nodes
+# Clean testnet
+localnet-clean:
+	docker-compose down
+	sudo rm -rf build/*
 
-# localnet-debug will run a 4-node testnet locally in debug mode
-# you can read more about the debug mode here: ./contrib/images/simd-dlv/README.md
-localnet-debug: localnet-stop localnet-build-dlv localnet-build-nodes
+ # Reset testnet
+localnet-unsafe-reset:
+	docker-compose down
+ifeq ($(OS),Windows_NT)
+	@docker run --rm -v $(CURDIR)\build\node0\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node1\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node2\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)\build\node3\evmosd:/evmos\Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+else
+	@docker run --rm -v $(CURDIR)/build/node0/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node1/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node2/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+	@docker run --rm -v $(CURDIR)/build/node3/evmosd:/evmos:Z evmos/node "./evmosd tendermint unsafe-reset-all --home=/evmos"
+endif
 
-.PHONY: localnet-start localnet-stop localnet-debug localnet-build-env localnet-build-dlv localnet-build-nodes
+# Clean testnet
+localnet-show-logstream:
+	docker-compose logs --tail=1000 -f
+
+.PHONY: localnet-build localnet-start localnet-stop
 
 ###############################################################################
-###                                rosetta                                  ###
+###                                Releasing                                ###
 ###############################################################################
-# builds rosetta test data dir
-rosetta-data:
-	-docker container rm data_dir_build
-	docker build -t rosetta-ci:latest -f contrib/rosetta/rosetta-ci/Dockerfile .
-	docker run --name data_dir_build -t rosetta-ci:latest sh /rosetta/data.sh
-	docker cp data_dir_build:/tmp/data.tar.gz "$(CURDIR)/contrib/rosetta/rosetta-ci/data.tar.gz"
-	docker container rm data_dir_build
-.PHONY: rosetta-data
+
+PACKAGE_NAME:=github.com/evmos/evmos
+GOLANG_CROSS_VERSION  = v1.20
+GOPATH ?= '$(HOME)/go'
+release-dry-run:
+	docker run \
+		--rm \
+		--privileged \
+		-e CGO_ENABLED=1 \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-v ${GOPATH}/pkg:/go/pkg \
+		-w /go/src/$(PACKAGE_NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		--clean --skip-validate --skip-publish --snapshot
+
+release:
+	@if [ ! -f ".release-env" ]; then \
+		echo "\033[91m.release-env is required for release\033[0m";\
+		exit 1;\
+	fi
+	docker run \
+		--rm \
+		--privileged \
+		-e CGO_ENABLED=1 \
+		--env-file .release-env \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v `pwd`:/go/src/$(PACKAGE_NAME) \
+		-w /go/src/$(PACKAGE_NAME) \
+		ghcr.io/goreleaser/goreleaser-cross:${GOLANG_CROSS_VERSION} \
+		release --clean --skip-validate
+
+.PHONY: release-dry-run release
+
+###############################################################################
+###                        Compile Solidity Contracts                       ###
+###############################################################################
+
+CONTRACTS_DIR := contracts
+COMPILED_DIR := contracts/compiled_contracts
+TMP := tmp
+TMP_CONTRACTS := $(TMP).contracts
+TMP_COMPILED := $(TMP)/compiled.json
+TMP_JSON := $(TMP)/tmp.json
+
+# Compile and format solidity contracts for the erc20 module. Also install
+# openzeppeling as the contracts are build on top of openzeppelin templates.
+contracts-compile: contracts-clean openzeppelin create-contracts-json
+
+# Install openzeppelin solidity contracts
+openzeppelin:
+	@echo "Importing openzeppelin contracts..."
+	@cd $(CONTRACTS_DIR)
+	@npm install
+	@cd ../../../../
+	@mv node_modules $(TMP)
+	@mv package-lock.json $(TMP)
+	@mv $(TMP)/@openzeppelin $(CONTRACTS_DIR)
+
+# Clean tmp files
+contracts-clean:
+	@rm -rf tmp
+	@rm -rf node_modules
+	@rm -rf $(COMPILED_DIR)
+	@rm -rf $(CONTRACTS_DIR)/@openzeppelin
+
+# Compile, filter out and format contracts into the following format.
+# {
+# 	"abi": "[{\"inpu 			# JSON string
+# 	"bin": "60806040
+# 	"contractName": 			# filename without .sol
+# }
+create-contracts-json:
+	@for c in $(shell ls $(CONTRACTS_DIR) | grep '\.sol' | sed 's/.sol//g'); do \
+		command -v jq > /dev/null 2>&1 || { echo >&2 "jq not installed."; exit 1; } ;\
+		command -v solc > /dev/null 2>&1 || { echo >&2 "solc not installed."; exit 1; } ;\
+		mkdir -p $(COMPILED_DIR) ;\
+		mkdir -p $(TMP) ;\
+		echo "\nCompiling solidity contract $${c}..." ;\
+		solc --combined-json abi,bin $(CONTRACTS_DIR)/$${c}.sol > $(TMP_COMPILED) ;\
+		echo "Formatting JSON..." ;\
+		get_contract=$$(jq '.contracts["$(CONTRACTS_DIR)/'$$c'.sol:'$$c'"]' $(TMP_COMPILED)) ;\
+		add_contract_name=$$(echo $$get_contract | jq '. + { "contractName": "'$$c'" }') ;\
+		echo $$add_contract_name | jq > $(TMP_JSON) ;\
+		abi_string=$$(echo $$add_contract_name | jq -cr '.abi') ;\
+		echo $$add_contract_name | jq --arg newval "$$abi_string" '.abi = $$newval' > $(TMP_JSON) ;\
+		mv $(TMP_JSON) $(COMPILED_DIR)/$${c}.json ;\
+	done
+	@rm -rf tmp

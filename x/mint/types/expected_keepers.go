@@ -28,3 +28,7 @@ type BankKeeper interface {
 	SendCoinsFromModuleToModule(ctx sdk.Context, senderModule, recipientModule string, amt sdk.Coins) error
 	MintCoins(ctx sdk.Context, name string, amt sdk.Coins) error
 }
+
+type AccumulatorKeeper interface {
+	DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
+}

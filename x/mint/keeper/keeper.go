@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"cosmossdk.io/math"
+	"github.com/cosmos/cosmos-sdk/types/errors"
+	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -13,18 +15,19 @@ import (
 
 // Keeper of the mint store
 type Keeper struct {
-	cdc              codec.BinaryCodec
-	storeKey         storetypes.StoreKey
-	paramSpace       paramtypes.Subspace
-	stakingKeeper    types.StakingKeeper
-	bankKeeper       types.BankKeeper
-	feeCollectorName string
+	cdc               codec.BinaryCodec
+	storeKey          storetypes.StoreKey
+	paramSpace        paramtypes.Subspace
+	stakingKeeper     types.StakingKeeper
+	bankKeeper        types.BankKeeper
+	accumulatorKeeper types.AccumulatorKeeper
+	feeCollectorName  string
 }
 
 // NewKeeper creates a new mint Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper,
+	sk types.StakingKeeper, ak types.AccountKeeper, bk types.BankKeeper, acc types.AccumulatorKeeper,
 	feeCollectorName string,
 ) Keeper {
 	// ensure mint module account is set
@@ -38,37 +41,19 @@ func NewKeeper(
 	}
 
 	return Keeper{
-		cdc:              cdc,
-		storeKey:         key,
-		paramSpace:       paramSpace,
-		stakingKeeper:    sk,
-		bankKeeper:       bk,
-		feeCollectorName: feeCollectorName,
+		cdc:               cdc,
+		storeKey:          key,
+		paramSpace:        paramSpace,
+		stakingKeeper:     sk,
+		bankKeeper:        bk,
+		feeCollectorName:  feeCollectorName,
+		accumulatorKeeper: acc,
 	}
 }
 
 // Logger returns a module-specific logger.
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", "x/"+types.ModuleName)
-}
-
-// get the minter
-func (k Keeper) GetMinter(ctx sdk.Context) (minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	b := store.Get(types.MinterKey)
-	if b == nil {
-		panic("stored minter should not have been nil")
-	}
-
-	k.cdc.MustUnmarshal(b, &minter)
-	return
-}
-
-// set the minter
-func (k Keeper) SetMinter(ctx sdk.Context, minter types.Minter) {
-	store := ctx.KVStore(k.storeKey)
-	b := k.cdc.MustMarshal(&minter)
-	store.Set(types.MinterKey, b)
 }
 
 // GetParams returns the total set of minting parameters.
@@ -94,15 +79,15 @@ func (k Keeper) BondedRatio(ctx sdk.Context) sdk.Dec {
 	return k.stakingKeeper.BondedRatio(ctx)
 }
 
-// MintCoins implements an alias call to the underlying supply keeper's
-// MintCoins to be used in BeginBlocker.
-func (k Keeper) MintCoins(ctx sdk.Context, newCoins sdk.Coins) error {
-	if newCoins.Empty() {
-		// skip as no coins need to be minted
-		return nil
+func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
+	err := k.accumulatorKeeper.DistributeToModule(ctx, accumulatortypes.ValidatorPoolName, amount, types.ModuleName)
+	if err != nil {
+		err = errors.Wrap(err, "failed to call accumulator module")
+		k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
+		return err
 	}
 
-	return k.bankKeeper.MintCoins(ctx, types.ModuleName, newCoins)
+	return nil
 }
 
 // AddCollectedFees implements an alias call to the underlying supply keeper's
