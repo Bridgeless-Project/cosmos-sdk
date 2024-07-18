@@ -120,6 +120,9 @@ func (k msgServer) Withdraw(goctx context.Context, request *types.MsgWithdrawal)
 
 	nftAddress, _ := sdk.AccAddressFromBech32(request.Address)
 	ownerAddress, _ := sdk.AccAddressFromBech32(request.Creator)
+	if k.IsDelegated(ctx, nftAddress) {
+		return nil, types.ErrTokenIsDelegated
+	}
 
 	balance := k.bankKeeper.GetAllBalances(ctx, nftAddress).AmountOf(nft.Denom)
 	amount := sdk.MinInt(nft.AvailableToWithdraw.Amount, balance)
