@@ -10,4 +10,6 @@ import (
 var (
 	ErrInvalidPool     = sdkerrors.Register(ModuleName, 1100, "invalid pool address")
 	ErrInvalidReceiver = sdkerrors.Register(ModuleName, 1101, "invalid receiver address")
+	ErrForbidden       = sdkerrors.Register(ModuleName, 1102, "permission denied")
+	ErrAdminExists     = sdkerrors.Register(ModuleName, 1103, "admin already exists")
 )

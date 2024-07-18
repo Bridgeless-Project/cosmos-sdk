@@ -13,14 +13,14 @@ func CmdDerivePoolAddress() *cobra.Command {
 		Use:   "derive-pool",
 		Short: "Derive pool addressess",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			fmt.Printf("Pool %s address: %s\n", types.AdminPoolName, keeper.GetPoolAddress(types.AdminPoolName).String())
+			fmt.Printf("Pool %s address: %s\n", types.ValidatorPoolName, keeper.GetPoolAddress(types.ValidatorPoolName).String())
+			fmt.Printf("Pool %s address: %s\n", types.NFTPoolName, keeper.GetPoolAddress(types.NFTPoolName).String())
 
 			return nil
 		},
 	}
 
-	fmt.Printf("Pool %s address: %s\n", types.AdminPoolName, keeper.GetPoolAddress(types.AdminPoolName).String())
-	fmt.Printf("Pool %s address: %s\n", types.ValidatorPoolName, keeper.GetPoolAddress(types.ValidatorPoolName).String())
-	fmt.Printf("Pool %s address: %s\n", types.NFTPoolName, keeper.GetPoolAddress(types.NFTPoolName).String())
 	flags.AddQueryFlagsToCmd(cmd)
 
 	return cmd

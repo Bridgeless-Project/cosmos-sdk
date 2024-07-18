@@ -39,7 +39,6 @@ message MsgDelegate {
   string address = 2;
   string validator = 3;
   cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
-
 }
 
 message MsgDelegateResponse {}

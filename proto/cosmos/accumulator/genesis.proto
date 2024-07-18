@@ -1,15 +1,18 @@
 syntax = "proto3";
-package accumulator;
+package cosmos.accumulator;
 
 import "gogoproto/gogo.proto";
 import "cosmos/accumulator/params.proto";
+import "cosmos/accumulator/admin.proto";
+
 // this line is used by starport scaffolding # genesis/proto/import
 
 option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
 
-// GenesisState defines the bruhaccumulator module's genesis state.
+// GenesisState defines the accumulator module's genesis state.
 message GenesisState {
   Params params = 1 [(gogoproto.nullable) = false];
+  repeated cosmos.accumulator.Admin admins = 2 [(gogoproto.nullable) = false];
 
   // this line is used by starport scaffolding # genesis/proto/state
 }
