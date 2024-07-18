@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func GetCmdQueryNFTByAddress() *cobra.Command {
+func CmdQueryNFTByAddress() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "grt-nft",
 		Short: "Query the nft by address",

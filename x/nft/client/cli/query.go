@@ -19,7 +19,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 
 	cmd.AddCommand(
 		CmdQueryParams(),
-		GetCmdQueryNFTByAddress(),
+		CmdQueryNFTByAddress(),
 		CmdDerivePoolAddress(),
 	)
 	return cmd
