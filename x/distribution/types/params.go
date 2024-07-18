@@ -14,6 +14,7 @@ var (
 	ParamStoreKeyCommunityTax        = []byte("communitytax")
 	ParamStoreKeyBaseProposerReward  = []byte("baseproposerreward")
 	ParamStoreKeyBonusProposerReward = []byte("bonusproposerreward")
+	ParamStoreKeyNFTProposerReward   = []byte("nftproposerreward")
 	ParamStoreKeyWithdrawAddrEnabled = []byte("withdrawaddrenabled")
 )
 
@@ -28,6 +29,7 @@ func DefaultParams() Params {
 		CommunityTax:        sdk.NewDecWithPrec(2, 2), // 2%
 		BaseProposerReward:  sdk.NewDecWithPrec(1, 2), // 1%
 		BonusProposerReward: sdk.NewDecWithPrec(4, 2), // 4%
+		NftProposerReward:   sdk.NewDecWithPrec(2, 2), // 4%
 		WithdrawAddrEnabled: true,
 	}
 }
@@ -44,6 +46,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(ParamStoreKeyBaseProposerReward, &p.BaseProposerReward, validateBaseProposerReward),
 		paramtypes.NewParamSetPair(ParamStoreKeyBonusProposerReward, &p.BonusProposerReward, validateBonusProposerReward),
 		paramtypes.NewParamSetPair(ParamStoreKeyWithdrawAddrEnabled, &p.WithdrawAddrEnabled, validateWithdrawAddrEnabled),
+		paramtypes.NewParamSetPair(ParamStoreKeyNFTProposerReward, &p.NftProposerReward, validateNftProposerReward),
 	}
 }
 
@@ -125,6 +128,25 @@ func validateBonusProposerReward(i interface{}) error {
 	}
 	if v.GT(sdk.OneDec()) {
 		return fmt.Errorf("bonus proposer reward too large: %s", v)
+	}
+
+	return nil
+}
+
+func validateNftProposerReward(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("nft proposer reward must be not nil")
+	}
+	if v.IsNegative() {
+		return fmt.Errorf("nft proposer reward must be positive: %s", v)
+	}
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("nft proposer reward too large: %s", v)
 	}
 
 	return nil

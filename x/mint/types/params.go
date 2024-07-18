@@ -30,6 +30,7 @@ func NewParams(
 	return Params{
 		MintDenom:      mintDenom,
 		BlocksPerMonth: blocksPerMonth,
+		EndBlock:       endBlock,
 		MonthReward:    monthReward,
 	}
 }
@@ -54,6 +55,9 @@ func (p Params) Validate() error {
 	if err := validateMonthReward(p.MonthReward); err != nil {
 		return err
 	}
+	if err := validateEndBlock(p.EndBlock); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -70,6 +74,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
 		paramtypes.NewParamSetPair(KeyBlocksPerMonth, &p.BlocksPerMonth, validateBlocksPerMonth),
 		paramtypes.NewParamSetPair(KeyMonthReward, &p.MonthReward, validateMonthReward),
+		paramtypes.NewParamSetPair(KeyEndBlock, &p.EndBlock, validateEndBlock),
 	}
 }
 

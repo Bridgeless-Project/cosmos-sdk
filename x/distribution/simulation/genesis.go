@@ -60,6 +60,12 @@ func RandomizedGenState(simState *module.SimulationState) {
 		func(r *rand.Rand) { bonusProposerReward = GenBonusProposerReward(r) },
 	)
 
+	var nftProposerReward sdk.Dec
+	simState.AppParams.GetOrGenerate(
+		simState.Cdc, BonusProposerReward, &nftProposerReward, simState.Rand,
+		func(r *rand.Rand) { bonusProposerReward = GenBonusProposerReward(r) },
+	)
+
 	var withdrawEnabled bool
 	simState.AppParams.GetOrGenerate(
 		simState.Cdc, WithdrawEnabled, &withdrawEnabled, simState.Rand,
@@ -72,6 +78,7 @@ func RandomizedGenState(simState *module.SimulationState) {
 			CommunityTax:        communityTax,
 			BaseProposerReward:  baseProposerReward,
 			BonusProposerReward: bonusProposerReward,
+			NftProposerReward:   nftProposerReward,
 			WithdrawAddrEnabled: withdrawEnabled,
 		},
 	}

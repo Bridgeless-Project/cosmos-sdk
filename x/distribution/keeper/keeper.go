@@ -21,6 +21,7 @@ type Keeper struct {
 	authKeeper    types.AccountKeeper
 	bankKeeper    types.BankKeeper
 	stakingKeeper types.StakingKeeper
+	nftKeeper     types.NFTKeeper
 
 	feeCollectorName string // name of the FeeCollector ModuleAccount
 }
@@ -28,7 +29,8 @@ type Keeper struct {
 // NewKeeper creates a new distribution Keeper instance
 func NewKeeper(
 	cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramtypes.Subspace,
-	ak types.AccountKeeper, bk types.BankKeeper, sk types.StakingKeeper,
+	ak types.AccountKeeper, bk types.BankKeeper, sk types.StakingKeeper, nft types.NFTKeeper,
+
 	feeCollectorName string,
 ) Keeper {
 	// ensure distribution module account is set
@@ -48,6 +50,7 @@ func NewKeeper(
 		authKeeper:       ak,
 		bankKeeper:       bk,
 		stakingKeeper:    sk,
+		nftKeeper:        nft,
 		feeCollectorName: feeCollectorName,
 	}
 }

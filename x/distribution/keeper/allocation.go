@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"math/big"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -35,6 +36,7 @@ func (k Keeper) AllocateTokens(
 	// temporary workaround to keep CanWithdrawInvariant happy
 	// general discussions here: https://github.com/cosmos/cosmos-sdk/issues/2906#issuecomment-441867634
 	feePool := k.GetFeePool(ctx)
+
 	if totalPreviousPower == 0 {
 		feePool.CommunityPool = feePool.CommunityPool.Add(feesCollected...)
 		k.SetFeePool(ctx, feePool)
@@ -82,7 +84,6 @@ func (k Keeper) AllocateTokens(
 	communityTax := k.GetCommunityTax(ctx)
 	voteMultiplier := sdk.OneDec().Sub(proposerMultiplier).Sub(communityTax)
 	feeMultiplier := feesCollected.MulDecTruncate(voteMultiplier)
-
 	// allocate tokens proportionally to voting power
 	//
 	// TODO: Consider parallelizing later
@@ -109,9 +110,32 @@ func (k Keeper) AllocateTokens(
 // AllocateTokensToValidator allocate tokens to a particular validator,
 // splitting according to commission.
 func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.ValidatorI, tokens sdk.DecCoins) {
+	params := k.GetParams(ctx)
+	multiplier := params.NftProposerReward
+
+	remainingRewards := tokens
+	// Determine the staked amount from the NFT address
+	stakedAmountFromNFTAddress := sdk.DecCoins{}
+
+	// Iterate through delegations to find the staked amount from the NFT address
+	delegations := k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator())
+	for _, delegation := range delegations {
+		nft, found := k.nftKeeper.GetNFT(ctx, delegation.DelegatorAddress)
+		if found {
+			stakedAmountFromNFTAddress = stakedAmountFromNFTAddress.Add(sdk.NewDecCoinFromDec(nft.Denom, delegation.Shares)) // Add the staked amount from the special address
+		}
+	}
+
+	// Calculate the rewards with a multiplier for the staked amount from the NFT address
+	rewardsWithMultiplier := stakedAmountFromNFTAddress.MulDec(multiplier)
+
+	if big.NewInt(0).Sub(tokens.AmountOf("aevmos").BigInt(), stakedAmountFromNFTAddress.AmountOf("aevmos").BigInt()).Int64() >= 0 {
+		remainingRewards = tokens.Sub(stakedAmountFromNFTAddress).Add(rewardsWithMultiplier...)
+	}
+
 	// split tokens between validator and delegators according to commission
-	commission := tokens.MulDec(val.GetCommission())
-	shared := tokens.Sub(commission)
+	commission := remainingRewards.MulDec(val.GetCommission())
+	shared := remainingRewards.Sub(commission)
 
 	// update current commission
 	ctx.EventManager().EmitEvent(
@@ -134,12 +158,12 @@ func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val stakingtypes.Vali
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeRewards,
-			sdk.NewAttribute(sdk.AttributeKeyAmount, tokens.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, remainingRewards.String()),
 			sdk.NewAttribute(types.AttributeKeyValidator, val.GetOperator().String()),
 		),
 	)
 
 	outstanding := k.GetValidatorOutstandingRewards(ctx, val.GetOperator())
-	outstanding.Rewards = outstanding.Rewards.Add(tokens...)
+	outstanding.Rewards = outstanding.Rewards.Add(remainingRewards...)
 	k.SetValidatorOutstandingRewards(ctx, val.GetOperator(), outstanding)
 }

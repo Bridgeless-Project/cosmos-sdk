@@ -1,0 +1,11 @@
+syntax = "proto3";
+package cosmos.nft;
+
+import "gogoproto/gogo.proto";
+import "cosmos/nft/nft.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
+
+// Params defines the parameters for the module.
+message Params {
+}

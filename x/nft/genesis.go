@@ -2,29 +2,27 @@ package nft
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/nft/keeper"
+	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
-// ValidateGenesis check the given genesis state has no integrity issues
-func ValidateGenesis(data GenesisState) error {
-	for _, class := range data.Classes {
-		if err := ValidateClassID(class.Id); err != nil {
-			return err
-		}
+// InitGenesis initializes the module's state from a provided genesis state.
+func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
+	// this line is used by starport scaffolding # genesis/module/init
+
+	for _, rawNft := range genState.Nfts {
+		k.SetNFT(ctx, rawNft)
 	}
-	for _, entry := range data.Entries {
-		for _, nft := range entry.Nfts {
-			if err := ValidateNFTID(nft.Id); err != nil {
-				return err
-			}
-			if _, err := sdk.AccAddressFromBech32(entry.Owner); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
+
+	k.SetParams(ctx, genState.Params)
 }
 
-// DefaultGenesisState - Return a default genesis state
-func DefaultGenesisState() *GenesisState {
-	return &GenesisState{}
+// ExportGenesis returns the module's exported genesis
+func ExportGenesis(ctx sdk.Context, k keeper.Keeper) *types.GenesisState {
+	genesis := types.DefaultGenesis()
+	genesis.Params = k.GetParams(ctx)
+	genesis.Nfts = k.GetAllNFT(ctx)
+	// this line is used by starport scaffolding # genesis/module/export
+
+	return genesis
 }
