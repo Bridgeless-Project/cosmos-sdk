@@ -41,6 +41,7 @@ func DefaultParams() Params {
 		MintDenom:      sdk.DefaultBondDenom,
 		BlocksPerMonth: uint64(60 * 60 * 24 * 30 / 5), // assuming 5 second block times
 		MonthReward:    sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(223696209754194)),
+		EndBlock:       100000,
 	}
 }
 

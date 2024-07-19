@@ -17,7 +17,6 @@ func (k BaseKeeper) DistributeToModule(ctx sdk.Context, pool string, amount sdk.
 }
 
 func (k BaseKeeper) DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error {
-
 	poolAddress := GetPoolAddress(pool)
 	if poolAddress == nil {
 		return types.ErrInvalidPool
