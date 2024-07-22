@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"math/big"
 )
 
 // initialize starting info for a new delegation
@@ -48,6 +48,7 @@ func (k Keeper) calculateDelegationRewardsBetween(ctx sdk.Context, val stakingty
 		panic("negative rewards should not be possible")
 	}
 	// note: necessary to truncate so we don't allow withdrawing more rewards than owed
+
 	rewards = difference.MulDecTruncate(stake)
 	return
 }
@@ -56,7 +57,6 @@ func (k Keeper) calculateDelegationRewardsBetween(ctx sdk.Context, val stakingty
 func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI, endingPeriod uint64) (rewards sdk.DecCoins) {
 	// fetch starting info for delegation
 	startingInfo := k.GetDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr())
-
 	if startingInfo.Height == uint64(ctx.BlockHeight()) {
 		// started this height, no rewards yet
 		return
@@ -64,6 +64,22 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 
 	startingPeriod := startingInfo.PreviousPeriod
 	stake := startingInfo.Stake
+
+	delegations := k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator())
+	nftsAmount := big.NewInt(0)
+	for _, delegation := range delegations {
+		_, found := k.nftKeeper.GetNFT(ctx, delegation.DelegatorAddress)
+		if found {
+			nftsAmount = nftsAmount.Add(nftsAmount, delegation.Shares.BigInt())
+		}
+	}
+	if nftsAmount.Cmp(big.NewInt(0)) == +1 && nftsAmount.Cmp(stake.BigInt()) != 1 {
+		params := k.GetParams(ctx)
+		nftMultiplier := params.NftProposerReward
+
+		stake.Sub(sdk.NewDecFromBigInt(nftsAmount))
+		stake.Add(sdk.NewDecFromBigInt(nftsAmount.Mul(nftsAmount, nftMultiplier.BigInt())))
+	}
 
 	// Iterate through slashes and withdraw with calculated staking for
 	// distribution periods. These period offsets are dependent on *when* slashes
