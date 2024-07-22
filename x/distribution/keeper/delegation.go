@@ -5,7 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"math/big"
 )
 
 // initialize starting info for a new delegation
@@ -64,21 +63,14 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 
 	startingPeriod := startingInfo.PreviousPeriod
 	stake := startingInfo.Stake
+	params := k.GetParams(ctx)
+	_, isNFTstake := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String())
 
-	delegations := k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator())
-	nftsAmount := big.NewInt(0)
-	for _, delegation := range delegations {
-		_, found := k.nftKeeper.GetNFT(ctx, delegation.DelegatorAddress)
-		if found {
-			nftsAmount = nftsAmount.Add(nftsAmount, delegation.Shares.BigInt())
+	wrapStake := func(stake sdk.Dec) sdk.Dec {
+		if isNFTstake {
+			return stake.Mul(params.NftProposerReward)
 		}
-	}
-	if nftsAmount.Cmp(big.NewInt(0)) == +1 && nftsAmount.Cmp(stake.BigInt()) != 1 {
-		params := k.GetParams(ctx)
-		nftMultiplier := params.NftProposerReward
-
-		stake.Sub(sdk.NewDecFromBigInt(nftsAmount))
-		stake.Add(sdk.NewDecFromBigInt(nftsAmount.Mul(nftsAmount, nftMultiplier.BigInt())))
+		return stake
 	}
 
 	// Iterate through slashes and withdraw with calculated staking for
@@ -97,7 +89,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 			func(height uint64, event types.ValidatorSlashEvent) (stop bool) {
 				endingPeriod := event.ValidatorPeriod
 				if endingPeriod > startingPeriod {
-					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, stake)...)
+					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
 
 					// Note: It is necessary to truncate so we don't allow withdrawing
 					// more rewards than owed.
@@ -153,6 +145,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 }
 
 func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI) (sdk.Coins, error) {
+	fmt.Println("withdrawDelegationRewards")
 	// check existence of delegator starting info
 	if !k.HasDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr()) {
 		return nil, types.ErrEmptyDelegationDistInfo

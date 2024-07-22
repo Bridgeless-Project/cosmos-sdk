@@ -17,6 +17,7 @@ const (
 	CommunityTax        = "community_tax"
 	BaseProposerReward  = "base_proposer_reward"
 	BonusProposerReward = "bonus_proposer_reward"
+	NftProposerReward   = "nft_proposer_reward"
 	WithdrawEnabled     = "withdraw_enabled"
 )
 
@@ -32,6 +33,11 @@ func GenBaseProposerReward(r *rand.Rand) sdk.Dec {
 
 // GenBonusProposerReward randomized BonusProposerReward
 func GenBonusProposerReward(r *rand.Rand) sdk.Dec {
+	return sdk.NewDecWithPrec(1, 2).Add(sdk.NewDecWithPrec(int64(r.Intn(30)), 2))
+}
+
+// GenNftProposerReward randomized NftProposerReward
+func GenNftProposerReward(r *rand.Rand) sdk.Dec {
 	return sdk.NewDecWithPrec(1, 2).Add(sdk.NewDecWithPrec(int64(r.Intn(30)), 2))
 }
 
@@ -62,8 +68,8 @@ func RandomizedGenState(simState *module.SimulationState) {
 
 	var nftProposerReward sdk.Dec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, BonusProposerReward, &nftProposerReward, simState.Rand,
-		func(r *rand.Rand) { bonusProposerReward = GenBonusProposerReward(r) },
+		simState.Cdc, NftProposerReward, &nftProposerReward, simState.Rand,
+		func(r *rand.Rand) { nftProposerReward = GenNftProposerReward(r) },
 	)
 
 	var withdrawEnabled bool
