@@ -14,7 +14,6 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
 		DisableFlagParsing:         true,
 		SuggestionsMinimumDistance: 2,
-		//RunE:                       client.ValidateCmd,
 	}
 
 	cmd.AddCommand(
