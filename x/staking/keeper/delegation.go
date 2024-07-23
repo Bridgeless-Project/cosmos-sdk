@@ -686,6 +686,7 @@ func (k Keeper) Delegate(
 
 	// Update delegation
 	delegation.Shares = delegation.Shares.Add(newShares)
+	delegation.Amount = delegation.Amount.Add(sdk.NewDecFromInt(bondAmt))
 	k.SetDelegation(ctx, delegation)
 
 	// Call the after-modification hook
@@ -740,6 +741,15 @@ func (k Keeper) Unbond(
 		validator = k.mustGetValidator(ctx, validator.GetOperator())
 	}
 
+	// remove the shares and coins from the validator
+	// NOTE that the amount is later (in keeper.Delegation) moved between staking module pools
+	validator, amount = k.RemoveValidatorTokensAndShares(ctx, validator, shares)
+	if validator.DelegatorShares.IsZero() && validator.IsUnbonded() {
+		// if not unbonded, we must instead remove validator in EndBlocker once it finishes its unbonding period
+		k.RemoveValidator(ctx, validator.GetOperator())
+	}
+
+	delegation.Amount = delegation.Amount.Sub(sdk.NewDecFromInt(amount))
 	if delegation.Shares.IsZero() {
 		err = k.RemoveDelegation(ctx, delegation)
 	} else {
@@ -750,14 +760,6 @@ func (k Keeper) Unbond(
 
 	if err != nil {
 		return amount, err
-	}
-
-	// remove the shares and coins from the validator
-	// NOTE that the amount is later (in keeper.Delegation) moved between staking module pools
-	validator, amount = k.RemoveValidatorTokensAndShares(ctx, validator, shares)
-	if validator.DelegatorShares.IsZero() && validator.IsUnbonded() {
-		// if not unbonded, we must instead remove validator in EndBlocker once it finishes its unbonding period
-		k.RemoveValidator(ctx, validator.GetOperator())
 	}
 
 	return amount, nil
