@@ -9,5 +9,5 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
 
 // Params defines the parameters for the module.
 message Params {
-  string master_admin = 1;
+  string super_admin = 1;
 }
