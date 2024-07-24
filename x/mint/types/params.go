@@ -30,6 +30,7 @@ func NewParams(
 	return Params{
 		MintDenom:      mintDenom,
 		BlocksPerMonth: blocksPerMonth,
+		EndBlock:       endBlock,
 		MonthReward:    monthReward,
 	}
 }
@@ -40,6 +41,7 @@ func DefaultParams() Params {
 		MintDenom:      sdk.DefaultBondDenom,
 		BlocksPerMonth: uint64(60 * 60 * 24 * 30 / 5), // assuming 5 second block times
 		MonthReward:    sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(223696209754194)),
+		EndBlock:       100000,
 	}
 }
 
@@ -52,6 +54,9 @@ func (p Params) Validate() error {
 		return err
 	}
 	if err := validateMonthReward(p.MonthReward); err != nil {
+		return err
+	}
+	if err := validateEndBlock(p.EndBlock); err != nil {
 		return err
 	}
 
@@ -70,6 +75,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
 		paramtypes.NewParamSetPair(KeyBlocksPerMonth, &p.BlocksPerMonth, validateBlocksPerMonth),
 		paramtypes.NewParamSetPair(KeyMonthReward, &p.MonthReward, validateMonthReward),
+		paramtypes.NewParamSetPair(KeyEndBlock, &p.EndBlock, validateEndBlock),
 	}
 }
 

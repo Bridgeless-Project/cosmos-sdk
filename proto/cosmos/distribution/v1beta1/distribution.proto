@@ -26,7 +26,12 @@ message Params {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
-  bool withdraw_addr_enabled = 4;
+  string nft_proposer_reward = 4 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
+  bool withdraw_addr_enabled = 5;
 }
 
 // ValidatorHistoricalRewards represents historical rewards for a validator.

@@ -5,7 +5,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/x/group"
-	"github.com/cosmos/cosmos-sdk/x/nft"
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 )
 
@@ -30,7 +29,6 @@ func (app SimApp) RegisterUpgradeHandlers() {
 		storeUpgrades := storetypes.StoreUpgrades{
 			Added: []string{
 				group.ModuleName,
-				nft.ModuleName,
 			},
 		}
 

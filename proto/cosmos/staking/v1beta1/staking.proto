@@ -202,6 +202,12 @@ message Delegation {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
+  // amount define the delegation amount of tokens.
+  string amount = 4 [
+    (cosmos_proto.scalar)  = "cosmos.Dec",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+    (gogoproto.nullable)   = false
+  ];
 }
 
 // UnbondingDelegation stores all of a single delegator's unbonding bonds

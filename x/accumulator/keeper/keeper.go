@@ -23,6 +23,10 @@ type (
 		Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error)
 		DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
 		DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
+		SetAdmin(ctx sdk.Context, admin types.Admin)
+		GetAdmin(ctx sdk.Context, address string) (val types.Admin, found bool)
+		RemoveAdmin(ctx sdk.Context, address string)
+		GetAllAdmins(ctx sdk.Context) []types.Admin
 	}
 
 	BaseKeeper struct {

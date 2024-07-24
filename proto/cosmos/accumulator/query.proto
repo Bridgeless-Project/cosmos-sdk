@@ -1,5 +1,5 @@
 syntax = "proto3";
-package accumulator;
+package cosmos.accumulator;
 
 import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";

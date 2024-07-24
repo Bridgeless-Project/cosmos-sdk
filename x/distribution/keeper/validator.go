@@ -31,7 +31,19 @@ func (k Keeper) IncrementValidatorPeriod(ctx sdk.Context, val stakingtypes.Valid
 
 	// calculate current ratio
 	var current sdk.DecCoins
-	if val.GetTokens().IsZero() {
+	tokens := sdk.NewDec(0)
+
+	params := k.GetParams(ctx)
+	for _, del := range k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator()) {
+		if _, found := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String()); found {
+			tokens.Add(del.Amount.Mul(params.NftProposerReward))
+			continue
+		}
+
+		tokens.Add(del.Amount)
+	}
+
+	if tokens.IsZero() {
 
 		// can't calculate ratio for zero-token validators
 		// ergo we instead add to the community pool
@@ -45,7 +57,7 @@ func (k Keeper) IncrementValidatorPeriod(ctx sdk.Context, val stakingtypes.Valid
 		current = sdk.DecCoins{}
 	} else {
 		// note: necessary to truncate so we don't allow withdrawing more rewards than owed
-		current = rewards.Rewards.QuoDecTruncate(sdk.NewDecFromInt(val.GetTokens()))
+		current = rewards.Rewards.QuoDecTruncate(tokens)
 	}
 
 	// fetch historical rewards for last period

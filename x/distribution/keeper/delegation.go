@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -48,6 +47,7 @@ func (k Keeper) calculateDelegationRewardsBetween(ctx sdk.Context, val stakingty
 		panic("negative rewards should not be possible")
 	}
 	// note: necessary to truncate so we don't allow withdrawing more rewards than owed
+
 	rewards = difference.MulDecTruncate(stake)
 	return
 }
@@ -56,7 +56,6 @@ func (k Keeper) calculateDelegationRewardsBetween(ctx sdk.Context, val stakingty
 func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI, endingPeriod uint64) (rewards sdk.DecCoins) {
 	// fetch starting info for delegation
 	startingInfo := k.GetDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr())
-
 	if startingInfo.Height == uint64(ctx.BlockHeight()) {
 		// started this height, no rewards yet
 		return
@@ -64,6 +63,15 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 
 	startingPeriod := startingInfo.PreviousPeriod
 	stake := startingInfo.Stake
+	params := k.GetParams(ctx)
+	_, isNFTstake := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String())
+
+	wrapStake := func(stake sdk.Dec) sdk.Dec {
+		if isNFTstake {
+			return stake.Mul(params.NftProposerReward)
+		}
+		return stake
+	}
 
 	// Iterate through slashes and withdraw with calculated staking for
 	// distribution periods. These period offsets are dependent on *when* slashes
@@ -81,7 +89,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 			func(height uint64, event types.ValidatorSlashEvent) (stop bool) {
 				endingPeriod := event.ValidatorPeriod
 				if endingPeriod > startingPeriod {
-					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, stake)...)
+					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
 
 					// Note: It is necessary to truncate so we don't allow withdrawing
 					// more rewards than owed.

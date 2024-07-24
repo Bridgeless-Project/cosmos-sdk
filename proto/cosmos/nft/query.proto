@@ -1,0 +1,42 @@
+
+// this line is used by starport scaffolding #
+syntax = "proto3";
+package cosmos.nft;
+import "google/api/annotations.proto";
+
+
+import "gogoproto/gogo.proto";
+import "cosmos/nft/params.proto";
+import "cosmos/base/query/v1beta1/pagination.proto";
+import "google/protobuf/any.proto";
+import "cosmos/nft/nft.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
+
+// Query defines the gRPC querier service.
+service Query {
+  rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+    option (google.api.http).get = "/cosmos/nft/params";
+  }
+
+  rpc GetNFTByAddress(QueryNFTByAddress) returns (QueryNFTByAddressResponse) {
+    option (google.api.http).get = "/cosmos/nft/{address}";
+  }
+}
+
+// QueryParamsRequest is request type for the Query/Params RPC method.
+message QueryParamsRequest {}
+
+// QueryParamsResponse is response type for the Query/Params RPC method.
+message QueryParamsResponse {
+  // params holds all the parameters of this module.
+  Params params = 1 [(gogoproto.nullable) = false];
+}
+
+message QueryNFTByAddress {
+  string address = 1;  // address of nft
+}
+
+message QueryNFTByAddressResponse {
+  cosmos.nft.NFT nft = 1;
+}
