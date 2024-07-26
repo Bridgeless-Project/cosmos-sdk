@@ -100,7 +100,10 @@ func (k msgServer) Send(goctx context.Context, request *types.MsgSend) (*types.M
 		return nil, types.ErrNFTInvalidOwner
 	}
 
+	k.RemoveOwnerNft(ctx, nft.Owner, nft.Address)
 	nft.Owner = request.Recipient
+
+	k.SetOwnerNFT(ctx, nft.Owner, nft.Address)
 	k.SetNFT(ctx, nft)
 	return new(types.MsgSendResponse), nil
 
@@ -133,6 +136,8 @@ func (k msgServer) Withdraw(goctx context.Context, request *types.MsgWithdrawal)
 	}
 
 	nft.AvailableToWithdraw = nft.AvailableToWithdraw.Sub(sdk.NewCoin(nft.Denom, amount))
+	k.SetNFT(ctx, nft)
+
 	return new(types.MsgWithdrawalResponse), nil
 }
 

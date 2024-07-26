@@ -16,11 +16,23 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
 // Query defines the gRPC querier service.
 service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/cosmos/nft/params";
+    option (google.api.http).get = "/cosmos/nfts/params";
+  }
+
+  rpc GetAllNFTs(QueryAllNFTs) returns (QueryAllNFTsResponse) {
+    option (google.api.http).get = "/cosmos/nfts";
   }
 
   rpc GetNFTByAddress(QueryNFTByAddress) returns (QueryNFTByAddressResponse) {
-    option (google.api.http).get = "/cosmos/nft/{address}";
+    option (google.api.http).get = "/cosmos/nfts/{address}";
+  }
+
+  rpc GetAllOwners(QueryAllOwners) returns (QueryAllOwnersResponse) {
+    option (google.api.http).get = "/cosmos/owners";
+  }
+
+  rpc GetAllNFTsByOwner(QueryAllNFTsByOwner) returns (QueryAllNFTsByOwnerResponse) {
+    option (google.api.http).get = "/cosmos/owners/{owner}";
   }
 }
 
@@ -39,4 +51,32 @@ message QueryNFTByAddress {
 
 message QueryNFTByAddressResponse {
   cosmos.nft.NFT nft = 1;
+}
+
+message QueryAllNFTs {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllNFTsResponse {
+  repeated cosmos.nft.NFT nft = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryAllNFTsByOwner {
+  string owner = 1;  // address of owner
+  cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+message QueryAllNFTsByOwnerResponse {
+  repeated cosmos.nft.NFT nft = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryAllOwners {
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryAllOwnersResponse {
+  repeated string owner = 1;
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }

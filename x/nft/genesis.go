@@ -12,6 +12,7 @@ func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) 
 
 	for _, rawNft := range genState.Nfts {
 		k.SetNFT(ctx, rawNft)
+		k.SetOwnerNFT(ctx, rawNft.Owner, rawNft.Address)
 	}
 
 	k.SetParams(ctx, genState.Params)

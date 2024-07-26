@@ -68,7 +68,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 
 	wrapStake := func(stake sdk.Dec) sdk.Dec {
 		if isNFTstake {
-			return stake.Mul(params.NftProposerReward)
+			return stake.Add(stake.Mul(params.NftProposerReward))
 		}
 		return stake
 	}

@@ -55,5 +55,29 @@ func (k Keeper) GetAllNFT(ctx sdk.Context) (list []types.NFT) {
 		list = append(list, val)
 	}
 
-	return
+	return list
+}
+
+func (k Keeper) SetOwnerNFT(ctx sdk.Context, owner, nftAddress string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
+	ownerBranchStore := prefix.NewStore(store, types.KeyPrefix(owner))
+	data := k.cdc.MustMarshal(&types.Owner{
+		Address:    owner,
+		NftAddress: nftAddress,
+	})
+	ownerBranchStore.Set(types.NFTOwnerKey(owner), data)
+
+}
+
+// RemoveOwner removes a NFT from the store
+func (k Keeper) RemoveOwnerNft(
+	ctx sdk.Context,
+	owner string,
+	nftAddress string,
+) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
+	ownerBranchStore := prefix.NewStore(store, types.KeyPrefix(owner))
+	ownerBranchStore.Delete(types.NFTKey(
+		nftAddress,
+	))
 }
