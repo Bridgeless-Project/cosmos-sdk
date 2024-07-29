@@ -11,7 +11,7 @@ import (
 // update vesting state for each nft
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
-	for _, nft := range k.GetAllNFT(ctx) {
+	for _, nft := range k.GetNFTs(ctx) {
 		if ctx.BlockTime().Unix()-nft.LastVestingTime < nft.VestingPeriod {
 			return
 		}

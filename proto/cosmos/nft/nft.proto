@@ -32,4 +32,8 @@ message NFT {
   string denom = 10;
 }
 
+message Owner {
+  string address = 1;
+  string nft_address = 2;
+}
 

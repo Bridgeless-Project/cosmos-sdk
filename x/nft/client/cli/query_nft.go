@@ -10,7 +10,7 @@ import (
 
 func CmdQueryNFTByAddress() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "grt-nft",
+		Use:   "nft",
 		Short: "Query the nft by address",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -23,6 +23,34 @@ func CmdQueryNFTByAddress() *cobra.Command {
 			req := &types.QueryNFTByAddress{}
 
 			res, err := queryClient.GetNFTByAddress(context.Background(), req)
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+func CmdQueryAllNft() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "nfts",
+		Short: "Query the all nft",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+
+			req := &types.QueryAllNFTs{}
+
+			res, err := queryClient.GetAllNFTs(context.Background(), req)
 			if err != nil {
 				return err
 			}
