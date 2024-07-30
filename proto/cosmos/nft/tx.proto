@@ -12,15 +12,13 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
 
 // Msg defines the Msg service.
 service Msg {
-  // Balance queries the number of NFTs of a given class owned by the owner, same as balanceOf in ERC721
-  rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
-
-  rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
-
-  // Class queries an NFT class based on its id
   rpc Send(MsgSend) returns (MsgSendResponse);
 
   rpc Withdraw (MsgWithdrawal) returns (MsgWithdrawalResponse);
+
+  rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
+
+  rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
 
   rpc Redelegate ( MsgRedelegate) returns (MsgRedelegateResponse);
 }
