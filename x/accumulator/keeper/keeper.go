@@ -27,6 +27,7 @@ type (
 		GetAdmin(ctx sdk.Context, address string) (val types.Admin, found bool)
 		RemoveAdmin(ctx sdk.Context, address string)
 		GetAllAdmins(ctx sdk.Context) []types.Admin
+		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
 	}
 
 	BaseKeeper struct {

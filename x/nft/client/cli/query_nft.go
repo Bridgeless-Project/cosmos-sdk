@@ -10,17 +10,19 @@ import (
 
 func CmdQueryNFTByAddress() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "nft",
+		Use:   "nft [address]",
 		Short: "Query the nft by address",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, _ []string) error {
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
 
-			req := &types.QueryNFTByAddress{}
+			req := &types.QueryNFTByAddress{
+				Address: args[0],
+			}
 
 			res, err := queryClient.GetNFTByAddress(context.Background(), req)
 			if err != nil {
@@ -38,7 +40,7 @@ func CmdQueryNFTByAddress() *cobra.Command {
 
 func CmdQueryAllNft() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "nfts",
+		Use:   "nfts --flags",
 		Short: "Query the all nft",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
@@ -47,8 +49,14 @@ func CmdQueryAllNft() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
+			pageReq, err := client.ReadPageRequest(cmd.Flags())
+			if err != nil {
+				return err
+			}
 
-			req := &types.QueryAllNFTs{}
+			req := &types.QueryAllNFTs{
+				Pagination: pageReq,
+			}
 
 			res, err := queryClient.GetAllNFTs(context.Background(), req)
 			if err != nil {
