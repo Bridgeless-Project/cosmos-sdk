@@ -3,6 +3,7 @@ package keeper
 import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/accumulator/types"
 )
 
@@ -56,4 +57,25 @@ func (k BaseKeeper) GetAllAdmins(ctx sdk.Context) (list []types.Admin) {
 	}
 
 	return
+}
+
+// GetAllAdminsWithPagination returns all Admin with pagination
+func (k BaseKeeper) GetAllAdminsWithPagination(ctx sdk.Context, pagination *query.PageRequest) ([]types.Admin, *query.PageResponse, error) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.AdminKeyPrefix))
+
+	var admins []types.Admin
+	pageRes, err := query.Paginate(store, pagination, func(key []byte, value []byte) error {
+		var admin types.Admin
+
+		k.cdc.MustUnmarshal(value, &admin)
+
+		admins = append(admins, admin)
+		return nil
+	})
+
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return admins, pageRes, nil
 }
