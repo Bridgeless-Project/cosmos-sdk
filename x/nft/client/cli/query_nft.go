@@ -54,7 +54,9 @@ func CmdQueryAllNft() *cobra.Command {
 				return err
 			}
 
-			req := &types.QueryAllNFTs{Pagination: pageReq}
+			req := &types.QueryAllNFTs{
+				Pagination: pageReq,
+			}
 
 			res, err := queryClient.GetAllNFTs(context.Background(), req)
 			if err != nil {

@@ -46,7 +46,7 @@ func CmdQueryNFTsByOwner() *cobra.Command {
 
 func CmdQueryAllOwners() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "owners",
+		Use:   "owners --flags",
 		Short: "Query the all NFT holders",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, _ []string) error {
