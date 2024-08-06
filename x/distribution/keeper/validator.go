@@ -36,11 +36,11 @@ func (k Keeper) IncrementValidatorPeriod(ctx sdk.Context, val stakingtypes.Valid
 	params := k.GetParams(ctx)
 	for _, del := range k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator()) {
 		if _, found := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String()); found {
-			tokens.Add(del.Amount.Add(del.Amount.Mul(params.NftProposerReward)))
+			tokens = tokens.Add(del.Amount.Add(del.Amount.Mul(params.NftProposerReward)))
 			continue
 		}
 
-		tokens.Add(del.Amount)
+		tokens = tokens.Add(del.Amount)
 	}
 
 	if tokens.IsZero() {

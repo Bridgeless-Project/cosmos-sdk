@@ -21,10 +21,13 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 		address, err := sdk.AccAddressFromBech32(admin.Address)
 		if err != nil {
-			panic(err)
+			k.Logger(ctx).Error("failed to parse account", err.Error())
+			return
 		}
+
 		err = k.DistributeToAccount(ctx, types.AdminPoolName, sdk.NewCoins(sdk.NewCoin(admin.Denom, admin.RewardPerPeriod.Amount)), address)
 		if err != nil {
+			k.Logger(ctx).Error("failed to distribute token to account", err.Error())
 			return
 		}
 

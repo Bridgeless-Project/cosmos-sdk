@@ -13,14 +13,14 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	for _, nft := range k.GetNFTs(ctx) {
 		if ctx.BlockTime().Unix()-nft.LastVestingTime < nft.VestingPeriod {
-			return
+			continue
 		}
 
 		if nft.VestingCounter >= nft.VestingPeriodsCount {
-			return
+			continue
 		}
 
-		nft.AvailableToWithdraw.Add(sdk.NewCoin(nft.Denom, sdk.NewInt(nft.VestingPeriod).Mul(nft.RewardPerPeriod.Amount)))
+		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(nft.Denom, nft.RewardPerPeriod.Amount))
 		nft.VestingCounter++
 		nft.LastVestingTime = ctx.BlockTime().Unix()
 

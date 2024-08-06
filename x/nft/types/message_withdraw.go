@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TypeMsgWithdrawal = "delegate"
+	TypeMsgWithdrawal = "withdarawal"
 )
 
 var _ sdk.Msg = &MsgWithdrawal{}

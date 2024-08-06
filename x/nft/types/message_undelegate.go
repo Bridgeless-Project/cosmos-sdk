@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TypeMsgUndelegate = "delegate"
+	TypeMsgUndelegate = "undelegate"
 )
 
 var _ sdk.Msg = &MsgUndelegate{}
