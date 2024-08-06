@@ -134,7 +134,7 @@ func CmdSend() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send [from_key_or_address] [receiver] [nft_address]",
 		Short: "send nft to another account",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			cmd.Flags().Set(flags.FlagFrom, args[0])

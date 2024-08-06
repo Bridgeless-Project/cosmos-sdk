@@ -15,11 +15,11 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
 service Query {
   // Parameters queries the parameters of the module.
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/cosmos/cosmos-sdk/accumulator/params";
+    option (google.api.http).get = "/cosmos/accumulator/params";
   }
 
   rpc GetAdmins(QueryAdmins) returns (QueryAdminsResponse) {
-    option (google.api.http).get = "/cosmos/cosmos-sdk/accumulator/admins";
+    option (google.api.http).get = "/cosmos/accumulator/admins";
   }
   // this line is used by starport scaffolding # 2
 }
