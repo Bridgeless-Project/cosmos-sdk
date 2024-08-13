@@ -3,11 +3,14 @@
 ## Overview
 
 -   Limit tokens amount 1000000000 BRIDGE and additionally each token can be split to  10^18 abridge tokens
+-   All tokens are split to 3 pools and managed by accumulator module
+-   Rewards by a block can be taken only from the accumulator module
 -   System contains a NFT. The NFT holds locked native tokens and can be staked
 -   Staked amount from a nft have the same power as the same amount of native tokens. But delegator will get +20% by stake from nft
 -   Each nft has a vesting time to unlock balance to withdraw
 
-## changes in default modules
+
+## Changes in default modules
 
 ### Proto files 
 
@@ -16,9 +19,9 @@ Distribution params proto file
     message Params {
         ...
         string nft_proposer_reward = 4 [
-        (cosmos_proto.scalar)  = "cosmos.Dec",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
+            (cosmos_proto.scalar)  = "cosmos.Dec",
+            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+            (gogoproto.nullable)   = false
         ];
         ...
  
@@ -30,24 +33,39 @@ Staking params proto file
     message Delegation {
         ...
         string amount = 4 [
-        (cosmos_proto.scalar)  = "cosmos.Dec",
-        (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
-        (gogoproto.nullable)   = false
+            (cosmos_proto.scalar)  = "cosmos.Dec",
+            (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
+            (gogoproto.nullable)   = false
         ];
     }
 
 The additional field is used to store count of staked tokens in raw representation (count of tokens sent from  delegator to validator) 
 
-### Updates of usiness logic 
 
-Distribution module 
+Mint proto
+
+    message Params {
+        option (gogoproto.goproto_stringer) = false;
+        
+        // type of coin to mint
+        string mint_denom = 1;
+        // expected blocks per month
+        uint64 blocks_per_month = 2;
+        // block when no additional tokens will be minted
+        uint64 end_block = 3;
+        
+        cosmos.base.v1beta1.Coin month_reward = 4
+        [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"];
+    }
+
+## Updates of business logic 
+
+### Distribution module 
 
 - [calculateDelegationRewardsBetween](x/distribution/keeper/delegation.go)
 The function calculates the rewards accrued by a delegation between two periods
 
 
-
-    // calculate the total rewards accrued by a delegation
     func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI, endingPeriod uint64) (rewards sdk.DecCoins) {
 
         ...
@@ -137,7 +155,7 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 
 
 
-Staking module 
+### Staking module 
 
 - [Delegate](x/staking/keeper/delegation.go)
 Delegate performs a delegation, set/update everything necessary within the store. tokenSrc indicates the bond status of the incoming funds.
@@ -206,8 +224,70 @@ Unbond unbonds a particular delegation and perform associated store operations.
 
 Move the call to RemoveValidatorTokensAndShares earlier in the process. This is necessary to set the amount of tokens before updating the delegation.
 
+### Mint module 
+
+- [SendFromAccumulator](x/mint/keeper/keeper.go) The function is used to sent tokens from validator pool on accumulator module
 
 
+    func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
+        err := k.accumulatorKeeper.DistributeToModule(ctx, accumulatortypes.ValidatorPoolName, amount, types.ModuleName)
+        if err != nil {
+            err = errors.Wrap(err, "failed to call accumulator module")
+            k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
+            return err
+        }
+    
+        return nil
+    }
 
+This approach ensures that no new tokens are created, and the amount of rewards for the validator
+is properly managed by the validator pool.
+
+
+- [BeginBlock](x/mint/abci.go)
+BeginBlocker mints new tokens for the previous block.
+
+     
+    func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
+        defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
+        params := k.GetParams(ctx)
+        
+            // skip if all tokens already minted
+            if uint64(ctx.BlockHeight()) >= params.EndBlock {
+                return
+            }
+            monthReward := sdk.NewDecFromInt(params.MonthReward.Amount)
+            mintedAmount := monthReward.QuoInt(sdk.NewInt(int64(params.BlocksPerMonth)))
+        
+            // mint coins, update supply
+            mintedCoin := sdk.NewCoin(params.MintDenom, mintedAmount.TruncateInt())
+            mintedCoins := sdk.NewCoins(mintedCoin)
+        
+            err := k.SendFromAccumulator(ctx, mintedCoins)
+            if err != nil {
+                k.Logger(ctx).Error("failed to send tokens from accumulator")
+                return
+            }
+        
+            // send the minted coins to the fee collector account
+            err = k.AddCollectedFees(ctx, mintedCoins)
+            if err != nil {
+                panic(err)
+            }
+        
+            if mintedCoin.Amount.IsInt64() {
+                defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
+            }
+        
+            ctx.EventManager().EmitEvent(
+                sdk.NewEvent(
+                    types.EventTypeMint,
+                    sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
+                ),
+            )
+    }
+
+
+The following code snippet illustrates the process of minting tokens
 
 
