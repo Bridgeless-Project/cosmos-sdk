@@ -5,7 +5,7 @@
 -   Limit tokens amount 1000000000 BRIDGE and additionally each token can be split to  10^18 abridge tokens
 -   All tokens are split to 3 pools and managed by accumulator module
 -   Rewards by a block can be taken only from the accumulator module
--   System contains a NFT. The NFT holds locked native tokens and can be staked
+-   System contains a NFT. A NFT holds locked native tokens and can be staked
 -   Staked amount from a nft have the same power as the same amount of native tokens. But delegator will get +20% by stake from nft
 -   Each nft has a vesting time to unlock balance to withdraw
 
@@ -187,7 +187,6 @@ Set the delegate amount. In the first case, if no delegation is found, initializ
 
 
 - [Unbond](x/staking/keeper/delegation.go)
-
 Unbond unbonds a particular delegation and perform associated store operations.
     
 
@@ -244,7 +243,7 @@ This approach ensures that no new tokens are created, and the amount of rewards 
 is properly managed by the validator pool.
 
 
-- [BeginBlock](x/mint/abci.go)
+- [BeginBlocker](x/mint/abci.go)
 BeginBlocker mints new tokens for the previous block.
 
      
