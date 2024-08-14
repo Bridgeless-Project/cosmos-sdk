@@ -2,19 +2,20 @@
 
 ## Overview
 
--   Limit tokens amount 1000000000 BRIDGE and additionally each token can be split to  10^18 abridge tokens
--   All tokens are split to 3 pools and managed by accumulator module
--   Rewards by a block can be taken only from the accumulator module
--   System contains a NFT. A NFT holds locked native tokens and can be staked
--   Staked amount from a nft have the same power as the same amount of native tokens. But delegator will get +20% by stake from nft
--   Each nft has a vesting time to unlock balance to withdraw
-
+- Limit tokens amount 1000000000 BRIDGE and additionally each token can be split to 10^18 abridge tokens (BRIDGE has 18
+  decimals)
+- All tokens are split to 3 pools and managed by `accumulator` module
+- Rewards by a block can be taken only from the `accumulator` module
+- System operates a new `NFT` module. The `NFT` module holds locked native tokens that can be staked, unstaked, etc.
+- Staked amount from a NFT have the same power as the same amount of native tokens. But delegator will get +20% (
+  configured) by stake from NFT
+- Each NFT has a vesting time to unlock balance linearly to withdraw
 
 ## Changes in default modules
 
-### Proto files 
+### Proto files
 
-Distribution params proto file
+The `distribution` module params proto file:
 
     message Params {
         ...
@@ -24,11 +25,10 @@ Distribution params proto file
             (gogoproto.nullable)   = false
         ];
         ...
- 
-Define a new multiplier for rewards by nft staking.  In our case this field is equal to 0.2000000...(20%)
 
-One more change related to proto file
-Staking params proto file
+Define a new multiplier for rewards by NFT's staking. In our case this field is equal to 0.2000000...(20%)
+
+One more change related to proto file: `staking` module params:
 
     message Delegation {
         ...
@@ -39,10 +39,11 @@ Staking params proto file
         ];
     }
 
-The additional field is used to store count of staked tokens in raw representation (count of tokens sent from  delegator to validator) 
+The additional field is used to store count of staked tokens in raw representation (__not shares__) (count of tokens
+sent from delegator
+to validator).
 
-
-Mint proto
+The `mint` module proto:
 
     message Params {
         option (gogoproto.goproto_stringer) = false;
@@ -58,22 +59,24 @@ Mint proto
         [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"];
     }
 
-## Updates of business logic 
+The additional fields describe custom block rewards policy (linear distribution with constant amount per block).
 
-### Distribution module 
+## Updates of business logic
+
+### Distribution module
 
 - [calculateDelegationRewardsBetween](x/distribution/keeper/delegation.go)
-The function calculates the rewards accrued by a delegation between two periods
+  This function calculates the rewards accrued by a delegation between two periods.
 
-
-    func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI, endingPeriod uint64) (rewards sdk.DecCoins) {
+        func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI,
+        endingPeriod uint64) (rewards sdk.DecCoins) {
 
         ...
     
         params := k.GetParams(ctx)
-        _, isNFTstake := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String())
+        _, isNFTstake := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String()) // Checks if this delegation is NFT
     
-        wrapStake := func(stake sdk.Dec) sdk.Dec {
+        wrapStake := func(stake sdk.Dec) sdk.Dec { // Special wrapper to add additional 20% profit by NFT staking.
             if isNFTstake {
                 return stake.Add(stake.Mul(params.NftProposerReward))
             }
@@ -81,13 +84,14 @@ The function calculates the rewards accrued by a delegation between two periods
         }
     
         ...
-    
+        
         endingHeight := uint64(ctx.BlockHeight())
         if endingHeight > startingHeight {
             k.IterateValidatorSlashEventsBetween(ctx, del.GetValidatorAddr(), startingHeight, endingHeight,
                 func(height uint64, event types.ValidatorSlashEvent) (stop bool) {
                     if event.ValidatorPeriod > startingPeriod {
-                        rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
+                        // Using wrapped stake amount
+                        rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...) 
                         
                         ...
                     }
@@ -98,27 +102,27 @@ The function calculates the rewards accrued by a delegation between two periods
     
         ....
     
-        // calculate rewards for final period
+        // Calculate rewards for final period (also using wrapped stake amount)
         rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
         return rewards
-    }
 
-The key update in this function is the anonymous function `wrapStake(sdk.Dec)`. The `wrapStake` function checks whether the delegation
-is made by an NFT or not, and based on this, it updates the rewards accordingly.
+}
 
-
-
+The key update in this function is the anonymous function `wrapStake(sdk.Dec)`. The `wrapStake` function checks whether
+the delegation is made by an NFT or not, and based on this, it updates the rewards accordingly.
 
 - [IncrementValidatorPeriod](x/distribution/keeper/validator.go)
-Increment validator period, returning the period just ended
+  Increment validator period, returning the period just ended
 
-Since the total amount of rewards remains constant, but NFT delegators are entitled to receive a higher proportion of tokens, it is necessary to normalize the rewards.
-  
+Since the total amount of rewards remains constant, but NFT delegators are entitled to receive a higher proportion of
+tokens, it is necessary to normalize the rewards.
+
     func (k Keeper) IncrementValidatorPeriod(ctx sdk.Context, val stakingtypes.ValidatorI) uint64 {
        
         ...
     
         params := k.GetParams(ctx)
+        // Iterating over all delegations and adding additional 20% profit for NFT delegations to take into account in the total stake amount divisor.
         for _, del := range k.stakingKeeper.GetValidatorDelegations(ctx, val.GetOperator()) {
             if _, found := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String()); found {
                 tokens = tokens.Add(del.Amount.Add(del.Amount.Mul(params.NftProposerReward)))
@@ -152,20 +156,16 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
         tokens = tokens.Add(del.Amount)
     }
 
-
-
-
-### Staking module 
+### Staking module
 
 - [Delegate](x/staking/keeper/delegation.go)
-Delegate performs a delegation, set/update everything necessary within the store. tokenSrc indicates the bond status of the incoming funds.
-    
+  The `Delegate` performs a delegation, set/update everything necessary within the store. The `tokenSrc` indicates the
+  bond
+  status of the incoming funds.
 
-    func (k Keeper) Delegate(
-    ctx sdk.Context, delAddr sdk.AccAddress, bondAmt math.Int, tokenSrc types.BondStatus,
-    validator types.Validator, subtractAccount bool,
-    ) (newShares sdk.Dec, err error) {
-    
+      func (k Keeper) Delegate(ctx sdk.Context, delAddr sdk.AccAddress, bondAmt math.Int, tokenSrc types.BondStatus,
+          validator types.Validator, subtractAccount bool) (newShares sdk.Dec, err error) {
+
         ...
 
         delegation, found := k.GetDelegation(ctx, delAddr, validator.GetOperator())
@@ -181,76 +181,73 @@ Delegate performs a delegation, set/update everything necessary within the store
         k.SetDelegation(ctx, delegation)
     
        ...
-    }
+  }
 
-Set the delegate amount. In the first case, if no delegation is found, initialize the amount with an empty value. Just before returning, set `delegation.Amount`
-
+Set the delegate amount. In the first case, if no delegation is found, initialize the amount with an empty value. Just
+before returning, set `delegation.Amount`.
 
 - [Unbond](x/staking/keeper/delegation.go)
-Unbond unbonds a particular delegation and perform associated store operations.
-    
+  The `Unbond` method unbonds a particular delegation and perform associated store operations.
 
-    func (k Keeper) Unbond(
-    ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, shares sdk.Dec,
-    ) (amount math.Int, err error) {
-        
-        ...
-    
-        validator, amount = k.RemoveValidatorTokensAndShares(ctx, validator, shares)
-        if validator.DelegatorShares.IsZero() && validator.IsUnbonded() {
-            // if not unbonded, we must instead remove validator in EndBlocker once it finishes its unbonding period
-            k.RemoveValidator(ctx, validator.GetOperator())
+        func (k Keeper) Unbond(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, shares sdk.Dec) (amount math.Int, err error) {
+
+          ...
+      
+          validator, amount = k.RemoveValidatorTokensAndShares(ctx, validator, shares)
+          if validator.DelegatorShares.IsZero() && validator.IsUnbonded() {
+              // if not unbonded, we must instead remove validator in EndBlocker once it finishes its unbonding period
+              k.RemoveValidator(ctx, validator.GetOperator())
+          }
+      
+          // Using the amount received from RemoveValidatorTokensAndShares before
+          delegation.Amount = delegation.Amount.Sub(sdk.NewDecFromInt(amount))
+
+
+          if delegation.Shares.IsZero() {
+              err = k.RemoveDelegation(ctx, delegation)
+          } else {
+              k.SetDelegation(ctx, delegation)
+              // call the after delegation modification hook
+              err = k.AfterDelegationModified(ctx, delegatorAddress, delegation.GetValidatorAddr())
+          }
+      
+          if err != nil {
+              return amount, err
+          }
+      
+          return amount, nil
         }
-    
-        delegation.Amount = delegation.Amount.Sub(sdk.NewDecFromInt(amount))
 
+Move the call to `RemoveValidatorTokensAndShares` earlier in the process. This is necessary to set the amount of tokens
+before updating the delegation.
 
-        if delegation.Shares.IsZero() {
-            err = k.RemoveDelegation(ctx, delegation)
-        } else {
-            k.SetDelegation(ctx, delegation)
-            // call the after delegation modification hook
-            err = k.AfterDelegationModified(ctx, delegatorAddress, delegation.GetValidatorAddr())
-        }
-    
-        if err != nil {
-            return amount, err
-        }
-    
-        return amount, nil
-    }
+### Mint module
 
+- [SendFromAccumulator](x/mint/keeper/keeper.go) This function is used to sent tokens from validator pool to the
+  accumulator module.
 
-Move the call to RemoveValidatorTokensAndShares earlier in the process. This is necessary to set the amount of tokens before updating the delegation.
-
-### Mint module 
-
-- [SendFromAccumulator](x/mint/keeper/keeper.go) The function is used to sent tokens from validator pool on accumulator module
-
-
-    func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
-        err := k.accumulatorKeeper.DistributeToModule(ctx, accumulatortypes.ValidatorPoolName, amount, types.ModuleName)
-        if err != nil {
+        func (k Keeper) SendFromAccumulator(ctx sdk.Context, amount sdk.Coins) error {
+          err := k.accumulatorKeeper.DistributeToModule(ctx, accumulatortypes.ValidatorPoolName, amount, types.ModuleName)
+          if err != nil {
             err = errors.Wrap(err, "failed to call accumulator module")
             k.Logger(sdk.UnwrapSDKContext(ctx)).Error(err.Error())
             return err
+          }
+      
+          return nil
         }
-    
-        return nil
-    }
 
-This approach ensures that no new tokens are created, and the amount of rewards for the validator
+This approach ensures that no new tokens will be created, and the amount of rewards for the validator
 is properly managed by the validator pool.
 
-
 - [BeginBlocker](x/mint/abci.go)
-BeginBlocker mints new tokens for the previous block.
+  The `BeginBlocker` mints new tokens for the previous block with custom policy.
 
-     
-    func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
-        defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
-        params := k.GetParams(ctx)
-        
+      func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
+
+          defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
+          params := k.GetParams(ctx)
+
             // skip if all tokens already minted
             if uint64(ctx.BlockHeight()) >= params.EndBlock {
                 return
@@ -284,9 +281,8 @@ BeginBlocker mints new tokens for the previous block.
                     sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
                 ),
             )
-    }
+      }
 
-
-The following code snippet illustrates the process of minting tokens
+The following code snippet illustrates the process of minting tokens.
 
 
