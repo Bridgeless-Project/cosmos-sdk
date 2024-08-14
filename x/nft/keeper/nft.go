@@ -151,6 +151,7 @@ func (k Keeper) GetAllOwnersWithPagination(ctx sdk.Context, pagination *query.Pa
 		return nil, nil, status.Error(codes.Internal, err.Error())
 	}
 
+	// TODO make better
 	var owners []string
 	for owner := range uOwner {
 		owners = append(owners, owner)
