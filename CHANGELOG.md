@@ -35,6 +35,14 @@ Ref: https://keepachangelog.com/en/1.0.0/
 
 # Changelog
 
+## [v0.46.20](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.20) - 2024-08-06
+
+## Features
+
+* `NFT` module
+* `Accumulator` module
+* Changes to the `delegation`, `staking` and `mint` modules: check more info [here](./TOKENOMIC_CHANGES.md)
+
 ## [v0.46.13-ledger.3](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.13-ledger.3) - 2023-06-08
 
 ## Features 
