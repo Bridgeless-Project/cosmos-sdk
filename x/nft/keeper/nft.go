@@ -86,11 +86,12 @@ func (k Keeper) GetNFTsWithPagination(ctx sdk.Context, pagination *query.PageReq
 func (k Keeper) SetOwnerNFT(ctx sdk.Context, owner, nftAddress string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
 	ownerBranchStore := prefix.NewStore(store, types.KeyPrefix(owner))
+
 	data := k.cdc.MustMarshal(&types.Owner{
 		Address:    owner,
 		NftAddress: nftAddress,
 	})
-	ownerBranchStore.Set(types.NFTOwnerKey(owner), data)
+	ownerBranchStore.Set(types.NFTOwnerKey(nftAddress), data)
 }
 
 // RemoveOwner removes a NFT from the store
