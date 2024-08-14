@@ -101,7 +101,7 @@ func (k Keeper) RemoveOwnerNft(
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
 	ownerBranchStore := prefix.NewStore(store, types.KeyPrefix(owner))
-	ownerBranchStore.Delete(types.NFTKey(
+	ownerBranchStore.Delete(types.NFTOwnerKey(
 		nftAddress,
 	))
 }
