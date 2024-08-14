@@ -16,23 +16,23 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
 // Query defines the gRPC querier service.
 service Query {
   rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
-    option (google.api.http).get = "/cosmos/nfts/params";
+    option (google.api.http).get = "/cosmos/nft/params";
   }
 
   rpc GetAllNFTs(QueryAllNFTs) returns (QueryAllNFTsResponse) {
-    option (google.api.http).get = "/cosmos/nfts";
+    option (google.api.http).get = "/cosmos/nft/nfts";
   }
 
   rpc GetNFTByAddress(QueryNFTByAddress) returns (QueryNFTByAddressResponse) {
-    option (google.api.http).get = "/cosmos/nfts/{address}";
+    option (google.api.http).get = "/cosmos/nft/nft/{address}";
   }
 
   rpc GetAllOwners(QueryAllOwners) returns (QueryAllOwnersResponse) {
-    option (google.api.http).get = "/cosmos/owners";
+    option (google.api.http).get = "/cosmos/nft/owners";
   }
 
   rpc GetAllNFTsByOwner(QueryAllNFTsByOwner) returns (QueryAllNFTsByOwnerResponse) {
-    option (google.api.http).get = "/cosmos/owners/{owner}";
+    option (google.api.http).get = "/cosmos/nft/owners/{owner}";
   }
 }
 
