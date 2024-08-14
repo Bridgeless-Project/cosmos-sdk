@@ -515,15 +515,15 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "nfts", "params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "nft", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAllNFTs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"cosmos", "nfts"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GetAllNFTs_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "nft", "nfts"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetNFTByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"cosmos", "nfts", "address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GetNFTByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"cosmos", "nft", "address"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAllOwners_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"cosmos", "owners"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GetAllOwners_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "nft", "owners"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAllNFTsByOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"cosmos", "owners", "owner"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_GetAllNFTsByOwner_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"cosmos", "nft", "owners", "owner"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (

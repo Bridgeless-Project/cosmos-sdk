@@ -117,7 +117,7 @@ func (k Keeper) GetAllNFTsByOwnerWithPagination(ctx sdk.Context, ownerAddress st
 
 		k.cdc.MustUnmarshal(value, &owner)
 
-		nft, found := k.GetNFT(ctx, owner.Address)
+		nft, found := k.GetNFT(ctx, owner.NftAddress)
 		if !found {
 			return types.ErrNFTNotFound
 		}
