@@ -23,6 +23,7 @@ type Keeper struct {
 
 	authKeeper types.AccountKeeper
 	bankKeeper types.BankKeeper
+	nftKeeper  types.NFTKeeper
 
 	// The reference to the DelegationSet and ValidatorSet to get information about validators and delegators
 	sk types.StakingKeeper
@@ -57,6 +58,7 @@ func NewKeeper(
 	authKeeper types.AccountKeeper, bankKeeper types.BankKeeper, sk types.StakingKeeper,
 	legacyRouter v1beta1.Router, router *baseapp.MsgServiceRouter,
 	config types.Config,
+	nftkeeper types.NFTKeeper,
 ) Keeper {
 	// ensure governance module account is set
 	if addr := authKeeper.GetModuleAddress(types.ModuleName); addr == nil {
@@ -78,6 +80,7 @@ func NewKeeper(
 		paramSpace:   paramSpace,
 		authKeeper:   authKeeper,
 		bankKeeper:   bankKeeper,
+		nftKeeper:    nftkeeper,
 		sk:           sk,
 		cdc:          cdc,
 		legacyRouter: legacyRouter,

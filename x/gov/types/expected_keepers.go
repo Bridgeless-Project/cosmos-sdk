@@ -3,7 +3,9 @@ package types
 import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
+	nfttypes "github.com/cosmos/cosmos-sdk/x/nft/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -61,4 +63,8 @@ type GovHooks interface {
 	AfterProposalVote(ctx sdk.Context, proposalID uint64, voterAddr sdk.AccAddress)        // Must be called after a vote on a proposal is cast
 	AfterProposalFailedMinDeposit(ctx sdk.Context, proposalID uint64)                      // Must be called when proposal fails to reach min deposit
 	AfterProposalVotingPeriodEnded(ctx sdk.Context, proposalID uint64)                     // Must be called when proposal's finishes it's voting period
+}
+
+type NFTKeeper interface {
+	GetAllNFTsByOwnerWithPagination(ctx sdk.Context, ownerAddress string, pagination *query.PageRequest) ([]nfttypes.NFT, *query.PageResponse, error)
 }
