@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
@@ -43,9 +44,43 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 			currValidators[valAddrStr] = val
 		}
 
+		// get all nfts related for delegator
+		nfts, _, err := keeper.nftKeeper.GetAllNFTsByOwnerWithPagination(ctx, voter.String(), &query.PageRequest{Limit: query.MaxLimit})
+		if err != nil {
+			keeper.Logger(ctx).Error("failed to get all nfts for the validator ", err)
+			return false
+		}
+
+		// iterate over all delegator's nfts to calculate power
+		for _, nft := range nfts {
+			// iterate over all delegations from voter, deduct from any delegated-to validators
+			keeper.sk.IterateDelegations(ctx, sdk.MustAccAddressFromBech32(nft.Address), func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
+				valAddrStr = delegation.GetValidatorAddr().String()
+
+				if val, ok := currValidators[valAddrStr]; ok {
+					// There is no need to handle the special case that validator address equal to voter address.
+					// Because voter's voting power will tally again even if there will be deduction of voter's voting power from validator.
+					val.DelegatorDeductions = val.DelegatorDeductions.Add(delegation.GetShares())
+					currValidators[valAddrStr] = val
+
+					// delegation shares * bonded / total shares
+					votingPower := delegation.GetShares().MulInt(val.BondedTokens).Quo(val.DelegatorShares)
+
+					for _, option := range vote.Options {
+						weight, _ := sdk.NewDecFromStr(option.Weight)
+						subPower := votingPower.Mul(weight)
+						results[option.Option] = results[option.Option].Add(subPower)
+					}
+					totalVotingPower = totalVotingPower.Add(votingPower)
+				}
+
+				return false
+			})
+		}
+
 		// iterate over all delegations from voter, deduct from any delegated-to validators
 		keeper.sk.IterateDelegations(ctx, voter, func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
-			valAddrStr := delegation.GetValidatorAddr().String()
+			valAddrStr = delegation.GetValidatorAddr().String()
 
 			if val, ok := currValidators[valAddrStr]; ok {
 				// There is no need to handle the special case that validator address equal to voter address.
