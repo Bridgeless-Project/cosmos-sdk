@@ -25,8 +25,6 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	authKeeper types.AccountKeeper
 	bankKeeper types.BankKeeper
-	//govKeeper  types.GovKeeper
-	//nftKeeper  types.NFTKeeper
 	hooks      types.StakingHooks
 	paramstore paramtypes.Subspace
 }
@@ -37,8 +35,6 @@ func NewKeeper(
 	key storetypes.StoreKey,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	//gk types.GovKeeper,
-	//nk types.NFTKeeper,
 	ps paramtypes.Subspace,
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -60,8 +56,6 @@ func NewKeeper(
 		cdc:        cdc,
 		authKeeper: ak,
 		bankKeeper: bk,
-		//govKeeper:  gk,
-		//nftKeeper:  nk,
 		paramstore: ps,
 		hooks:      nil,
 	}

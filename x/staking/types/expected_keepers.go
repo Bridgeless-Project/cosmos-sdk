@@ -104,11 +104,3 @@ type StakingHooks interface {
 	BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error
 	BeforeDelegationUpdated(ctx sdk.Context, delAddress sdk.AccAddress) error
 }
-
-//type GovKeeper interface {
-//	GetProposalsFiltered(ctx sdk.Context, params govtypes.QueryProposalsParams) govtypes.Proposals
-//}
-
-//type NFTKeeper interface {
-//	GetNFT(ctx sdk.Context, address string) (val nfttypes.NFT, found bool)
-//}
