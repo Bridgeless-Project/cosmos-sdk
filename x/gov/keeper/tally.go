@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
@@ -17,6 +18,8 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	results[v1.OptionAbstain] = sdk.ZeroDec()
 	results[v1.OptionNo] = sdk.ZeroDec()
 	results[v1.OptionNoWithVeto] = sdk.ZeroDec()
+
+	votingParams := keeper.GetVotingParams(ctx)
 
 	totalVotingPower := sdk.ZeroDec()
 	currValidators := make(map[string]v1.ValidatorGovInfo)
@@ -57,6 +60,12 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 			keeper.sk.IterateDelegations(ctx, sdk.MustAccAddressFromBech32(nft.Address), func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
 				valAddrStr = delegation.GetValidatorAddr().String()
 
+				// validate that delegation is available to votes
+				if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+					keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
+					return false
+				}
+
 				if val, ok := currValidators[valAddrStr]; ok {
 					// There is no need to handle the special case that validator address equal to voter address.
 					// Because voter's voting power will tally again even if there will be deduction of voter's voting power from validator.
@@ -81,6 +90,12 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 		// iterate over all delegations from voter, deduct from any delegated-to validators
 		keeper.sk.IterateDelegations(ctx, voter, func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
 			valAddrStr = delegation.GetValidatorAddr().String()
+
+			// validate that delegation is available to vote
+			if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+				keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
+				return false
+			}
 
 			if val, ok := currValidators[valAddrStr]; ok {
 				// There is no need to handle the special case that validator address equal to voter address.

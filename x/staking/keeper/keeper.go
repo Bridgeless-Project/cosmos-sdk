@@ -25,8 +25,8 @@ type Keeper struct {
 	cdc        codec.BinaryCodec
 	authKeeper types.AccountKeeper
 	bankKeeper types.BankKeeper
-	govKeeper  types.GovKeeper
-	nftKeeper  types.NFTKeeper
+	//govKeeper  types.GovKeeper
+	//nftKeeper  types.NFTKeeper
 	hooks      types.StakingHooks
 	paramstore paramtypes.Subspace
 }
@@ -37,8 +37,8 @@ func NewKeeper(
 	key storetypes.StoreKey,
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
-	gk types.GovKeeper,
-	nk types.NFTKeeper,
+	//gk types.GovKeeper,
+	//nk types.NFTKeeper,
 	ps paramtypes.Subspace,
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -60,8 +60,8 @@ func NewKeeper(
 		cdc:        cdc,
 		authKeeper: ak,
 		bankKeeper: bk,
-		govKeeper:  gk,
-		nftKeeper:  nk,
+		//govKeeper:  gk,
+		//nftKeeper:  nk,
 		paramstore: ps,
 		hooks:      nil,
 	}
@@ -103,4 +103,8 @@ func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
 	store := ctx.KVStore(k.storeKey)
 	bz := k.cdc.MustMarshal(&sdk.IntProto{Int: power})
 	store.Set(types.LastTotalPowerKey, bz)
+}
+
+func (k Keeper) BeforeDelegationUpdated(_ sdk.Context, _ sdk.AccAddress) error {
+	return nil
 }

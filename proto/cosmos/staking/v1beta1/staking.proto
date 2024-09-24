@@ -209,9 +209,7 @@ message Delegation {
     (gogoproto.nullable)   = false
   ];
   // delegation timestamp
-  google.protobuf.Timestamp timestamp = 5;
-
-
+  google.protobuf.Timestamp timestamp = 5 [(gogoproto.stdtime) = true, (gogoproto.nullable)   = false] ;
 }
 
 // UnbondingDelegation stores all of a single delegator's unbonding bonds

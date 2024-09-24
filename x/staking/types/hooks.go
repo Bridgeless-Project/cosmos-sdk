@@ -103,3 +103,12 @@ func (h MultiStakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.V
 	}
 	return nil
 }
+
+func (h MultiStakingHooks) BeforeDelegationUpdated(ctx sdk.Context, delAddress sdk.AccAddress) error {
+	for i := range h {
+		if err := h[i].BeforeDelegationUpdated(ctx, delAddress); err != nil {
+			return err
+		}
+	}
+	return nil
+}

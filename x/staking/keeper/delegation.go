@@ -3,7 +3,6 @@ package keeper
 import (
 	"bytes"
 	"fmt"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"time"
 
 	"cosmossdk.io/math"
@@ -688,6 +687,8 @@ func (k Keeper) Delegate(
 	// Update delegation
 	delegation.Shares = delegation.Shares.Add(newShares)
 	delegation.Amount = delegation.Amount.Add(sdk.NewDecFromInt(bondAmt))
+
+	delegation.Timestamp = ctx.BlockTime()
 	k.SetDelegation(ctx, delegation)
 
 	// Call the after-modification hook
@@ -754,6 +755,9 @@ func (k Keeper) Unbond(
 	if delegation.Shares.IsZero() {
 		err = k.RemoveDelegation(ctx, delegation)
 	} else {
+
+		delegation.Timestamp = ctx.BlockTime()
+
 		k.SetDelegation(ctx, delegation)
 		// call the after delegation modification hook
 		err = k.AfterDelegationModified(ctx, delegatorAddress, delegation.GetValidatorAddr())
@@ -802,9 +806,8 @@ func (k Keeper) getBeginInfo(
 func (k Keeper) Undelegate(
 	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
 ) (time.Time, error) {
-
-	if k.validateIsDelegationVoted(ctx, delAddr) {
-		return time.Time{}, types.ErrVotedDelegation
+	if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
+		return time.Time{}, err
 	}
 
 	validator, found := k.GetValidator(ctx, valAddr)
@@ -891,8 +894,8 @@ func (k Keeper) BeginRedelegation(
 		return time.Time{}, types.ErrSelfRedelegation
 	}
 
-	if k.validateIsDelegationVoted(ctx, delAddr) {
-		return time.Time{}, types.ErrVotedDelegation
+	if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
+		return time.Time{}, err
 	}
 
 	dstValidator, found := k.GetValidator(ctx, valDstAddr)
@@ -1022,20 +1025,4 @@ func (k Keeper) ValidateUnbondAmount(
 	}
 
 	return shares, nil
-}
-
-// This function validates that delegation can be unbound or redelegated.
-// It`s used to avoid the sandwich attack during proposal voting
-func (k Keeper) validateIsDelegationVoted(ctx sdk.Context, delAddr sdk.AccAddress) bool {
-	nft, found := k.nftKeeper.GetNFT(ctx, delAddr.String())
-	if found {
-		delAddr = sdk.MustAccAddressFromBech32(nft.Owner)
-	}
-
-	proposals := k.govKeeper.GetProposalsFiltered(ctx, govtypes.QueryProposalsParams{
-		Voter:          delAddr,
-		ProposalStatus: govtypes.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
-	})
-
-	return len(proposals) > 0
 }

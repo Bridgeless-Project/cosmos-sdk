@@ -114,7 +114,8 @@ message DepositParams {
 // VotingParams defines the params for voting on governance proposals.
 message VotingParams {
   //  Length of the voting period.
-  google.protobuf.Duration voting_period = 1 [(gogoproto.stdduration) = true];
+  google.protobuf.Duration voting_period = 1 [(gogoproto.nullable) = false,(gogoproto.stdduration) = true] ;
+  google.protobuf.Duration locking_period = 2 [(gogoproto.nullable) = false,(gogoproto.stdduration) = true];
 }
 
 // TallyParams defines the params for tallying votes on governance proposals.

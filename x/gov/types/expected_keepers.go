@@ -67,4 +67,5 @@ type GovHooks interface {
 
 type NFTKeeper interface {
 	GetAllNFTsByOwnerWithPagination(ctx sdk.Context, ownerAddress string, pagination *query.PageRequest) ([]nfttypes.NFT, *query.PageResponse, error)
+	GetNFT(ctx sdk.Context, address string) (val nfttypes.NFT, found bool)
 }

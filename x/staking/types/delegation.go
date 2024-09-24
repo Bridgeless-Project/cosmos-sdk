@@ -77,6 +77,8 @@ func (d Delegation) GetValidatorAddr() sdk.ValAddress {
 }
 func (d Delegation) GetShares() sdk.Dec { return d.Shares }
 
+func (d Delegation) GetTimestamp() time.Time { return d.Timestamp }
+
 // String returns a human readable string representation of a Delegation.
 func (d Delegation) String() string {
 	out, _ := yaml.Marshal(d)
