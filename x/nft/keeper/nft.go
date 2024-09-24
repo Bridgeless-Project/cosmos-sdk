@@ -16,7 +16,7 @@ func (k Keeper) SetNFT(ctx sdk.Context, v types.NFT) {
 	store.Set(types.NFTKey(v.Address), b)
 }
 
-// GetNFT returns a NFT from its index
+// GetNFT returns a NFT from its address
 func (k Keeper) GetNFT(
 	ctx sdk.Context,
 	address string,

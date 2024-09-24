@@ -3,6 +3,7 @@ package keeper
 import (
 	"bytes"
 	"fmt"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	"time"
 
 	"cosmossdk.io/math"
@@ -801,6 +802,11 @@ func (k Keeper) getBeginInfo(
 func (k Keeper) Undelegate(
 	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
 ) (time.Time, error) {
+
+	if k.validateIsDelegationVoted(ctx, delAddr) {
+		return time.Time{}, types.ErrVotedDelegation
+	}
+
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return time.Time{}, types.ErrNoDelegatorForAddress
@@ -883,6 +889,10 @@ func (k Keeper) BeginRedelegation(
 ) (completionTime time.Time, err error) {
 	if bytes.Equal(valSrcAddr, valDstAddr) {
 		return time.Time{}, types.ErrSelfRedelegation
+	}
+
+	if k.validateIsDelegationVoted(ctx, delAddr) {
+		return time.Time{}, types.ErrVotedDelegation
 	}
 
 	dstValidator, found := k.GetValidator(ctx, valDstAddr)
@@ -1012,4 +1022,20 @@ func (k Keeper) ValidateUnbondAmount(
 	}
 
 	return shares, nil
+}
+
+// This function validates that delegation can be unbound or redelegated.
+// It`s used to avoid the sandwich attack during proposal voting
+func (k Keeper) validateIsDelegationVoted(ctx sdk.Context, delAddr sdk.AccAddress) bool {
+	nft, found := k.nftKeeper.GetNFT(ctx, delAddr.String())
+	if found {
+		delAddr = sdk.MustAccAddressFromBech32(nft.Owner)
+	}
+
+	proposals := k.govKeeper.GetProposalsFiltered(ctx, govtypes.QueryProposalsParams{
+		Voter:          delAddr,
+		ProposalStatus: govtypes.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
+	})
+
+	return len(proposals) > 0
 }

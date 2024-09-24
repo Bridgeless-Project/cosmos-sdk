@@ -186,6 +186,24 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 Set the delegate amount. In the first case, if no delegation is found, initialize the amount with an empty value. Just
 before returning, set `delegation.Amount`.
 
+
+- [ValidateIsVotedDelegation](x/staking/keeper/delegation.go)
+This function validates that delegation can be unbound or redelegated. It`s used to avoid the sandwich attack during proposal voting
+
+      func (k Keeper) validateIsVotedDelegation(ctx sdk.Context, delAddr sdk.AccAddress) bool {
+          nft, found := k.nftKeeper.GetNFT(ctx, delAddr.String())
+          if found {
+          delAddr = sdk.MustAccAddressFromBech32(nft.Owner)
+          }
+          
+              proposals := k.govKeeper.GetProposalsFiltered(ctx, govtypes.QueryProposalsParams{
+                  Voter:          delAddr,
+                  ProposalStatus: govtypes.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
+              })
+          
+          return len(proposals) > 0
+      }
+
 - [Unbond](x/staking/keeper/delegation.go)
   The `Unbond` method unbonds a particular delegation and perform associated store operations.
 
@@ -284,5 +302,8 @@ is properly managed by the validator pool.
       }
 
 The following code snippet illustrates the process of minting tokens.
+
+
+### Gov module 
 
 

@@ -4,6 +4,8 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	nfttypes "github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
 // DistributionKeeper expected distribution keeper (noalias)
@@ -102,4 +104,12 @@ type StakingHooks interface {
 	BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error        // Must be called when a delegation is removed
 	AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error
 	BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error
+}
+
+type GovKeeper interface {
+	GetProposalsFiltered(ctx sdk.Context, params govtypes.QueryProposalsParams) govtypes.Proposals
+}
+
+type NFTKeeper interface {
+	GetNFT(ctx sdk.Context, address string) (val nfttypes.NFT, found bool)
 }
