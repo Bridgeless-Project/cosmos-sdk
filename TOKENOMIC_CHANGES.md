@@ -163,9 +163,6 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 
       google.protobuf.Timestamp timestamp = 5 [(gogoproto.stdtime) = true, (gogoproto.nullable)   = false] ;
 
-- [BeforeDelegationUpdated](x/staking/types/expected_keepers.go) This hook, generally, is used to validate that delegation can be updated.
-
-
 - [Delegate](x/staking/keeper/delegation.go)
   The `Delegate` performs a delegation, set/update everything necessary within the store. The `tokenSrc` indicates the
   bond status of the incoming funds.
