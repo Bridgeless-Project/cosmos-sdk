@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	consensusVersion uint64 = 3
+	consensusVersion uint64 = 4
 )
 
 var (
@@ -140,6 +140,10 @@ func (am AppModule) RegisterServices(cfg module.Configurator) {
 	m := keeper.NewMigrator(am.keeper)
 	cfg.RegisterMigration(types.ModuleName, 1, m.Migrate1to2)
 	cfg.RegisterMigration(types.ModuleName, 2, m.Migrate2to3)
+	if err := cfg.RegisterMigration(types.ModuleName, 3, m.Migrate3to4); err != nil {
+		panic(err)
+	}
+
 }
 
 // InitGenesis performs genesis initialization for the staking module. It returns

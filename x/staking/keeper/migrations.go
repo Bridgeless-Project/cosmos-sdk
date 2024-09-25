@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v043 "github.com/cosmos/cosmos-sdk/x/staking/migrations/v043"
 	v046 "github.com/cosmos/cosmos-sdk/x/staking/migrations/v046"
+	v04626 "github.com/cosmos/cosmos-sdk/x/staking/migrations/v046_26"
 )
 
 // Migrator is a struct for handling in-place store migrations.
@@ -26,4 +27,9 @@ func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 // Migrate2to3 migrates x/staking state from consensus version 2 to 3.
 func (m Migrator) Migrate2to3(ctx sdk.Context) error {
 	return v046.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc, m.keeper.paramstore)
+}
+
+// Migrate2to3 migrates x/staking state from consensus version 3 to 4.
+func (m Migrator) Migrate3to4(ctx sdk.Context) error {
+	return v04626.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }
