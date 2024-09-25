@@ -19,7 +19,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 	results[v1.OptionNo] = sdk.ZeroDec()
 	results[v1.OptionNoWithVeto] = sdk.ZeroDec()
 
-	votingParams := keeper.GetVotingParams(ctx)
+	tallyParams := keeper.GetTallyParams(ctx)
 
 	totalVotingPower := sdk.ZeroDec()
 	currValidators := make(map[string]v1.ValidatorGovInfo)
@@ -61,7 +61,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 				valAddrStr = delegation.GetValidatorAddr().String()
 
 				// validate that delegation is available to vote
-				if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+				if !delegation.GetTimestamp().Add(tallyParams.DepositLockingPeriod).Before(ctx.BlockTime()) {
 					keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
 					return false
 				}
@@ -92,7 +92,7 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 			valAddrStr = delegation.GetValidatorAddr().String()
 
 			// validate that delegation is available to vote
-			if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+			if !delegation.GetTimestamp().Add(tallyParams.DepositLockingPeriod).Before(ctx.BlockTime()) {
 				keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
 				return false
 			}
@@ -138,7 +138,6 @@ func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, 
 		totalVotingPower = totalVotingPower.Add(votingPower)
 	}
 
-	tallyParams := keeper.GetTallyParams(ctx)
 	tallyResults = v1.NewTallyResultFromMap(results)
 
 	// TODO: Upgrade the spec to cover all of these cases & remove pseudocode.
