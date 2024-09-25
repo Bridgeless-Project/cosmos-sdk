@@ -121,7 +121,3 @@ func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ 
 func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
 	return nil
 }
-
-func (h Hooks) BeforeDelegationUpdated(_ sdk.Context, _ sdk.AccAddress) error {
-	return nil
-}

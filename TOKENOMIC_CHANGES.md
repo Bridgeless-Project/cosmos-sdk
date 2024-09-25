@@ -193,7 +193,6 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 Set the delegate amount. In the first case, if no delegation is found, initialize the amount with an empty value. Just
 before returning, set `delegation.Amount`.
 
-
 - [Unbond](x/staking/keeper/delegation.go)
   The `Unbond` method unbonds a particular delegation and perform associated store operations.
 
@@ -228,35 +227,6 @@ before returning, set `delegation.Amount`.
 
 Move the call to `RemoveValidatorTokensAndShares` earlier in the process. This is necessary to set the amount of tokens
 before updating the delegation.
-
-- [Undelegate](x/staking/keeper/delegation.go) Insert `BeforeDelegationUpdated` hook to validate that delegation is not used for voting
-
-      func (k Keeper) Undelegate(
-        ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
-      ) (time.Time, error) {
-        if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
-          return time.Time{}, err
-        }
-      
-        ...
- 
-      }
-
-
-- [BeginRedelegation](x/staking/keeper/delegation.go) Insert `BeforeDelegationUpdated` hook to validate that delegation is not used for voting
-
-      func (k Keeper) BeginRedelegation(
-        ctx sdk.Context, delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress, sharesAmount sdk.Dec,
-      ) (completionTime time.Time, err error) {
-        
-          ...
-      
-          if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
-            return time.Time{}, err
-          }
-          ...
-      }
-
 
 ### Mint module
 
@@ -395,4 +365,4 @@ The following code snippet illustrates the process of minting tokens.
               return false
           })
 
-  Add ability to vote taking into account NFT delegation. And also to prevent `sandwich attack` this function ignores recent delegations
+Add ability to vote taking into account NFT delegation. And also to prevent `sandwich attack` this function ignores recent delegations

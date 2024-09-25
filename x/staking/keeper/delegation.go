@@ -687,8 +687,8 @@ func (k Keeper) Delegate(
 	// Update delegation
 	delegation.Shares = delegation.Shares.Add(newShares)
 	delegation.Amount = delegation.Amount.Add(sdk.NewDecFromInt(bondAmt))
-
 	delegation.Timestamp = ctx.BlockTime()
+
 	k.SetDelegation(ctx, delegation)
 
 	// Call the after-modification hook
@@ -755,7 +755,6 @@ func (k Keeper) Unbond(
 	if delegation.Shares.IsZero() {
 		err = k.RemoveDelegation(ctx, delegation)
 	} else {
-
 		delegation.Timestamp = ctx.BlockTime()
 
 		k.SetDelegation(ctx, delegation)
@@ -806,10 +805,6 @@ func (k Keeper) getBeginInfo(
 func (k Keeper) Undelegate(
 	ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
 ) (time.Time, error) {
-	if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
-		return time.Time{}, err
-	}
-
 	validator, found := k.GetValidator(ctx, valAddr)
 	if !found {
 		return time.Time{}, types.ErrNoDelegatorForAddress
@@ -892,10 +887,6 @@ func (k Keeper) BeginRedelegation(
 ) (completionTime time.Time, err error) {
 	if bytes.Equal(valSrcAddr, valDstAddr) {
 		return time.Time{}, types.ErrSelfRedelegation
-	}
-
-	if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
-		return time.Time{}, err
 	}
 
 	dstValidator, found := k.GetValidator(ctx, valDstAddr)

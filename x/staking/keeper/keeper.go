@@ -98,7 +98,3 @@ func (k Keeper) SetLastTotalPower(ctx sdk.Context, power math.Int) {
 	bz := k.cdc.MustMarshal(&sdk.IntProto{Int: power})
 	store.Set(types.LastTotalPowerKey, bz)
 }
-
-func (k Keeper) BeforeDelegationUpdated(_ sdk.Context, _ sdk.AccAddress) error {
-	return nil
-}
