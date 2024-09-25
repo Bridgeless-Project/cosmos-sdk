@@ -238,7 +238,7 @@ func (keeper Keeper) ActivateVotingPeriod(ctx sdk.Context, proposal v1.Proposal)
 	startTime := ctx.BlockHeader().Time
 	proposal.VotingStartTime = &startTime
 	votingPeriod := keeper.GetVotingParams(ctx).VotingPeriod
-	endTime := proposal.VotingStartTime.Add(*votingPeriod)
+	endTime := proposal.VotingStartTime.Add(votingPeriod)
 	proposal.VotingEndTime = &endTime
 	proposal.Status = v1.StatusVotingPeriod
 	keeper.SetProposal(ctx, proposal)

@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -139,7 +138,7 @@ func validateTallyParams(i interface{}) error {
 // NewVotingParams creates a new VotingParams object
 func NewVotingParams(votingPeriod time.Duration) VotingParams {
 	return VotingParams{
-		VotingPeriod: &votingPeriod,
+		VotingPeriod: votingPeriod,
 	}
 }
 
@@ -157,10 +156,6 @@ func validateVotingParams(i interface{}) error {
 	v, ok := i.(VotingParams)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v.VotingPeriod == nil {
-		return errors.New("voting period must not be nil")
 	}
 
 	if v.VotingPeriod.Seconds() <= 0 {

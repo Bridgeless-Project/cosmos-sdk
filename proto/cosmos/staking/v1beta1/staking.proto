@@ -208,6 +208,8 @@ message Delegation {
     (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec",
     (gogoproto.nullable)   = false
   ];
+  // delegation timestamp
+  google.protobuf.Timestamp timestamp = 5 [(gogoproto.stdtime) = true, (gogoproto.nullable)   = false] ;
 }
 
 // UnbondingDelegation stores all of a single delegator's unbonding bonds

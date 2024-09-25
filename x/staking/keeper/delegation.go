@@ -687,6 +687,8 @@ func (k Keeper) Delegate(
 	// Update delegation
 	delegation.Shares = delegation.Shares.Add(newShares)
 	delegation.Amount = delegation.Amount.Add(sdk.NewDecFromInt(bondAmt))
+	delegation.Timestamp = ctx.BlockTime()
+
 	k.SetDelegation(ctx, delegation)
 
 	// Call the after-modification hook
@@ -753,6 +755,8 @@ func (k Keeper) Unbond(
 	if delegation.Shares.IsZero() {
 		err = k.RemoveDelegation(ctx, delegation)
 	} else {
+		delegation.Timestamp = ctx.BlockTime()
+
 		k.SetDelegation(ctx, delegation)
 		// call the after delegation modification hook
 		err = k.AfterDelegationModified(ctx, delegatorAddress, delegation.GetValidatorAddr())

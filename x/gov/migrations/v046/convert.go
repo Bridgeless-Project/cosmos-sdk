@@ -182,7 +182,7 @@ func convertToNewDepParams(oldDepParams v1beta1.DepositParams) v1.DepositParams 
 
 func convertToNewVotingParams(oldVoteParams v1beta1.VotingParams) v1.VotingParams {
 	return v1.VotingParams{
-		VotingPeriod: &oldVoteParams.VotingPeriod,
+		VotingPeriod: oldVoteParams.VotingPeriod,
 	}
 }
 

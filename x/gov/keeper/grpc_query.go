@@ -380,7 +380,7 @@ func (q legacyQueryServer) Params(c context.Context, req *v1beta1.QueryParamsReq
 	}
 
 	if resp.VotingParams != nil {
-		response.VotingParams = v1beta1.NewVotingParams(*resp.VotingParams.VotingPeriod)
+		response.VotingParams = v1beta1.NewVotingParams(resp.VotingParams.VotingPeriod)
 	}
 
 	if resp.TallyParams != nil {

@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution/types"
+	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
@@ -22,7 +22,7 @@ func (k Keeper) initializeDelegation(ctx sdk.Context, val sdk.ValAddress, del sd
 	// we don't store directly, so multiply delegation shares * (tokens per share)
 	// note: necessary to truncate so we don't allow withdrawing more rewards than owed
 	stake := validator.TokensFromSharesTruncated(delegation.GetShares())
-	k.SetDelegatorStartingInfo(ctx, val, del, types.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
+	k.SetDelegatorStartingInfo(ctx, val, del, distributiontypes.NewDelegatorStartingInfo(previousPeriod, stake, uint64(ctx.BlockHeight())))
 }
 
 // calculate the rewards accrued by a delegation between two periods
@@ -86,7 +86,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 	endingHeight := uint64(ctx.BlockHeight())
 	if endingHeight > startingHeight {
 		k.IterateValidatorSlashEventsBetween(ctx, del.GetValidatorAddr(), startingHeight, endingHeight,
-			func(height uint64, event types.ValidatorSlashEvent) (stop bool) {
+			func(height uint64, event distributiontypes.ValidatorSlashEvent) (stop bool) {
 				if event.ValidatorPeriod > startingPeriod {
 					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
 
@@ -146,7 +146,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val stakingtypes.ValidatorI, del stakingtypes.DelegationI) (sdk.Coins, error) {
 	// check existence of delegator starting info
 	if !k.HasDelegatorStartingInfo(ctx, del.GetValidatorAddr(), del.GetDelegatorAddr()) {
-		return nil, types.ErrEmptyDelegationDistInfo
+		return nil, distributiontypes.ErrEmptyDelegationDistInfo
 	}
 
 	// end current period and calculate rewards
@@ -174,7 +174,7 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val stakingtypes.Vali
 	// add coins to user account
 	if !finalRewards.IsZero() {
 		withdrawAddr := k.GetDelegatorWithdrawAddr(ctx, del.GetDelegatorAddr())
-		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawAddr, finalRewards)
+		err := k.bankKeeper.SendCoinsFromModuleToAccount(ctx, distributiontypes.ModuleName, withdrawAddr, finalRewards)
 		if err != nil {
 			return nil, err
 		}
@@ -182,7 +182,7 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val stakingtypes.Vali
 
 	// update the outstanding rewards and the community pool only if the
 	// transaction was successful
-	k.SetValidatorOutstandingRewards(ctx, del.GetValidatorAddr(), types.ValidatorOutstandingRewards{Rewards: outstanding.Sub(rewards)})
+	k.SetValidatorOutstandingRewards(ctx, del.GetValidatorAddr(), distributiontypes.ValidatorOutstandingRewards{Rewards: outstanding.Sub(rewards)})
 	feePool := k.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(remainder...)
 	k.SetFeePool(ctx, feePool)
@@ -209,10 +209,10 @@ func (k Keeper) withdrawDelegationRewards(ctx sdk.Context, val stakingtypes.Vali
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventTypeWithdrawRewards,
+			distributiontypes.EventTypeWithdrawRewards,
 			sdk.NewAttribute(sdk.AttributeKeyAmount, emittedRewards.String()),
-			sdk.NewAttribute(types.AttributeKeyValidator, val.GetOperator().String()),
-			sdk.NewAttribute(types.AttributeKeyDelegator, del.GetDelegatorAddr().String()),
+			sdk.NewAttribute(distributiontypes.AttributeKeyValidator, val.GetOperator().String()),
+			sdk.NewAttribute(distributiontypes.AttributeKeyDelegator, del.GetDelegatorAddr().String()),
 		),
 	)
 

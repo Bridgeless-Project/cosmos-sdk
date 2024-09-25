@@ -3,6 +3,7 @@ package types
 import (
 	"cosmossdk.io/math"
 	tmprotocrypto "github.com/tendermint/tendermint/proto/tendermint/crypto"
+	"time"
 
 	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,6 +14,7 @@ type DelegationI interface {
 	GetDelegatorAddr() sdk.AccAddress // delegator sdk.AccAddress for the bond
 	GetValidatorAddr() sdk.ValAddress // validator operator address
 	GetShares() sdk.Dec               // amount of validator's shares held in this delegation
+	GetTimestamp() time.Time          // delegation timestamp
 }
 
 // ValidatorI expected validator functions
