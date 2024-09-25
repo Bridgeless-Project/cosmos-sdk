@@ -158,10 +158,17 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 
 ### Staking module
 
+- [Delegation](proto/cosmos/staking/v1beta/staking.proto)
+  Expand the `Delegation` struct by adding a timestamp field. The field includes the timestamp when the deposit was updated.
+
+      google.protobuf.Timestamp timestamp = 5 [(gogoproto.stdtime) = true, (gogoproto.nullable)   = false] ;
+
+- [BeforeDelegationUpdated](x/staking/types/expected_keepers.go) This hook, generally, is used to validate that delegation can be updated.
+
+
 - [Delegate](x/staking/keeper/delegation.go)
   The `Delegate` performs a delegation, set/update everything necessary within the store. The `tokenSrc` indicates the
-  bond
-  status of the incoming funds.
+  bond status of the incoming funds.
 
       func (k Keeper) Delegate(ctx sdk.Context, delAddr sdk.AccAddress, bondAmt math.Int, tokenSrc types.BondStatus,
           validator types.Validator, subtractAccount bool) (newShares sdk.Dec, err error) {
@@ -186,23 +193,6 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 Set the delegate amount. In the first case, if no delegation is found, initialize the amount with an empty value. Just
 before returning, set `delegation.Amount`.
 
-
-- [ValidateIsVotedDelegation](x/staking/keeper/delegation.go)
-This function validates that delegation can be unbound or redelegated. It`s used to avoid the sandwich attack during proposal voting
-
-      func (k Keeper) validateIsVotedDelegation(ctx sdk.Context, delAddr sdk.AccAddress) bool {
-          nft, found := k.nftKeeper.GetNFT(ctx, delAddr.String())
-          if found {
-          delAddr = sdk.MustAccAddressFromBech32(nft.Owner)
-          }
-          
-              proposals := k.govKeeper.GetProposalsFiltered(ctx, govtypes.QueryProposalsParams{
-                  Voter:          delAddr,
-                  ProposalStatus: govtypes.ProposalStatus_PROPOSAL_STATUS_VOTING_PERIOD,
-              })
-          
-          return len(proposals) > 0
-      }
 
 - [Unbond](x/staking/keeper/delegation.go)
   The `Unbond` method unbonds a particular delegation and perform associated store operations.
@@ -238,6 +228,35 @@ This function validates that delegation can be unbound or redelegated. It`s used
 
 Move the call to `RemoveValidatorTokensAndShares` earlier in the process. This is necessary to set the amount of tokens
 before updating the delegation.
+
+- [Undelegate](x/staking/keeper/delegation.go) Insert `BeforeDelegationUpdated` hook to validate that delegation is not used for voting
+
+      func (k Keeper) Undelegate(
+        ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress, sharesAmount sdk.Dec,
+      ) (time.Time, error) {
+        if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
+          return time.Time{}, err
+        }
+      
+        ...
+ 
+      }
+
+
+- [BeginRedelegation](x/staking/keeper/delegation.go) Insert `BeforeDelegationUpdated` hook to validate that delegation is not used for voting
+
+      func (k Keeper) BeginRedelegation(
+        ctx sdk.Context, delAddr sdk.AccAddress, valSrcAddr, valDstAddr sdk.ValAddress, sharesAmount sdk.Dec,
+      ) (completionTime time.Time, err error) {
+        
+          ...
+      
+          if err := k.hooks.BeforeDelegationUpdated(ctx, delAddr); err != nil {
+            return time.Time{}, err
+          }
+          ...
+      }
+
 
 ### Mint module
 
@@ -306,4 +325,74 @@ The following code snippet illustrates the process of minting tokens.
 
 ### Gov module 
 
+- [Tally](x/gov/keeper/tally.go) Tally iterates over the votes and updates the tally of a proposal based on the voting power of the voters
 
+      func (keeper Keeper) Tally(ctx sdk.Context, proposal v1.Proposal) (passes bool, burnDeposits bool, tallyResults v1.TallyResult) {
+          
+          ...
+      
+          votingParams := keeper.GetVotingParams(ctx)
+      
+          ...
+      
+          keeper.IterateVotes(ctx, proposal.Id, func(vote v1.Vote) bool {
+              ...
+      
+              // get all nfts related for delegator
+              nfts, _, err := keeper.nftKeeper.GetAllNFTsByOwnerWithPagination(ctx, voter.String(), &query.PageRequest{Limit: query.MaxLimit})
+              if err != nil {
+                  keeper.Logger(ctx).Error("failed to get all nfts for the validator ", err)
+                  return false
+              }
+      
+              // iterate over all delegator's nfts to calculate power
+              for _, nft := range nfts {
+                  // iterate over all delegations from voter, deduct from any delegated-to validators
+                  keeper.sk.IterateDelegations(ctx, sdk.MustAccAddressFromBech32(nft.Address), func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
+                      valAddrStr = delegation.GetValidatorAddr().String()
+      
+                      // validate that delegation is available to votes
+                      if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+                          keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
+                          return false
+                      }
+      
+                      if val, ok := currValidators[valAddrStr]; ok {
+                          // There is no need to handle the special case that validator address equal to voter address.
+                          // Because voter's voting power will tally again even if there will be deduction of voter's voting power from validator.
+                          val.DelegatorDeductions = val.DelegatorDeductions.Add(delegation.GetShares())
+                          currValidators[valAddrStr] = val
+      
+                          // delegation shares * bonded / total shares
+                          votingPower := delegation.GetShares().MulInt(val.BondedTokens).Quo(val.DelegatorShares)
+      
+                          for _, option := range vote.Options {
+                              weight, _ := sdk.NewDecFromStr(option.Weight)
+                              subPower := votingPower.Mul(weight)
+                              results[option.Option] = results[option.Option].Add(subPower)
+                          }
+                          totalVotingPower = totalVotingPower.Add(votingPower)
+                      }
+      
+                      return false
+                  })
+              }
+      
+              // iterate over all delegations from voter, deduct from any delegated-to validators
+              keeper.sk.IterateDelegations(ctx, voter, func(index int64, delegation stakingtypes.DelegationI) (stop bool) {
+                  valAddrStr = delegation.GetValidatorAddr().String()
+      
+                  // validate that delegation is available to vote
+                  if !delegation.GetTimestamp().Add(votingParams.LockingPeriod).Before(ctx.BlockTime()) {
+                      keeper.Logger(ctx).Info(fmt.Sprintf("delegation %s is not yet unlocked", delegation.GetValidatorAddr().String()))
+                      return false
+                  }
+      
+                  ...
+              })
+      
+              keeper.deleteVote(ctx, vote.ProposalId, voter)
+              return false
+          })
+
+  Add ability to vote taking into account NFT delegation. And also to prevent `sandwich attack` this function ignores recent delegations
