@@ -11,36 +11,14 @@ import (
 func migrateTallyParams(ctx sdk.Context, paramSpace types.ParamSubspace) error {
 	ctx.Logger().Info(fmt.Sprintf("Performing v0.46.26 %s module migrations", types.ModuleName))
 
-	var tallyParams v1.TallyParams
-	paramSpace.Get(ctx, v1.ParamStoreKeyTallyParams, &tallyParams)
+	var oldTallyParams v1.TallyParams
+	paramSpace.Get(ctx, v1.ParamStoreKeyTallyParams, &oldTallyParams)
 
-	tallyParams.DepositLockingPeriod = 7200 * time.Second
-
-	paramSpace.Set(ctx, v1.ParamStoreKeyTallyParams, &tallyParams)
-	return nil
-}
-
-func migrateVotingParams(ctx sdk.Context, paramSpace types.ParamSubspace) error {
-	var oldVotingParams OldVotingParams
-	paramSpace.Get(ctx, v1.ParamStoreKeyTallyParams, &oldVotingParams)
-
-	vp := oldVotingParams.GetVotingPeriod()
-	votingParams := v1.VotingParams{
-		VotingPeriod: *vp,
-	}
-
-	paramSpace.Set(ctx, v1.ParamStoreKeyTallyParams, &votingParams)
+	oldTallyParams.DepositLockingPeriod = 7200 * time.Second
+	paramSpace.Set(ctx, v1.ParamStoreKeyTallyParams, oldTallyParams)
 	return nil
 }
 
 func MigrateStore(ctx sdk.Context, paramSpace types.ParamSubspace) error {
-	if err := migrateTallyParams(ctx, paramSpace); err != nil {
-		return err
-	}
-
-	if err := migrateVotingParams(ctx, paramSpace); err != nil {
-		return err
-	}
-
-	return nil
+	return migrateTallyParams(ctx, paramSpace)
 }

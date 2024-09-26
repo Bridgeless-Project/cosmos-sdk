@@ -27,6 +27,7 @@ func (m Migrator) Migrate2to3(ctx sdk.Context) error {
 	return v046.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }
 
+// Migrate3to4 migrate from version 3 to 4
 func (m Migrator) Migrate3to4(ctx sdk.Context) error {
 	return v04626.MigrateStore(ctx, m.keeper.paramSpace)
 }
