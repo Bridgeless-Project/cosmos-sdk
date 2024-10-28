@@ -17,6 +17,7 @@ import (
 type SendKeeper interface {
 	ViewKeeper
 
+	SetInternalHooks(sh types.BankHooks) BaseSendKeeper
 	InputOutputCoins(ctx sdk.Context, inputs []types.Input, outputs []types.Output) error
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 
@@ -43,6 +44,9 @@ type BaseSendKeeper struct {
 
 	// list of addresses that are restricted from receiving transactions
 	blockedAddrs map[string]bool
+
+	// hooks for operations on accounts(allow or forbid an operation)
+	hooks types.BankHooks
 }
 
 func NewBaseSendKeeper(
@@ -56,6 +60,12 @@ func NewBaseSendKeeper(
 		paramSpace:     paramSpace,
 		blockedAddrs:   blockedAddrs,
 	}
+}
+
+// GetParams returns the total set of bank parameters.
+func (k BaseSendKeeper) SetInternalHooks(sh types.BankHooks) BaseSendKeeper {
+	k.hooks = sh
+	return k
 }
 
 // GetParams returns the total set of bank parameters.
@@ -141,6 +151,14 @@ func (k BaseSendKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAd
 	err = k.addCoins(ctx, toAddr, amt)
 	if err != nil {
 		return err
+	}
+
+	//TODO wrap an error if the hook fails
+	if k.hooks != nil {
+		err = k.hooks.BeforeSendTokenToAddress(ctx, toAddr)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Create account if recipient does not exist.

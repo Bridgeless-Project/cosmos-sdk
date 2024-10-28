@@ -283,6 +283,10 @@ func NewSimApp(
 		app.StakingKeeper,
 	)
 
+	app.BankKeeper = app.BankKeeper.SetHooks(
+		banktypes.NewMultiBankHooks(app.NFTKeeper.Hooks()),
+	)
+
 	app.AccumulatorKeeper = accumulatorkeeper.NewKeeper(
 		appCodec, keys[accumulatortypes.StoreKey], keys[accumulatortypes.MemStoreKey], app.AccountKeeper, app.BankKeeper)
 

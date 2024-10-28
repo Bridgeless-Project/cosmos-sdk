@@ -18,4 +18,5 @@ var (
 	ErrEmptyProposalRecipient  = sdkerrors.Register(ModuleName, 11, "invalid community pool spend proposal recipient")
 	ErrNoValidatorExists       = sdkerrors.Register(ModuleName, 12, "validator does not exist")
 	ErrNoDelegationExists      = sdkerrors.Register(ModuleName, 13, "delegation does not exist")
+	ErrAddressISNFT            = sdkerrors.Register(ModuleName, 14, "address is an NFT")
 )

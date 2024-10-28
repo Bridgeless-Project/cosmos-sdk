@@ -24,6 +24,8 @@ type Keeper interface {
 	SendKeeper
 	WithMintCoinsRestriction(MintingRestrictionFn) BaseKeeper
 
+	SetHooks(sh types.BankHooks) BaseKeeper
+
 	InitGenesis(sdk.Context, *types.GenesisState)
 	ExportGenesis(sdk.Context) *types.GenesisState
 
@@ -59,34 +61,11 @@ type BaseKeeper struct {
 	storeKey               storetypes.StoreKey
 	paramSpace             paramtypes.Subspace
 	mintCoinsRestrictionFn MintingRestrictionFn
+
+	hooks types.BankHooks
 }
 
 type MintingRestrictionFn func(ctx sdk.Context, coins sdk.Coins) error
-
-// GetPaginatedTotalSupply queries for the supply, ignoring 0 coins, with a given pagination
-func (k BaseKeeper) GetPaginatedTotalSupply(ctx sdk.Context, pagination *query.PageRequest) (sdk.Coins, *query.PageResponse, error) {
-	store := ctx.KVStore(k.storeKey)
-	supplyStore := prefix.NewStore(store, types.SupplyKey)
-
-	supply := sdk.NewCoins()
-
-	pageRes, err := query.Paginate(supplyStore, pagination, func(key, value []byte) error {
-		var amount math.Int
-		err := amount.Unmarshal(value)
-		if err != nil {
-			return fmt.Errorf("unable to convert amount string to Int %v", err)
-		}
-
-		// `Add` omits the 0 coins addition to the `supply`.
-		supply = supply.Add(sdk.NewCoin(string(key), amount))
-		return nil
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return supply, pageRes, nil
-}
 
 // NewBaseKeeper returns a new BaseKeeper object with a given codec, dedicated
 // store key, an AccountKeeper implementation, and a parameter Subspace used to
@@ -114,6 +93,41 @@ func NewBaseKeeper(
 		paramSpace:             paramSpace,
 		mintCoinsRestrictionFn: func(ctx sdk.Context, coins sdk.Coins) error { return nil },
 	}
+}
+
+func (k BaseKeeper) SetHooks(sh types.BankHooks) BaseKeeper {
+	if k.hooks != nil {
+		panic("cannot set bank hooks twice")
+	}
+
+	k.hooks = sh
+	k.BaseSendKeeper = k.BaseSendKeeper.SetInternalHooks(sh)
+	return k
+}
+
+// GetPaginatedTotalSupply queries for the supply, ignoring 0 coins, with a given pagination
+func (k BaseKeeper) GetPaginatedTotalSupply(ctx sdk.Context, pagination *query.PageRequest) (sdk.Coins, *query.PageResponse, error) {
+	store := ctx.KVStore(k.storeKey)
+	supplyStore := prefix.NewStore(store, types.SupplyKey)
+
+	supply := sdk.NewCoins()
+
+	pageRes, err := query.Paginate(supplyStore, pagination, func(key, value []byte) error {
+		var amount math.Int
+		err := amount.Unmarshal(value)
+		if err != nil {
+			return fmt.Errorf("unable to convert amount string to Int %v", err)
+		}
+
+		// `Add` omits the 0 coins addition to the `supply`.
+		supply = supply.Add(sdk.NewCoin(string(key), amount))
+		return nil
+	})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return supply, pageRes, nil
 }
 
 // WithMintCoinsRestriction restricts the bank Keeper used within a specific module to
