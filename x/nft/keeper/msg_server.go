@@ -86,6 +86,10 @@ func (k msgServer) Delegate(goctx context.Context, request *types.MsgDelegate) (
 func (k msgServer) Send(goctx context.Context, request *types.MsgSend) (*types.MsgSendResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
+	if err := k.validateIsNFT(ctx, request.Recipient); err != nil {
+		return nil, errors.Wrap(err, "recipient address is NFT")
+	}
+
 	nft, ok := k.GetNFT(ctx, request.Address)
 	if !ok {
 		return nil, types.ErrNFTNotFound
@@ -163,4 +167,13 @@ func (k msgServer) Redelegate(goctx context.Context, request *types.MsgRedelegat
 	}
 
 	return new(types.MsgRedelegateResponse), nil
+}
+
+func (k msgServer) validateIsNFT(ctx sdk.Context, address string) error {
+	_, ok := k.GetNFT(ctx, address)
+	if !ok {
+		return nil
+	}
+
+	return types.ErrAddressISNFT
 }

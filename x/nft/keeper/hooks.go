@@ -29,7 +29,7 @@ func (h Hooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Ad
 	}
 
 	// validate that user can send only multiple of reward per period
-	if amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount) != sdk.ZeroInt() {
+	if !amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount).IsZero() {
 		return sdkerrors.Wrap(types.ErrInvalidAmount, "amount is not a multiple of reward per period")
 	}
 
@@ -43,12 +43,10 @@ func (h Hooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, am
 		return nil
 	}
 
-	// validate that user can send only multiple of reward per period
-	additionalPeriods := amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount)
-	if additionalPeriods != sdk.ZeroInt() {
-		return sdkerrors.Wrap(types.ErrInvalidAmount, "amount is not a multiple of reward per period")
-	}
-
+	// get count of additional periods
+	additionalPeriods := amt.AmountOf(nft.Denom).Quo(nft.RewardPerPeriod.Amount)
 	nft.VestingPeriodsCount += additionalPeriods.Int64()
+	h.k.SetNFT(ctx, nft)
+
 	return nil
 }
