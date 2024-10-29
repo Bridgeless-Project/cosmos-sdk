@@ -17,4 +17,5 @@ var (
 	ErrNFTNotFound               = sdkerrors.Register(ModuleName, 1106, "NFT not found")
 	ErrNFTInvalidOwner           = sdkerrors.Register(ModuleName, 1107, "NFT's owner is invalid")
 	ErrFailedToBeginRedeligation = sdkerrors.Register(ModuleName, 1108, "failed to begin redelegation")
+	ErrAddressISNFT              = sdkerrors.Register(ModuleName, 1109, "address is an NFT")
 )

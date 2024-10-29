@@ -13,9 +13,19 @@ func NewMultiBankHooks(hooks ...BankHooks) MultiBankHooks {
 	return hooks
 }
 
-func (h MultiBankHooks) BeforeSendTokenToAddress(ctx sdk.Context, receiver sdk.Address) error {
+func (h MultiBankHooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Address, coins sdk.Coins) error {
 	for i := range h {
-		if err := h[i].BeforeSendTokenToAddress(ctx, receiver); err != nil {
+		if err := h[i].BeforeSendTokenToAddress(ctx, sender, receiver, coins); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (h MultiBankHooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, coins sdk.Coins) error {
+	for i := range h {
+		if err := h[i].AfterSendTokenToAddress(ctx, receiver, coins); err != nil {
 			return err
 		}
 	}

@@ -143,6 +143,13 @@ func (k BaseSendKeeper) InputOutputCoins(ctx sdk.Context, inputs []types.Input, 
 // SendCoins transfers amt coins from a sending account to a receiving account.
 // An error is returned upon failure.
 func (k BaseSendKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error {
+	if k.hooks != nil {
+		err := k.hooks.BeforeSendTokenToAddress(ctx, fromAddr, toAddr, amt)
+		if err != nil {
+			return err
+		}
+	}
+
 	err := k.subUnlockedCoins(ctx, fromAddr, amt)
 	if err != nil {
 		return err
@@ -153,14 +160,6 @@ func (k BaseSendKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAd
 		return err
 	}
 
-	//TODO wrap an error if the hook fails
-	if k.hooks != nil {
-		err = k.hooks.BeforeSendTokenToAddress(ctx, toAddr)
-		if err != nil {
-			return err
-		}
-	}
-
 	// Create account if recipient does not exist.
 	//
 	// NOTE: This should ultimately be removed in favor a more flexible approach
@@ -169,6 +168,14 @@ func (k BaseSendKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAd
 	if !accExists {
 		defer telemetry.IncrCounter(1, "new", "account")
 		k.ak.SetAccount(ctx, k.ak.NewAccountWithAddress(ctx, toAddr))
+	}
+
+	// update nft vesting params
+	if k.hooks != nil {
+		err = k.hooks.AfterSendTokenToAddress(ctx, toAddr, amt)
+		if err != nil {
+			return err
+		}
 	}
 
 	// bech32 encoding is expensive! Only do it once for fromAddr
