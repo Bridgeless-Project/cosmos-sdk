@@ -18,8 +18,14 @@ service Query {
     option (google.api.http).get = "/cosmos/accumulator/params";
   }
 
+  // Parameters queries the list of admins and their vesting params
   rpc GetAdmins(QueryAdmins) returns (QueryAdminsResponse) {
     option (google.api.http).get = "/cosmos/accumulator/admins";
+  }
+
+  // Parameters queries the admin and its vesting params
+  rpc GetAdminByAddress(QueryAdminByAddress) returns (QueryAdminByAddressResponse) {
+    option (google.api.http).get = "/cosmos/accumulator/admins/{address}";
   }
   // this line is used by starport scaffolding # 2
 }
@@ -42,4 +48,14 @@ message QueryAdminsResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
+message QueryAdminByAddress {
+  string address = 1;
+}
+
+message QueryAdminByAddressResponse {
+  Admin admin = 1 [(gogoproto.nullable) = false];
+}
+
 // this line is used by starport scaffolding # 3
+
+

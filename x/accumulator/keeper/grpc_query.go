@@ -25,3 +25,18 @@ func (k BaseKeeper) GetAdmins(c context.Context, req *types.QueryAdmins) (*types
 		Pagination: page,
 	}, nil
 }
+
+func (k BaseKeeper) GetAdminByAddress(c context.Context, req *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+	admin, ok := k.GetAdmin(ctx, req.Address)
+	if !ok {
+		return nil, status.Error(codes.Internal, types.ErrAdminNotFound.Error())
+	}
+
+	return &types.QueryAdminByAddressResponse{
+		Admin: admin,
+	}, nil
+}
