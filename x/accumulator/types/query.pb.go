@@ -357,7 +357,9 @@ const _ = grpc.SupportPackageIsVersion4
 type QueryClient interface {
 	// Parameters queries the parameters of the module.
 	Params(ctx context.Context, in *QueryParamsRequest, opts ...grpc.CallOption) (*QueryParamsResponse, error)
+	// Parameters queries the list of admins and their vesting params
 	GetAdmins(ctx context.Context, in *QueryAdmins, opts ...grpc.CallOption) (*QueryAdminsResponse, error)
+	// Parameters queries the admin and its vesting params
 	GetAdminByAddress(ctx context.Context, in *QueryAdminByAddress, opts ...grpc.CallOption) (*QueryAdminByAddressResponse, error)
 }
 
@@ -400,7 +402,9 @@ func (c *queryClient) GetAdminByAddress(ctx context.Context, in *QueryAdminByAdd
 type QueryServer interface {
 	// Parameters queries the parameters of the module.
 	Params(context.Context, *QueryParamsRequest) (*QueryParamsResponse, error)
+	// Parameters queries the list of admins and their vesting params
 	GetAdmins(context.Context, *QueryAdmins) (*QueryAdminsResponse, error)
+	// Parameters queries the admin and its vesting params
 	GetAdminByAddress(context.Context, *QueryAdminByAddress) (*QueryAdminByAddressResponse, error)
 }
 
