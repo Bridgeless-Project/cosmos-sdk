@@ -625,7 +625,7 @@ func (k Keeper) Delegate(
 	// Get or create the delegation object
 	delegation, found := k.GetDelegation(ctx, delAddr, validator.GetOperator())
 	if !found {
-		delegation = types.NewDelegation(delAddr, validator.GetOperator(), sdk.ZeroDec(), sdk.ZeroDec())
+		delegation = types.NewDelegation(delAddr, validator.GetOperator(), sdk.ZeroDec(), sdk.ZeroDec(), time.Time{})
 	}
 
 	// call the appropriate hook if present
@@ -690,7 +690,8 @@ func (k Keeper) Delegate(
 	delegation.Timestamp = ctx.BlockTime()
 
 	k.SetDelegation(ctx, delegation)
-
+	del, _ := k.GetDelegation(ctx, delAddr, validator.GetOperator())
+	_ = del
 	// Call the after-modification hook
 	if err := k.AfterDelegationModified(ctx, delegatorAddress, delegation.GetValidatorAddr()); err != nil {
 		return newShares, err

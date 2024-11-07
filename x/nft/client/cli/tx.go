@@ -161,9 +161,9 @@ func CmdSend() *cobra.Command {
 
 func CmdRedelegate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "redelegate [from_key_or_address] [new_validator] [old_validator] [nft_address]",
+		Use:   "redelegate [from_key_or_address] [new_validator] [old_validator] [nft_address] [amount]",
 		Short: "redelegate stacked nft to another validator",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			cmd.Flags().Set(flags.FlagFrom, args[0])
@@ -172,11 +172,16 @@ func CmdRedelegate() *cobra.Command {
 				return err
 			}
 
+			coins, err := sdk.ParseCoinNormalized(args[3])
+			if err != nil {
+				return err
+			}
 			msg := types.NewMsgRedelegate(
 				clientCtx.GetFromAddress().String(),
 				args[1],
 				args[2],
 				args[3],
+				coins,
 			)
 			if err = msg.ValidateBasic(); err != nil {
 				return err

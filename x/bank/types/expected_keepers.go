@@ -26,3 +26,8 @@ type AccountKeeper interface {
 	GetModuleAccount(ctx sdk.Context, moduleName string) types.ModuleAccountI
 	SetModuleAccount(ctx sdk.Context, macc types.ModuleAccountI)
 }
+
+type BankHooks interface {
+	BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Address, amt sdk.Coins) error
+	AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, amt sdk.Coins) error
+}

@@ -11,13 +11,15 @@ const (
 
 var _ sdk.Msg = &MsgRedelegate{}
 
-func NewMsgRedelegate(creator, validatorNew, validatorSrc, address string,
+func NewMsgRedelegate(
+	creator, validatorNew, validatorSrc, address string, amount sdk.Coin,
 ) *MsgRedelegate {
 	return &MsgRedelegate{
 		Creator:      creator,
 		ValidatorNew: validatorNew,
 		ValidatorSrc: validatorSrc,
 		Address:      address,
+		Amount:       amount,
 	}
 }
 

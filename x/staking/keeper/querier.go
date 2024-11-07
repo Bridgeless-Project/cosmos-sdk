@@ -462,6 +462,7 @@ func DelegationToDelegationResponse(ctx sdk.Context, k Keeper, del types.Delegat
 		del.Shares,
 		del.Amount,
 		sdk.NewCoin(k.BondDenom(ctx), val.TokensFromShares(del.Shares).TruncateInt()),
+		del.Timestamp,
 	), nil
 }
 

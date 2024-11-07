@@ -28,6 +28,7 @@ type (
 		RemoveAdmin(ctx sdk.Context, address string)
 		GetAllAdmins(ctx sdk.Context) []types.Admin
 		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
+		GetAdminByAddress(ctx context.Context, admin *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error)
 	}
 
 	BaseKeeper struct {
