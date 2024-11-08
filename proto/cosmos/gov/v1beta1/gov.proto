@@ -198,4 +198,7 @@ message TallyParams {
     (gogoproto.nullable)   = false,
     (gogoproto.jsontag)    = "veto_threshold,omitempty"
   ];
+
+  // During this time new delegations cannot be used for voting
+  google.protobuf.Duration deposit_locking_period = 4 [(gogoproto.nullable) = false,(gogoproto.stdduration) = true];
 }
