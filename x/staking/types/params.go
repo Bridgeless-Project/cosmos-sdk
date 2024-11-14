@@ -35,14 +35,16 @@ const (
 
 // DefaultMinCommissionRate is set to 0%
 var DefaultMinCommissionRate = sdk.ZeroDec()
+var DefaultDelegationAmount = sdk.DefaultDelegationAmount
 
 var (
-	KeyUnbondingTime     = []byte("UnbondingTime")
-	KeyMaxValidators     = []byte("MaxValidators")
-	KeyMaxEntries        = []byte("MaxEntries")
-	KeyBondDenom         = []byte("BondDenom")
-	KeyHistoricalEntries = []byte("HistoricalEntries")
-	KeyMinCommissionRate = []byte("MinCommissionRate")
+	KeyUnbondingTime       = []byte("UnbondingTime")
+	KeyMaxValidators       = []byte("MaxValidators")
+	KeyMaxEntries          = []byte("MaxEntries")
+	KeyBondDenom           = []byte("BondDenom")
+	KeyHistoricalEntries   = []byte("HistoricalEntries")
+	KeyMinCommissionRate   = []byte("MinCommissionRate")
+	KeyMinDelegationAmount = []byte("MinDelegationAmount")
 )
 
 var _ paramtypes.ParamSet = (*Params)(nil)
@@ -53,14 +55,15 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(unbondingTime time.Duration, maxValidators, maxEntries, historicalEntries uint32, bondDenom string, minCommissionRate sdk.Dec) Params {
+func NewParams(unbondingTime time.Duration, maxValidators, maxEntries, historicalEntries uint32, bondDenom, minDelegationAmount string, minCommissionRate sdk.Dec) Params {
 	return Params{
-		UnbondingTime:     unbondingTime,
-		MaxValidators:     maxValidators,
-		MaxEntries:        maxEntries,
-		HistoricalEntries: historicalEntries,
-		BondDenom:         bondDenom,
-		MinCommissionRate: minCommissionRate,
+		UnbondingTime:           unbondingTime,
+		MaxValidators:           maxValidators,
+		MaxEntries:              maxEntries,
+		HistoricalEntries:       historicalEntries,
+		BondDenom:               bondDenom,
+		MinCommissionRate:       minCommissionRate,
+		MinimalDelegationAmount: minDelegationAmount,
 	}
 }
 
@@ -73,6 +76,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyHistoricalEntries, &p.HistoricalEntries, validateHistoricalEntries),
 		paramtypes.NewParamSetPair(KeyBondDenom, &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair(KeyMinCommissionRate, &p.MinCommissionRate, validateMinCommissionRate),
+		paramtypes.NewParamSetPair(KeyMinDelegationAmount, p.MinimalDelegationAmount, validateMinDelegationAmount),
 	}
 }
 
@@ -84,6 +88,7 @@ func DefaultParams() Params {
 		DefaultMaxEntries,
 		DefaultHistoricalEntries,
 		sdk.DefaultBondDenom,
+		DefaultDelegationAmount,
 		DefaultMinCommissionRate,
 	)
 }
@@ -149,6 +154,17 @@ func validateUnbondingTime(i interface{}) error {
 		return fmt.Errorf("unbonding time must be positive: %d", v)
 	}
 
+	return nil
+}
+
+func validateMinDelegationAmount(i interface{}) error {
+	d, ok := sdk.NewIntFromString(i.(string))
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	if d.LT(sdk.ZeroInt()) {
+		return fmt.Errorf("min delegation amount must be positive: %s", d)
+	}
 	return nil
 }
 

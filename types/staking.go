@@ -4,7 +4,8 @@ package types
 const (
 
 	// default bond denomination
-	DefaultBondDenom = "stake"
+	DefaultBondDenom        = "stake"
+	DefaultDelegationAmount = "100000000000000000000000000"
 
 	// Delay, in blocks, between when validator updates are returned to the
 	// consensus-engine and when they are applied. For example, if
