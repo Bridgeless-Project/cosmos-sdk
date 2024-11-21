@@ -50,4 +50,6 @@ var (
 	ErrNoHistoricalInfo                = sdkerrors.Register(ModuleName, 38, "no historical info found")
 	ErrEmptyValidatorPubKey            = sdkerrors.Register(ModuleName, 39, "empty validator public key")
 	ErrCommissionLTMinRate             = sdkerrors.Register(ModuleName, 40, "commission cannot be less than min rate")
+	ErrAmountLTMinDelegation           = sdkerrors.Register(ModuleName, 41, "delegation amount cannot be less than min delegation")
+	ErrParamMinDelegation              = sdkerrors.Register(ModuleName, 42, "cannot parse min delegation amount param")
 )
