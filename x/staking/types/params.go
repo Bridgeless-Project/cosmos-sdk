@@ -35,7 +35,9 @@ const (
 
 // DefaultMinCommissionRate is set to 0%
 var DefaultMinCommissionRate = sdk.ZeroDec()
-var DefaultDelegationAmount = sdk.DefaultDelegationAmount
+
+// DefaultMinDelegationAmount is set to 100000000000000000000000000 NATIVE_TOKEN
+var DefaultMinDelegationAmount = sdk.DefaultMinDelegationAmount
 
 var (
 	KeyUnbondingTime       = []byte("UnbondingTime")
@@ -76,7 +78,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyHistoricalEntries, &p.HistoricalEntries, validateHistoricalEntries),
 		paramtypes.NewParamSetPair(KeyBondDenom, &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair(KeyMinCommissionRate, &p.MinCommissionRate, validateMinCommissionRate),
-		paramtypes.NewParamSetPair(KeyMinDelegationAmount, p.MinimalDelegationAmount, validateMinDelegationAmount),
+		paramtypes.NewParamSetPair(KeyMinDelegationAmount, &p.MinimalDelegationAmount, validateMinDelegationAmount),
 	}
 }
 
@@ -88,7 +90,7 @@ func DefaultParams() Params {
 		DefaultMaxEntries,
 		DefaultHistoricalEntries,
 		sdk.DefaultBondDenom,
-		DefaultDelegationAmount,
+		DefaultMinDelegationAmount,
 		DefaultMinCommissionRate,
 	)
 }
@@ -160,10 +162,10 @@ func validateUnbondingTime(i interface{}) error {
 func validateMinDelegationAmount(i interface{}) error {
 	d, ok := sdk.NewIntFromString(i.(string))
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errors.New(fmt.Sprintf("invalid parameter type: %T", i))
 	}
 	if d.LT(sdk.ZeroInt()) {
-		return fmt.Errorf("min delegation amount must be positive: %s", d)
+		return errors.New(fmt.Sprintf("min delegation amount must be positive: %s", d))
 	}
 	return nil
 }

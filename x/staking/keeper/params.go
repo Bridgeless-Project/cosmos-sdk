@@ -54,6 +54,7 @@ func (k Keeper) MinCommissionRate(ctx sdk.Context) (res sdk.Dec) {
 	return
 }
 
+// MinDelegationAmount - Minimum amount of native tokens you have to delegate to become validator.
 func (k Keeper) MinDelegationAmount(ctx sdk.Context) (res string) {
 	k.paramstore.Get(ctx, types.KeyMinDelegationAmount, &res)
 	return

@@ -38,7 +38,11 @@ func (k msgServer) CreateValidator(goCtx context.Context, msg *types.MsgCreateVa
 		return nil, err
 	}
 
-	minDelegation, _ := sdk.NewIntFromString(k.GetParams(ctx).MinimalDelegationAmount)
+	minDelegation, ok := sdk.NewIntFromString(k.GetParams(ctx).MinimalDelegationAmount)
+
+	if !ok {
+		return nil, types.ErrParamMinDelegation
+	}
 
 	if msg.Value.Amount.LT(minDelegation) {
 		return nil, sdkerrors.Wrapf(types.ErrAmountLTMinDelegation, "cannot set validator with delegation less tham min delegation: %s", minDelegation.String())
