@@ -36,7 +36,7 @@ const (
 // DefaultMinCommissionRate is set to 0%
 var DefaultMinCommissionRate = sdk.ZeroDec()
 
-// DefaultMinDelegationAmount is set to 100000000000000000000000000 NATIVE_TOKEN
+// DefaultMinDelegationAmount is set to 10**26 stake
 var DefaultMinDelegationAmount = sdk.DefaultMinDelegationAmount
 
 var (
