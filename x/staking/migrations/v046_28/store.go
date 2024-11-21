@@ -1,4 +1,4 @@
-package v047
+package v046_28
 
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,7 +12,7 @@ import (
 // The migration includes:
 //
 // - Setting the MinDelegationAmount param in the paramstore
-func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, paramstore paramtypes.Subspace) error {
+func MigrateStore(ctx sdk.Context, _ storetypes.StoreKey, _ codec.BinaryCodec, paramstore paramtypes.Subspace) error {
 	migrateParamsStore(ctx, paramstore)
 
 	return nil
@@ -21,8 +21,8 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 func migrateParamsStore(ctx sdk.Context, paramstore paramtypes.Subspace) {
 	if paramstore.HasKeyTable() {
 		paramstore.Set(ctx, types.KeyMinCommissionRate, types.DefaultMinCommissionRate)
-	} else {
-		paramstore.WithKeyTable(types.ParamKeyTable())
-		paramstore.Set(ctx, types.KeyMinCommissionRate, types.DefaultMinCommissionRate)
+		return
 	}
+	paramstore.WithKeyTable(types.ParamKeyTable())
+	paramstore.Set(ctx, types.KeyMinCommissionRate, types.DefaultMinCommissionRate)
 }
