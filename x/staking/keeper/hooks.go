@@ -31,6 +31,8 @@ func (k Keeper) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress,
 	}
 	return nil
 }
+
+// FundCommunityPoolFromModule - call hook if registered
 func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
 	if k.hooks != nil {
 		return k.hooks.FundCommunityPoolFromModule(ctx, amount, senderModuleName)
