@@ -80,6 +80,7 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) *Keeper {
 	return k
 }
 
+// Set the distribution keeper
 func (k Keeper) SetDistributionKeeper(dk types.DistributionKeeper) {
 	k.distributionKeeper = dk
 }
