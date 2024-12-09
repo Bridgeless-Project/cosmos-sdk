@@ -21,13 +21,12 @@ var _ types.DelegationSet = Keeper{}
 
 // keeper of the staking store
 type Keeper struct {
-	storeKey           storetypes.StoreKey
-	cdc                codec.BinaryCodec
-	authKeeper         types.AccountKeeper
-	bankKeeper         types.BankKeeper
-	hooks              types.StakingHooks
-	paramstore         paramtypes.Subspace
-	distributionKeeper types.DistributionKeeper
+	storeKey   storetypes.StoreKey
+	cdc        codec.BinaryCodec
+	authKeeper types.AccountKeeper
+	bankKeeper types.BankKeeper
+	hooks      types.StakingHooks
+	paramstore paramtypes.Subspace
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -37,7 +36,6 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ps paramtypes.Subspace,
-	dk types.DistributionKeeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -54,13 +52,12 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		storeKey:           key,
-		cdc:                cdc,
-		authKeeper:         ak,
-		bankKeeper:         bk,
-		paramstore:         ps,
-		hooks:              nil,
-		distributionKeeper: dk,
+		storeKey:   key,
+		cdc:        cdc,
+		authKeeper: ak,
+		bankKeeper: bk,
+		paramstore: ps,
+		hooks:      nil,
 	}
 }
 
@@ -78,11 +75,6 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) *Keeper {
 	k.hooks = sh
 
 	return k
-}
-
-// Set the distribution keeper
-func (k Keeper) SetDistributionKeeper(dk types.DistributionKeeper) {
-	k.distributionKeeper = dk
 }
 
 // Load the last total validator power.

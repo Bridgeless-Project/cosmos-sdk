@@ -74,6 +74,10 @@ func (h Hooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) er
 	return h.k.AfterValidatorCreated(ctx, valAddr)
 }
 
+func (h Hooks) FundCommunityPoolFromModule(_ sdk.Context, _ sdk.Coins, _ string) error {
+	return nil
+}
+
 func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ sdk.ValAddress) error {
 	return nil
 }
