@@ -175,13 +175,13 @@ func (k Keeper) FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.
 
 func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, senderModuleName, types.ModuleName, amount); err != nil {
-		k.Logger(ctx).With("error").Error(fmt.Sprintf("ERROR SENDING %s", err.Error()))
+		k.Logger(ctx).Error(fmt.Sprintf("Error sending %s", err.Error()))
 		return err
 	}
 	feePool := k.GetFeePool(ctx)
 	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
 	k.SetFeePool(ctx, feePool)
-	k.Logger(ctx).With("info").Info(fmt.Sprintf("amount of tokens in community pool after slashing is %s", feePool.CommunityPool.String()))
+	k.Logger(ctx).Info(fmt.Sprintf("amount of tokens in community pool after slashing is %s", feePool.CommunityPool.String()))
 
 	return nil
 }

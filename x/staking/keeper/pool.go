@@ -39,9 +39,8 @@ func (k Keeper) burnBondedTokens(ctx sdk.Context, amt math.Int) error {
 		// skip as no coins need to be burned
 		return nil
 	}
-	coins := sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), amt))
 	//Replaced burning to transfer tokens to community pool
-	return k.DistributionKeeper.FundCommunityPoolFromModule(ctx, coins, types.BondedPoolName)
+	return k.distributionKeeper.FundCommunityPoolFromModule(ctx, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), amt)), types.BondedPoolName)
 }
 
 // burnNotBondedTokens removes coins from the not bonded pool module account
@@ -50,9 +49,8 @@ func (k Keeper) burnNotBondedTokens(ctx sdk.Context, amt math.Int) error {
 		// skip as no coins need to be burned
 		return nil
 	}
-	coins := sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), amt))
 	//Replaced burning to transfer tokens to community pool
-	return k.DistributionKeeper.FundCommunityPoolFromModule(ctx, coins, types.NotBondedPoolName)
+	return k.distributionKeeper.FundCommunityPoolFromModule(ctx, sdk.NewCoins(sdk.NewCoin(k.BondDenom(ctx), amt)), types.NotBondedPoolName)
 }
 
 // TotalBondedTokens total staking tokens supply which is bonded

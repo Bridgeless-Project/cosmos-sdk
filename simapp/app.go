@@ -270,7 +270,7 @@ func NewSimApp(
 		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
 	)
 	app.StakingKeeper = stakingkeeper.NewKeeper(
-		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName), nil,
+		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName), app.DistrKeeper,
 	)
 
 	app.NFTKeeper = nftkeeper.NewKeeper(
@@ -300,7 +300,7 @@ func NewSimApp(
 	)
 
 	//Set DistributionKeeper param after it`s init
-	app.StakingKeeper.DistributionKeeper = app.DistrKeeper
+	app.StakingKeeper.SetDistributionKeeper(app.DistrKeeper)
 
 	app.SlashingKeeper = slashingkeeper.NewKeeper(
 		appCodec, keys[slashingtypes.StoreKey], app.StakingKeeper, app.GetSubspace(slashingtypes.ModuleName),

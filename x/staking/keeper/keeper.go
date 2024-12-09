@@ -27,7 +27,7 @@ type Keeper struct {
 	bankKeeper         types.BankKeeper
 	hooks              types.StakingHooks
 	paramstore         paramtypes.Subspace
-	DistributionKeeper types.DistributionKeeper
+	distributionKeeper types.DistributionKeeper
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -60,7 +60,7 @@ func NewKeeper(
 		bankKeeper:         bk,
 		paramstore:         ps,
 		hooks:              nil,
-		DistributionKeeper: dk,
+		distributionKeeper: dk,
 	}
 }
 
@@ -78,6 +78,10 @@ func (k *Keeper) SetHooks(sh types.StakingHooks) *Keeper {
 	k.hooks = sh
 
 	return k
+}
+
+func (k Keeper) SetDistributionKeeper(dk types.DistributionKeeper) {
+	k.distributionKeeper = dk
 }
 
 // Load the last total validator power.
