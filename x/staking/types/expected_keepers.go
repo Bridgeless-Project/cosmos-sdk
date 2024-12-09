@@ -10,6 +10,7 @@ import (
 type DistributionKeeper interface {
 	GetFeePoolCommunityCoins(ctx sdk.Context) sdk.DecCoins
 	GetValidatorOutstandingRewardsCoins(ctx sdk.Context, val sdk.ValAddress) sdk.DecCoins
+	FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error
 }
 
 // AccountKeeper defines the expected account keeper (noalias)

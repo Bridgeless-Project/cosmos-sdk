@@ -21,12 +21,13 @@ var _ types.DelegationSet = Keeper{}
 
 // keeper of the staking store
 type Keeper struct {
-	storeKey   storetypes.StoreKey
-	cdc        codec.BinaryCodec
-	authKeeper types.AccountKeeper
-	bankKeeper types.BankKeeper
-	hooks      types.StakingHooks
-	paramstore paramtypes.Subspace
+	storeKey           storetypes.StoreKey
+	cdc                codec.BinaryCodec
+	authKeeper         types.AccountKeeper
+	bankKeeper         types.BankKeeper
+	hooks              types.StakingHooks
+	paramstore         paramtypes.Subspace
+	DistributionKeeper types.DistributionKeeper
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -36,6 +37,7 @@ func NewKeeper(
 	ak types.AccountKeeper,
 	bk types.BankKeeper,
 	ps paramtypes.Subspace,
+	dk types.DistributionKeeper,
 ) *Keeper {
 	// set KeyTable if it has not already been set
 	if !ps.HasKeyTable() {
@@ -52,12 +54,13 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		storeKey:   key,
-		cdc:        cdc,
-		authKeeper: ak,
-		bankKeeper: bk,
-		paramstore: ps,
-		hooks:      nil,
+		storeKey:           key,
+		cdc:                cdc,
+		authKeeper:         ak,
+		bankKeeper:         bk,
+		paramstore:         ps,
+		hooks:              nil,
+		DistributionKeeper: dk,
 	}
 }
 
