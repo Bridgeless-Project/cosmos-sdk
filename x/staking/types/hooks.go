@@ -95,6 +95,16 @@ func (h MultiStakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.
 	return nil
 }
 
+// hooks to distribution module to process token sending after validator is slashed
+func (h MultiStakingHooks) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
+	for i := range h {
+		if err := h[i].FundCommunityPoolFromModule(ctx, amount, senderModuleName); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (h MultiStakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) error {
 	for i := range h {
 		if err := h[i].BeforeValidatorSlashed(ctx, valAddr, fraction); err != nil {
