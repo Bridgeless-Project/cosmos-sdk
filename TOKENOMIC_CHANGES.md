@@ -155,7 +155,24 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 
         tokens = tokens.Add(del.Amount)
     }
+- [FundCommunityPoolFromModule](x/distribution/keeper/keeper.go) Transfers tokens from module account to community pool.
+```
+func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
+	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, senderModuleName, types.ModuleName, amount); err != nil {
+		err = sdkerrors.Wrap(err, "failed to fund community pool")
+		k.Logger(ctx).Error(err.Error())
+		return err
+	}
+	feePool := k.GetFeePool(ctx)
+	k.Logger(ctx).Info(fmt.Sprintf("amount of tokens in community pool before slashing is %s", feePool.CommunityPool.String()))
+	feePool.CommunityPool = feePool.CommunityPool.Add(sdk.NewDecCoinsFromCoins(amount...)...)
+	k.SetFeePool(ctx, feePool)
+	k.Logger(ctx).Info(fmt.Sprintf("amount of tokens in community pool after slashing is %s", feePool.CommunityPool.String()))
 
+	return nil
+}
+```
+It is used in `staking` module to update default slashing process.
 ### Staking module
 
 - [Delegation](proto/cosmos/staking/v1beta/staking.proto)
@@ -224,6 +241,18 @@ before returning, set `delegation.Amount`.
 
 Move the call to `RemoveValidatorTokensAndShares` earlier in the process. This is necessary to set the amount of tokens
 before updating the delegation.
+
+- [FundCommunityPoolFromModule](x/staking/keeper/hooks.go) hooks a `FundCommunityPoolFromModule` function from `distribution` module and transfers tokens to community pool from module account.
+
+  ```
+  func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
+	  if k.hooks != nil {
+		return k.hooks.FundCommunityPoolFromModule(ctx, amount, senderModuleName)
+	  }
+	  return nil
+  }
+  ```
+It is used `burnNotBondedTokens` and `burnBondedTokens` as a replacing of default burning, preventing token burning when validator is slashed.
 
 ### Mint module
 
