@@ -10,6 +10,7 @@ import (
 type DistributionKeeper interface {
 	GetFeePoolCommunityCoins(ctx sdk.Context) sdk.DecCoins
 	GetValidatorOutstandingRewardsCoins(ctx sdk.Context, val sdk.ValAddress) sdk.DecCoins
+	FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error
 }
 
 // AccountKeeper defines the expected account keeper (noalias)
@@ -96,7 +97,7 @@ type StakingHooks interface {
 
 	AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error         // Must be called when a validator is bonded
 	AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) error // Must be called when a validator begins unbonding
-
+	FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error
 	BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error        // Must be called when a delegation is created
 	BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error // Must be called when a delegation's shares are modified
 	BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) error        // Must be called when a delegation is removed
