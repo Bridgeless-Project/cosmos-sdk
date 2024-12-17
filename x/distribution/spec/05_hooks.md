@@ -57,3 +57,9 @@ Any remaining rewards are dust amounts.
 * The validator period is incremented.
 * The slash event is stored for later use.
   The slash event will be referenced when calculating delegator rewards.
+
+## Fund Community pool from module account
+
+* triggered-by: `staking.burnBondedTokens`, `staking.burnNotBondedTokens`
+
+Amount of slashed tokens is sent to community pool from `Bonded` and `NotBonded` pools instead of being burnt. This approach helps not to decrease total tokens supply when validator is slashed.

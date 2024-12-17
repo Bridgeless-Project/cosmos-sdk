@@ -155,7 +155,7 @@ the delegator's multiplier. All operations are adjusted based on the raw staked 
 
         tokens = tokens.Add(del.Amount)
     }
-- [FundCommunityPoolFromModule](x/distribution/keeper/keeper.go) Transfers tokens from module account to community pool.
+- [FundCommunityPoolFromModule](x/distribution/keeper/keeper.go) Transfers tokens from module account to community pool instead of burning them. It was added to maintain the total number of tokens in the network.
 ```
 func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, senderModuleName, types.ModuleName, amount); err != nil {
