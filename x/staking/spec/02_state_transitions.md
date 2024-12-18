@@ -139,7 +139,7 @@ When a Validator is slashed, the following occurs:
 * Each amount slashed from redelegations and unbonding delegations is subtracted from the
   total slash amount.
 * The `remaingSlashAmount` is then slashed from the validator's tokens in the `BondedPool` or
-  `NonBondedPool` depending on the validator's status. This reduces the total supply of tokens.
+  `NonBondedPool` depending on the validator's status. At that moment tokens are transferred to community pool using `distribution` module hook. This does not decrease total supply of tokens as it is in default case.
 
 In the case of a slash due to any infraction that requires evidence to submitted (for example double-sign), the slash
 occurs at the block where the evidence is included, not at the block where the infraction occured.
