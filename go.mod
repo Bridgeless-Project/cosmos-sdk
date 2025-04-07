@@ -11,7 +11,7 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e
 	github.com/cockroachdb/apd/v2 v2.0.2
-	github.com/coinbase/rosetta-sdk-go v0.7.9
+	//github.com/coinbase/rosetta-sdk-go v0.7.9
 	github.com/confio/ics23/go v0.9.0
 	github.com/cosmos/btcutil v1.0.5
 	github.com/cosmos/cosmos-proto v1.0.0-beta.3
@@ -186,6 +186,8 @@ replace (
 	// use cometbft
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
 	nhooyr.io/websocket => github.com/coder/websocket v1.8.7
+	github.com/coinbase/rosetta-sdk-go => github.com/MarkCherepovskyi/rosetta-sdk-go v0.0.0-20241127225136-06d0fe98bcea
+
 )
 
 retract (
