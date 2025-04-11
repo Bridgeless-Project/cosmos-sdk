@@ -172,7 +172,6 @@ require (
 replace (
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
-	//github.com/coinbase/rosetta-sdk-go => github.com/MarkCherepovskyi/rosetta-sdk-go v0.0.0-20241127225136-06d0fe98bcea
 	github.com/coinbase/rosetta-sdk-go => github.com/coinbase/mesh-sdk-go v0.7.9
 	// dgrijalva/jwt-go is deprecated and doesn't receive security updates.
 	// TODO: remove it: https://github.com/cosmos/cosmos-sdk/issues/13134
