@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
+// TODO: use the updated params and update documentation
 const (
 	keyInflationRateChange = "InflationRateChange"
 	keyInflationMax        = "InflationMax"
