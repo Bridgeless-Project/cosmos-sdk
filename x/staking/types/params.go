@@ -143,6 +143,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := validateMinDelegationAmount(p.MinimalDelegationAmount); err != nil {
+		return err
+	}
+
 	return nil
 }
 
