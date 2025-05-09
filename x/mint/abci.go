@@ -15,7 +15,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	// fetch stored minter & params
 	params := k.GetParams(ctx)
 
-	// if block reqard is zero, skip any logic
+	// if block rewards is zero, skip any logic
 	if params.BlockReward.Amount.IsZero() {
 		k.Logger(ctx).Info("The block reward is zero")
 		return
