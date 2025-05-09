@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"sigs.k8s.io/yaml"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -16,6 +17,7 @@ const (
 
 // Parameter store keys
 var (
+	KeyMintDenom            = []byte("MintDenom")
 	KeyHalvingBlocks        = []byte("HalvingBlocks")
 	KeyMaxHalvingPeriods    = []byte("MaxHalvingPeriods")
 	KeyCurrentHalvingPeriod = []byte("CurrentHalvingPeriod")
@@ -28,9 +30,10 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 func NewParams(
-	halvingBlocks uint64, blockReward sdk.Coin, currentHalvingPeriod, maxHalvingPeriods uint32,
+	mintDenom string, halvingBlocks uint64, blockReward sdk.Coin, currentHalvingPeriod, maxHalvingPeriods uint32,
 ) Params {
 	return Params{
+		MintDenom:            mintDenom,
 		HalvingBlocks:        halvingBlocks,
 		BlockReward:          blockReward,
 		CurrentHalvingPeriod: currentHalvingPeriod,
@@ -41,6 +44,7 @@ func NewParams(
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
+		MintDenom:            sdk.DefaultBondDenom,
 		HalvingBlocks:        DefaultHalvingBlocks,
 		BlockReward:          sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(6)),
 		CurrentHalvingPeriod: 0,
@@ -50,6 +54,10 @@ func DefaultParams() Params {
 
 // validate params
 func (p Params) Validate() error {
+	if err := validateMintDenom(p.MintDenom); err != nil {
+		return err
+	}
+
 	if err := validateHalvingBlocks(p.HalvingBlocks); err != nil {
 		return err
 	}
@@ -78,11 +86,28 @@ func (p Params) String() string {
 // Implements params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
+		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
 		paramtypes.NewParamSetPair(KeyHalvingBlocks, &p.HalvingBlocks, validateHalvingBlocks),
 		paramtypes.NewParamSetPair(KeyMaxHalvingPeriods, &p.MaxHalvingPeriods, validateMaxHalvingPeriods),
 		paramtypes.NewParamSetPair(KeyCurrentHalvingPeriod, &p.CurrentHalvingPeriod, validateCurrentHalvingPeriod),
 		paramtypes.NewParamSetPair(KeyBlockReward, &p.BlockReward, validateBlockReward),
 	}
+}
+
+func validateMintDenom(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if strings.TrimSpace(v) == "" {
+		return errors.New("mint denom cannot be blank")
+	}
+	if err := sdk.ValidateDenom(v); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func validateHalvingBlocks(i interface{}) error {

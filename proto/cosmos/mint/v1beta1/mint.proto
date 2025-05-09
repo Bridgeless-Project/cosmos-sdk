@@ -10,13 +10,15 @@ import "cosmos/base/v1beta1/coin.proto";
 message Params {
   option (gogoproto.goproto_stringer) = false;
 
+  // type of coin to mint
+  string mint_denom = 1;
   // each halving_blocks block_reward is davide on 2
-  uint64 halving_blocks = 1;
+  uint64 halving_blocks = 2;
 
-  uint32 max_halving_periods = 2;
+  uint32 max_halving_periods = 3;
 
-  uint32 current_halving_period = 3;
+  uint32 current_halving_period = 4;
 
-  cosmos.base.v1beta1.Coin block_reward = 4
+  cosmos.base.v1beta1.Coin block_reward = 5
   [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
