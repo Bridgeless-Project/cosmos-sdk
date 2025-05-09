@@ -15,17 +15,29 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	// fetch stored minter & params
 	params := k.GetParams(ctx)
 
-	// skip if all tokens already minted
-	if uint64(ctx.BlockHeight()) >= params.EndBlock {
+	// if block rewards is zero, skip any logic
+	if params.BlockReward.Amount.IsZero() {
+		k.Logger(ctx).Info("The block reward is zero")
 		return
 	}
-	monthReward := sdk.NewDecFromInt(params.MonthReward.Amount)
-	mintedAmount := monthReward.QuoInt(sdk.NewInt(int64(params.BlocksPerMonth)))
+
+	// validate halving params
+	if uint64(ctx.BlockHeight())%params.HalvingBlocks == 0 && params.CurrentHalvingPeriod < params.MaxHalvingPeriods {
+		// halving the rewards
+		params.BlockReward.Amount = params.BlockReward.Amount.Quo(sdk.NewInt(2))
+		params.CurrentHalvingPeriod++
+
+		// set zero reward if max halving periods reached
+		if params.CurrentHalvingPeriod == params.MaxHalvingPeriods {
+			params.BlockReward.Amount = sdk.ZeroInt()
+		}
+
+		// set the updated params
+		k.SetParams(ctx, params)
+	}
 
 	// mint coins, update supply
-	mintedCoin := sdk.NewCoin(params.MintDenom, mintedAmount.TruncateInt())
-	mintedCoins := sdk.NewCoins(mintedCoin)
-
+	mintedCoins := sdk.NewCoins(params.BlockReward)
 	err := k.SendFromAccumulator(ctx, mintedCoins)
 	if err != nil {
 		k.Logger(ctx).Error("failed to send tokens from accumulator")
@@ -35,17 +47,18 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 	// send the minted coins to the fee collector account
 	err = k.AddCollectedFees(ctx, mintedCoins)
 	if err != nil {
-		panic(err)
+		k.Logger(ctx).Error("failed to collect fees")
+		return
 	}
 
-	if mintedCoin.Amount.IsInt64() {
-		defer telemetry.ModuleSetGauge(types.ModuleName, float32(mintedCoin.Amount.Int64()), "minted_tokens")
+	if params.BlockReward.Amount.IsInt64() {
+		defer telemetry.ModuleSetGauge(types.ModuleName, float32(params.BlockReward.Amount.Int64()), "minted_tokens")
 	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
 			types.EventTypeMint,
-			sdk.NewAttribute(sdk.AttributeKeyAmount, mintedCoin.Amount.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, params.BlockReward.Amount.String()),
 		),
 	)
 }

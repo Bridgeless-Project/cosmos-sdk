@@ -3,20 +3,25 @@ package types
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"sigs.k8s.io/yaml"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 )
 
+const (
+	DefaultHalvingBlocks     = 1000000
+	DefaultMaxHalvingPeriods = 7
+)
+
 // Parameter store keys
 var (
-	KeyMintDenom      = []byte("MintDenom")
-	KeyBlocksPerMonth = []byte("BlocksPerMonth")
-	KeyMonthReward    = []byte("MonthReward")
-	KeyEndBlock       = []byte("EndBlock")
+	KeyMintDenom            = []byte("MintDenom")
+	KeyHalvingBlocks        = []byte("HalvingBlocks")
+	KeyMaxHalvingPeriods    = []byte("MaxHalvingPeriods")
+	KeyCurrentHalvingPeriod = []byte("CurrentHalvingPeriod")
+	KeyBlockReward          = []byte("BlockReward")
 )
 
 // ParamTable for minting module.
@@ -25,23 +30,25 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 func NewParams(
-	mintDenom string, blocksPerMonth uint64, monthReward sdk.Coin, endBlock uint64,
+	mintDenom string, halvingBlocks uint64, blockReward sdk.Coin, currentHalvingPeriod, maxHalvingPeriods uint32,
 ) Params {
 	return Params{
-		MintDenom:      mintDenom,
-		BlocksPerMonth: blocksPerMonth,
-		EndBlock:       endBlock,
-		MonthReward:    monthReward,
+		MintDenom:            mintDenom,
+		HalvingBlocks:        halvingBlocks,
+		BlockReward:          blockReward,
+		CurrentHalvingPeriod: currentHalvingPeriod,
+		MaxHalvingPeriods:    maxHalvingPeriods,
 	}
 }
 
 // default minting module parameters
 func DefaultParams() Params {
 	return Params{
-		MintDenom:      sdk.DefaultBondDenom,
-		BlocksPerMonth: uint64(60 * 60 * 24 * 30 / 5), // assuming 5 second block times
-		MonthReward:    sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(223696209754194)),
-		EndBlock:       100000,
+		MintDenom:            sdk.DefaultBondDenom,
+		HalvingBlocks:        DefaultHalvingBlocks,
+		BlockReward:          sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(6)),
+		CurrentHalvingPeriod: 0,
+		MaxHalvingPeriods:    DefaultMaxHalvingPeriods,
 	}
 }
 
@@ -50,13 +57,20 @@ func (p Params) Validate() error {
 	if err := validateMintDenom(p.MintDenom); err != nil {
 		return err
 	}
-	if err := validateBlocksPerMonth(p.BlocksPerMonth); err != nil {
+
+	if err := validateHalvingBlocks(p.HalvingBlocks); err != nil {
 		return err
 	}
-	if err := validateMonthReward(p.MonthReward); err != nil {
+
+	if err := validateCurrentHalvingPeriod(p.CurrentHalvingPeriod); err != nil {
 		return err
 	}
-	if err := validateEndBlock(p.EndBlock); err != nil {
+
+	if err := validateBlockReward(p.BlockReward); err != nil {
+		return err
+	}
+
+	if err := validateMaxHalvingPeriods(p.MaxHalvingPeriods); err != nil {
 		return err
 	}
 
@@ -73,9 +87,10 @@ func (p Params) String() string {
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair(KeyMintDenom, &p.MintDenom, validateMintDenom),
-		paramtypes.NewParamSetPair(KeyBlocksPerMonth, &p.BlocksPerMonth, validateBlocksPerMonth),
-		paramtypes.NewParamSetPair(KeyMonthReward, &p.MonthReward, validateMonthReward),
-		paramtypes.NewParamSetPair(KeyEndBlock, &p.EndBlock, validateEndBlock),
+		paramtypes.NewParamSetPair(KeyHalvingBlocks, &p.HalvingBlocks, validateHalvingBlocks),
+		paramtypes.NewParamSetPair(KeyMaxHalvingPeriods, &p.MaxHalvingPeriods, validateMaxHalvingPeriods),
+		paramtypes.NewParamSetPair(KeyCurrentHalvingPeriod, &p.CurrentHalvingPeriod, validateCurrentHalvingPeriod),
+		paramtypes.NewParamSetPair(KeyBlockReward, &p.BlockReward, validateBlockReward),
 	}
 }
 
@@ -95,40 +110,51 @@ func validateMintDenom(i interface{}) error {
 	return nil
 }
 
-func validateBlocksPerMonth(i interface{}) error {
+func validateHalvingBlocks(i interface{}) error {
 	v, ok := i.(uint64)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	if v == 0 {
-		return fmt.Errorf("blocks per year must be positive: %d", v)
+		return errors.New("halving blocks cannot be 0")
+	}
+	return nil
+}
+
+func validateMaxHalvingPeriods(i interface{}) error {
+	v, ok := i.(uint32)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v == 0 {
+		return errors.New("max halving periods cannot be 0")
+	}
+	return nil
+}
+
+func validateCurrentHalvingPeriod(i interface{}) error {
+	_, ok := i.(uint32)
+	if !ok {
+		return errors.New(fmt.Sprintf("invalid parameter type: %T", i))
 	}
 
 	return nil
 }
 
-func validateMonthReward(i interface{}) error {
+func validateBlockReward(i interface{}) error {
 	v, ok := i.(sdk.Coin)
 	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
+		return errors.New(fmt.Sprintf("invalid parameter type: %T", i))
 	}
 
-	if !v.Amount.IsPositive() {
-		return fmt.Errorf("month reward must be positive: %d", v)
+	if v.IsNegative() {
+		return errors.New("block reward cannot be negative")
 	}
 
-	return nil
-}
-
-func validateEndBlock(i interface{}) error {
-	v, ok := i.(uint64)
-	if !ok {
-		return fmt.Errorf("invalid parameter type: %T", i)
-	}
-
-	if v == 0 {
-		return fmt.Errorf("end block must be positive: %d", v)
+	if !v.IsValid() {
+		return errors.New(fmt.Sprintf("invalid block reward: %s", v))
 	}
 
 	return nil

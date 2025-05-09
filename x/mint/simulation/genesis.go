@@ -12,6 +12,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint/types"
 )
 
+// TODO: remove anything that has to do with inflation.
 // Simulation parameter constants
 const (
 	Inflation           = "inflation"

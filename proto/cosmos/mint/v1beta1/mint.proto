@@ -12,11 +12,13 @@ message Params {
 
   // type of coin to mint
   string mint_denom = 1;
-  // expected blocks per month
-  uint64 blocks_per_month = 2;
-  // block when no additional tokens will be minted
-  uint64 end_block = 3;
+  // each halving_blocks block_reward is davide on 2
+  uint64 halving_blocks = 2;
 
-  cosmos.base.v1beta1.Coin month_reward = 4
+  uint32 max_halving_periods = 3;
+
+  uint32 current_halving_period = 4;
+
+  cosmos.base.v1beta1.Coin block_reward = 5
   [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"];
 }
