@@ -34,111 +34,111 @@ Ref: https://keepachangelog.com/en/1.0.0/
 -->
 
 # Changelog
-## [v0.46.33](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.33)
+## [v0.46.33](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.33)
 
 ### Features
-* (mint) [#23](https://github.com/hyle-team/cosmos-sdk/pull/23) Implemented vesting rewards.
+* (mint) [#23](https://github.com/Bridgeless-Project/cosmos-sdk/pull/23) Implemented vesting rewards.
 
-## [v0.46.32](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.32)
-
-### Improvements
-* (staking) [#21](https://github.com/hyle-team/cosmos-sdk/pull/21) Added validation of `minimal_delegation_amount` `x/staking` module param.
-
-## [v0.46.31](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.31)
+## [v0.46.32](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.32)
 
 ### Improvements
-* (docs) [#19](https://github.com/hyle-team/cosmos-sdk/pull/19) Updated docs for `x/distribution` and `x/staking` modules.
-* (deps) [#22](https://github.com/hyle-team/cosmos-sdk/pull/22) Fixed broken rosetta-sdk import.
+* (staking) [#21](https://github.com/Bridgeless-Project/cosmos-sdk/pull/21) Added validation of `minimal_delegation_amount` `x/staking` module param.
 
-## [v0.46.30](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.30)
+## [v0.46.31](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.31)
 
 ### Improvements
-* (gov) [#20](https://github.com/hyle-team/cosmos-sdk/pull/20) Added `deposit_locking_period` param to `x/gov` v1beta1.
+* (docs) [#19](https://github.com/Bridgeless-Project/cosmos-sdk/pull/19) Updated docs for `x/distribution` and `x/staking` modules.
+* (deps) [#22](https://github.com/Bridgeless-Project/cosmos-sdk/pull/22) Fixed broken rosetta-sdk import.
 
-## [v0.46.29](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.29)
+## [v0.46.30](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.30)
+
+### Improvements
+* (gov) [#20](https://github.com/Bridgeless-Project/cosmos-sdk/pull/20) Added `deposit_locking_period` param to `x/gov` v1beta1.
+
+## [v0.46.29](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.29)
 
 ### Features
-* (staking) [#18](https://github.com/hyle-team/cosmos-sdk/pull/18) Replaced tokens burning with funding community pool while slashing validator.
+* (staking) [#18](https://github.com/Bridgeless-Project/cosmos-sdk/pull/18) Replaced tokens burning with funding community pool while slashing validator.
 
-## [v0.46.28](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.28)
-
-### Improvements
-* (staking) [#16](https://github.com/hyle-team/cosmos-sdk/pull/16) Added `minimal_delegation_amount` to `x/staking` params. It defines the minimal amount of tokens needed to be delegated by user to become a validator.
-
-## [v0.46.27](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.27)
+## [v0.46.28](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.28)
 
 ### Improvements
-* (nft) [#15](https://github.com/hyle-team/cosmos-sdk/pull/15) Implement a hooks to manage token sending.
+* (staking) [#16](https://github.com/Bridgeless-Project/cosmos-sdk/pull/16) Added `minimal_delegation_amount` to `x/staking` params. It defines the minimal amount of tokens needed to be delegated by user to become a validator.
+
+## [v0.46.27](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.27)
+
+### Improvements
+* (nft) [#15](https://github.com/Bridgeless-Project/cosmos-sdk/pull/15) Implement a hooks to manage token sending.
 
 ### Bug Fixes
-* (nft) [#15](https://github.com/hyle-team/cosmos-sdk/pull/15) Fixed case when user can send a NFT to an NFT address.
+* (nft) [#15](https://github.com/Bridgeless-Project/cosmos-sdk/pull/15) Fixed case when user can send a NFT to an NFT address.
 
-## [v0.46.26](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.26)
+## [v0.46.26](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.26)
 
 ### Improvements
-* (nft) [#13](https://github.com/hyle-team/cosmos-sdk/pull/13) Fixed undelegation of tokens used for voting. Added hooks.
-* (docs) [#13](https://github.com/hyle-team/cosmos-sdk/pull/13) Updated tokenomic changes documentation.
-* (gov) [#13](https://github.com/hyle-team/cosmos-sdk/pull/13) Added `deposit_locking_period` param to `x/gov` params.
+* (nft) [#13](https://github.com/Bridgeless-Project/cosmos-sdk/pull/13) Fixed undelegation of tokens used for voting. Added hooks.
+* (docs) [#13](https://github.com/Bridgeless-Project/cosmos-sdk/pull/13) Updated tokenomic changes documentation.
+* (gov) [#13](https://github.com/Bridgeless-Project/cosmos-sdk/pull/13) Added `deposit_locking_period` param to `x/gov` params.
 
 
-## [v0.46.25](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.25)
+## [v0.46.25](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.25)
 
 ### Features
-* (nft) [#12](https://github.com/hyle-team/cosmos-sdk/pull/12) Added nft voting.
+* (nft) [#12](https://github.com/Bridgeless-Project/cosmos-sdk/pull/12) Added nft voting.
 
-## [v0.46.24](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.24)
+## [v0.46.24](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.24)
 
 ### Improvements
 * (nft) Updated `GetAllOwnersWithPagination` query at `x/nft.
 
-## [v0.46.23](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.23)
+## [v0.46.23](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.23)
 
 ### Improvements
-* (nft) [#11](https://github.com/hyle-team/cosmos-sdk/pull/11) Added `x/nft` store migrations.
+* (nft) [#11](https://github.com/Bridgeless-Project/cosmos-sdk/pull/11) Added `x/nft` store migrations.
 
-## [v0.46.22](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.22)
-
-### Improvements
-* (nft) [#10](https://github.com/hyle-team/cosmos-sdk/pull/10) Updated `x/nft` store logic.
-
-## [v0.46.21](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.21)
+## [v0.46.22](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.22)
 
 ### Improvements
-* (docs) [#8](https://github.com/hyle-team/cosmos-sdk/pull/8) Added tokenomic docs.
-* (nft) [#9](https://github.com/hyle-team/cosmos-sdk/pull/9) Updated `x/nft` queries.
+* (nft) [#10](https://github.com/Bridgeless-Project/cosmos-sdk/pull/10) Updated `x/nft` store logic.
+
+## [v0.46.21](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.21)
 
 ### Improvements
-* (nft) [#7](https://github.com/hyle-team/cosmos-sdk/pull/7) Fixed stacking and vesting issues related to `x/nft` module.
-
-## [v0.46.20](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.20)
-
-### Improvements
-* (nft) [#7](https://github.com/hyle-team/cosmos-sdk/pull/7) Fixed stacking and vesting issues related to `x/nft` module.
-
-## [v0.46.19](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.19)
+* (docs) [#8](https://github.com/Bridgeless-Project/cosmos-sdk/pull/8) Added tokenomic docs.
+* (nft) [#9](https://github.com/Bridgeless-Project/cosmos-sdk/pull/9) Updated `x/nft` queries.
 
 ### Improvements
-* (nft) [#6](https://github.com/hyle-team/cosmos-sdk/pull/6) Updated CLI for `x/nft` module. Added `QueryAdmins` query.
-* (nft) [#5](https://github.com/hyle-team/cosmos-sdk/pull/5) Added docs for `x/nft` module.
-* (accumulator) [#5](https://github.com/hyle-team/cosmos-sdk/pull/5) Added docs for `x/accumulator` module.
+* (nft) [#7](https://github.com/Bridgeless-Project/cosmos-sdk/pull/7) Fixed stacking and vesting issues related to `x/nft` module.
 
-## [v0.46.18](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.18)
+## [v0.46.20](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.20)
 
 ### Improvements
-* (nft) [#4](https://github.com/hyle-team/cosmos-sdk/pull/4) Implemented CLI for `x/nft` module. Added ability to get nfts by holder address.
+* (nft) [#7](https://github.com/Bridgeless-Project/cosmos-sdk/pull/7) Fixed stacking and vesting issues related to `x/nft` module.
+
+## [v0.46.19](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.19)
+
+### Improvements
+* (nft) [#6](https://github.com/Bridgeless-Project/cosmos-sdk/pull/6) Updated CLI for `x/nft` module. Added `QueryAdmins` query.
+* (nft) [#5](https://github.com/Bridgeless-Project/cosmos-sdk/pull/5) Added docs for `x/nft` module.
+* (accumulator) [#5](https://github.com/Bridgeless-Project/cosmos-sdk/pull/5) Added docs for `x/accumulator` module.
+
+## [v0.46.18](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.18)
+
+### Improvements
+* (nft) [#4](https://github.com/Bridgeless-Project/cosmos-sdk/pull/4) Implemented CLI for `x/nft` module. Added ability to get nfts by holder address.
 
 
-## [v0.46.17](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.17)
+## [v0.46.17](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.17)
 
 ### Bug Fixes
-* (nft) [#3](https://github.com/hyle-team/cosmos-sdk/pull/3) Fixed issue related to a null pointer for a delegation amount. 
+* (nft) [#3](https://github.com/Bridgeless-Project/cosmos-sdk/pull/3) Fixed issue related to a null pointer for a delegation amount. 
 
-## [v0.46.16](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.16)
+## [v0.46.16](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.16)
 
 ### Features
-* (nft) [#2](https://github.com/hyle-team/cosmos-sdk/pull/2) Implemented nft staking in `x/nft` module.
+* (nft) [#2](https://github.com/Bridgeless-Project/cosmos-sdk/pull/2) Implemented nft staking in `x/nft` module.
 
-## [v0.46.15](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.15)
+## [v0.46.15](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.15)
 
 ### Improvements
 * (nft) Updated `x/nft` module: updated queries, updated funds allocating.
@@ -146,13 +146,13 @@ Ref: https://keepachangelog.com/en/1.0.0/
 ### Bug Fixes
 * (nft) Forbid to withdraw allocated tokens.
 
-## [v0.46.14](https://github.com/hyle-team/cosmos-sdk/releases/tag/v0.46.14)
+## [v0.46.14](https://github.com/Bridgeless-Project/cosmos-sdk/releases/tag/v0.46.14)
 
 ### Improvements
-* (mint) [#1](https://github.com/hyle-team/cosmos-sdk/pull/1) Replaced minting tokens with sending from `x/accumulator` module. Updated `x/mint` genesisState, message handlers and types.
+* (mint) [#1](https://github.com/Bridgeless-Project/cosmos-sdk/pull/1) Replaced minting tokens with sending from `x/accumulator` module. Updated `x/mint` genesisState, message handlers and types.
 
 ### Features
-* (accumulator) [#1](https://github.com/hyle-team/cosmos-sdk/pull/1)  Added `x/accumulator` module.
+* (accumulator) [#1](https://github.com/Bridgeless-Project/cosmos-sdk/pull/1)  Added `x/accumulator` module.
 
 ## [v0.46.13-ledger.3](https://github.com/evmos/cosmos-sdk/releases/tag/v0.46.13-ledger.3) - 2023-06-08
 
