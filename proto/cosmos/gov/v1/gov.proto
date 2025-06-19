@@ -77,9 +77,12 @@ enum ProposalStatus {
   // PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
   // failed.
   PROPOSAL_STATUS_FAILED = 5;
+  // PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+  // been canceled.(these poposals used to be deleted)
+  PROPOSAL_STATUS_CANCELED = 6;
 }
 
-// TallyResult defines a standard tally for a governance proposal.
+// TallyResult defines a standard tally for a governance proposal.s
 message TallyResult {
   string yes_count          = 1 [(cosmos_proto.scalar) = "cosmos.Int"];
   string abstain_count      = 2 [(cosmos_proto.scalar) = "cosmos.Int"];
