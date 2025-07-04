@@ -140,6 +140,31 @@ func (keeper Keeper) DeleteProposal(ctx sdk.Context, proposalID uint64) {
 	store.Delete(types.ProposalKey(proposalID))
 }
 
+// SetCanceledStatusProposal update the proposal status to the canceled.
+// Panics if the proposal doesn't exist.
+func (keeper Keeper) SetCanceledStatusProposal(ctx sdk.Context, proposalID uint64) {
+	store := ctx.KVStore(keeper.storeKey)
+	proposal, ok := keeper.GetProposal(ctx, proposalID)
+	if !ok {
+		panic(fmt.Sprintf("couldn't find proposal with id#%d", proposalID))
+	}
+
+	if proposal.DepositEndTime != nil {
+		keeper.RemoveFromInactiveProposalQueue(ctx, proposalID, *proposal.DepositEndTime)
+	}
+	if proposal.VotingEndTime != nil {
+		keeper.RemoveFromActiveProposalQueue(ctx, proposalID, *proposal.VotingEndTime)
+	}
+
+	proposal.Status = v1.ProposalStatus_PROPOSAL_STATUS_CANCELED
+	bz, err := keeper.MarshalProposal(proposal)
+	if err != nil {
+		panic(err)
+	}
+
+	store.Set(types.ProposalKey(proposalID), bz)
+}
+
 // IterateProposals iterates over the all the proposals and performs a callback function.
 // Panics when the iterator encounters a proposal which can't be unmarshaled.
 func (keeper Keeper) IterateProposals(ctx sdk.Context, cb func(proposal v1.Proposal) (stop bool)) {
