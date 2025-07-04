@@ -140,9 +140,9 @@ func (keeper Keeper) DeleteProposal(ctx sdk.Context, proposalID uint64) {
 	store.Delete(types.ProposalKey(proposalID))
 }
 
-// SetCanseledStatusProposal update the a proposal status to canseled.
+// SetCanceledStatusProposal update the proposal status to the canceled.
 // Panics if the proposal doesn't exist.
-func (keeper Keeper) SetCanseledStatusProposal(ctx sdk.Context, proposalID uint64) {
+func (keeper Keeper) SetCanceledStatusProposal(ctx sdk.Context, proposalID uint64) {
 	store := ctx.KVStore(keeper.storeKey)
 	proposal, ok := keeper.GetProposal(ctx, proposalID)
 	if !ok {
