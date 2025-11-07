@@ -13,11 +13,10 @@ const (
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_nft"
 
-    
+	// ModuleAdminKey defines module admin key
+	ParamModuleAdminKey = "module_admin"
 )
 
-
-
 func KeyPrefix(p string) []byte {
-    return []byte(p)
+	return []byte(p)
 }
