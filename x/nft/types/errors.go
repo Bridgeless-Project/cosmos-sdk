@@ -18,4 +18,8 @@ var (
 	ErrFailedToBeginRedeligation = sdkerrors.Register(ModuleName, 1108, "failed to begin redelegation")
 	ErrAddressISNFT              = sdkerrors.Register(ModuleName, 1109, "address is an NFT")
 	ErrUnauthorizedNFTCreator    = sdkerrors.Register(ModuleName, 1110, "unauthorized NFT creator")
+	ErrInvalidSequence           = sdkerrors.Register(ModuleName, 1111, "invalid sequence")
+	ErrInvalidPrefix             = sdkerrors.Register(ModuleName, 1112, "invalid prefix")
+	ErrInvalidBondDenom          = sdkerrors.Register(ModuleName, 1113, "invalid bond denom")
+	ErrInvalidBalance            = sdkerrors.Register(ModuleName, 1114, "invalid balance")
 )
