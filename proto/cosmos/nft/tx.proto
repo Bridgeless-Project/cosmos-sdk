@@ -21,6 +21,8 @@ service Msg {
   rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
 
   rpc Redelegate ( MsgRedelegate) returns (MsgRedelegateResponse);
+
+  rpc Create (MsgCreateRequest) returns (MsgCreateResponse);
 }
 
 message MsgWithdrawal {
@@ -69,3 +71,10 @@ message MsgRedelegate {
 }
 
 message MsgRedelegateResponse {}
+
+message MsgCreateRequest {
+  string creator = 1;
+  string owner = 2;
+}
+
+message MsgCreateResponse {}
