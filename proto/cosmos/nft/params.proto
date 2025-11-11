@@ -11,4 +11,5 @@ message Params {
   string module_admin = 1;
   string bond_denom = 2;
   string prefix = 3;
+  uint64 nft_sequence = 4;
 }

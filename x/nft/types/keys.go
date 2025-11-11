@@ -17,6 +17,7 @@ const (
 	ParamModuleAdminKey = "module_admin"
 	ParamBondDenomKey   = "bond_denom"
 	ParamPrefixKey      = "prefix"
+	ParamNftSequenceKey = "nft_sequence"
 )
 
 func KeyPrefix(p string) []byte {

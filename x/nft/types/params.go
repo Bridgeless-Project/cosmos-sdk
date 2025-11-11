@@ -17,17 +17,18 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(moduleAdmin, bondDenom, prefix string) Params {
+func NewParams(moduleAdmin, bondDenom, prefix string, sequence uint64) Params {
 	return Params{
 		ModuleAdmin: moduleAdmin,
 		BondDenom:   bondDenom,
 		Prefix:      prefix,
+		NftSequence: sequence,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams("", sdk.DefaultBondDenom, "prefix")
+	return NewParams("", sdk.DefaultBondDenom, "prefix", 0)
 }
 
 // ParamSetPairs get the params.ParamSet
@@ -36,6 +37,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamModuleAdminKey), &p.ModuleAdmin, validateModuleAdmin),
 		paramtypes.NewParamSetPair([]byte(ParamBondDenomKey), &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
+		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
 	}
 }
 
@@ -51,6 +53,10 @@ func (p Params) Validate() error {
 
 	if err := validatePrefix(p.Prefix); err != nil {
 		return errorsmod.Wrap(err, "invalid prefix")
+	}
+
+	if err := validateNftSequence(p.NftSequence); err != nil {
+		return errorsmod.Wrap(err, "invalid nft sequence")
 	}
 
 	return nil
@@ -77,7 +83,7 @@ func validateBondDenom(i interface{}) error {
 	}
 
 	if strings.TrimSpace(bondDenom) == "" {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "empty denomination")
+		return errorsmod.Wrap(ErrInvalidBondDenom, "empty denomination")
 	}
 
 	return nil
@@ -90,7 +96,16 @@ func validatePrefix(i interface{}) error {
 	}
 
 	if strings.TrimSpace(prefix) == "" {
-		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "empty prefix")
+		return errorsmod.Wrap(ErrInvalidPrefix, "empty prefix")
+	}
+
+	return nil
+}
+
+func validateNftSequence(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid parameter type: %T", i)
 	}
 
 	return nil
