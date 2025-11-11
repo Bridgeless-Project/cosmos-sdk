@@ -2,10 +2,16 @@ package keeper
 
 import (
 	"fmt"
+	"strconv"
+
+	errorsmod "cosmossdk.io/errors"
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
@@ -68,4 +74,35 @@ func (k Keeper) DistributeToAddress(ctx sdk.Context, amount sdk.Coins, owner sdk
 
 func (k Keeper) IsDelegated(ctx sdk.Context, nftAddress sdk.AccAddress) bool {
 	return len(k.stakingKeeper.GetAllDelegatorDelegations(ctx, nftAddress)) > 0
+}
+
+func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
+	params := k.GetParams(ctx)
+
+	return params.ModuleAdmin == address
+}
+
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string) (*types.NFT, error) {
+	nftAddress, err := sdk.Bech32ifyAddressBytes(
+		k.BondDenom(ctx),
+		address.Derive(
+			authtypes.NewModuleAddress(accumulatortypes.ModuleName),
+			[]byte(strconv.FormatUint(k.NftSequence(ctx), 10)),
+		),
+	)
+	if err != nil {
+		return nil, errorsmod.Wrap(err, "failed to retrieve NFT address")
+	}
+
+	newNft := types.NFT{
+		Address:             nftAddress,
+		Owner:               owner,
+		VestingPeriod:       VestingPeriod,
+		RewardPerPeriod:     sdk.NewCoin(k.BondDenom(ctx), sdk.NewInt(VestingPeriodReward)),
+		VestingPeriodsCount: VestingPeriodCount,
+		AvailableToWithdraw: sdk.NewCoin(k.BondDenom(ctx), sdk.ZeroInt()),
+		Denom:               k.BondDenom(ctx),
+	}
+
+	return &newNft, nil
 }
