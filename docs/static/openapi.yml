@@ -24243,6 +24243,13 @@ paths:
                 properties:
                   module_admin:
                     type: string
+                  bond_denom:
+                    type: string
+                  prefix:
+                    type: string
+                  nft_sequence:
+                    type: string
+                    format: uint64
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.
@@ -47653,6 +47660,8 @@ definitions:
 
               signatures required by gogoproto.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  cosmos.nft.MsgCreateResponse:
+    type: object
   cosmos.nft.MsgDelegateResponse:
     type: object
   cosmos.nft.MsgRedelegateResponse:
@@ -47716,6 +47725,13 @@ definitions:
     properties:
       module_admin:
         type: string
+      bond_denom:
+        type: string
+      prefix:
+        type: string
+      nft_sequence:
+        type: string
+        format: uint64
     description: Params defines the parameters for the module.
   cosmos.nft.QueryAllNFTsByOwnerResponse:
     type: object
@@ -47986,6 +48002,13 @@ definitions:
         properties:
           module_admin:
             type: string
+          bond_denom:
+            type: string
+          prefix:
+            type: string
+          nft_sequence:
+            type: string
+            format: uint64
     description: QueryParamsResponse is response type for the Query/Params RPC method.
   cosmos.params.v1beta1.ParamChange:
     type: object
