@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,6 +30,7 @@ func GetTxCmd() *cobra.Command {
 		CmdWithdrawal(),
 		CmdUndelegate(),
 		CmdRedelegate(),
+		CmdCreate(),
 	)
 	return cmd
 }
@@ -186,6 +188,35 @@ func CmdRedelegate() *cobra.Command {
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdCreate() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create [creator-address] [owner-address]]",
+		Short: "create nft",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.Flags().Set(flags.FlagFrom, args[0])
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreate(
+				clientCtx.GetFromAddress().String(),
+				args[1],
+			)
+
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
