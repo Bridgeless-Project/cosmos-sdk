@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	errorsmod "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
@@ -15,21 +17,25 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(moduleAdmin string) Params {
+func NewParams(moduleAdmin, bondDenom, prefix string) Params {
 	return Params{
 		ModuleAdmin: moduleAdmin,
+		BondDenom:   bondDenom,
+		Prefix:      prefix,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams("")
+	return NewParams("", sdk.DefaultBondDenom, "prefix")
 }
 
 // ParamSetPairs get the params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{
 		paramtypes.NewParamSetPair([]byte(ParamModuleAdminKey), &p.ModuleAdmin, validateModuleAdmin),
+		paramtypes.NewParamSetPair([]byte(ParamBondDenomKey), &p.BondDenom, validateBondDenom),
+		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 	}
 }
 
@@ -37,6 +43,14 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 func (p Params) Validate() error {
 	if err := validateModuleAdmin(p.ModuleAdmin); err != nil {
 		return errorsmod.Wrap(err, "invalid module admin")
+	}
+
+	if err := validateBondDenom(p.BondDenom); err != nil {
+		return errorsmod.Wrap(err, "invalid bond denom")
+	}
+
+	if err := validatePrefix(p.Prefix); err != nil {
+		return errorsmod.Wrap(err, "invalid prefix")
 	}
 
 	return nil
@@ -51,6 +65,32 @@ func validateModuleAdmin(i interface{}) error {
 	_, err := sdk.AccAddressFromBech32(adm)
 	if err != nil {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidAddress, "invalid x/%s module admin address: %s", ModuleName, err.Error())
+	}
+
+	return nil
+}
+
+func validateBondDenom(i interface{}) error {
+	bondDenom, ok := i.(string)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid parameter type: %T", i)
+	}
+
+	if strings.TrimSpace(bondDenom) == "" {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "empty denomination")
+	}
+
+	return nil
+}
+
+func validatePrefix(i interface{}) error {
+	prefix, ok := i.(string)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid parameter type: %T", i)
+	}
+
+	if strings.TrimSpace(prefix) == "" {
+		return errorsmod.Wrap(sdkerrors.ErrInvalidCoins, "empty prefix")
 	}
 
 	return nil

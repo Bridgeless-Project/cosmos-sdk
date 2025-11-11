@@ -15,6 +15,8 @@ const (
 
 	// ModuleAdminKey defines module admin key
 	ParamModuleAdminKey = "module_admin"
+	ParamBondDenomKey   = "bond_denom"
+	ParamPrefixKey      = "prefix"
 )
 
 func KeyPrefix(p string) []byte {
