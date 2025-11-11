@@ -3,10 +3,9 @@ package types
 // DONTCOVER
 
 import (
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	sdkerrors "cosmossdk.io/errors"
 )
 
-// x/nft module sentinel errors
 var (
 	ErrSample                    = sdkerrors.Register(ModuleName, 1100, "sample error")
 	ErrInvalidAmount             = sdkerrors.Register(ModuleName, 1101, "invalid amount")
@@ -18,4 +17,5 @@ var (
 	ErrNFTInvalidOwner           = sdkerrors.Register(ModuleName, 1107, "NFT's owner is invalid")
 	ErrFailedToBeginRedeligation = sdkerrors.Register(ModuleName, 1108, "failed to begin redelegation")
 	ErrAddressISNFT              = sdkerrors.Register(ModuleName, 1109, "address is an NFT")
+	ErrUnauthorizedNFTCreator    = sdkerrors.Register(ModuleName, 1110, "unauthorized NFT creator")
 )
