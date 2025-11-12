@@ -87,15 +87,34 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 }
 
 func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64, vestingPeriodReward *big.Int) (*types.NFT, error) {
-	nftAddress, err := sdk.Bech32ifyAddressBytes(
-		k.GetPrefix(ctx),
-		address.Derive(
-			authtypes.NewModuleAddress(accumulatortypes.ModuleName),
-			[]byte(strconv.FormatUint(k.GetNftSequence(ctx), 10)),
-		),
+	id := k.GetNftSequence(ctx) + 1
+
+	var (
+		nftAddress string
+		err        error
 	)
-	if err != nil {
-		return nil, errorsmod.Wrap(err, "failed to retrieve NFT address")
+
+	// loop is used to avoid sequence collisions
+	for {
+		nftAddress, err = sdk.Bech32ifyAddressBytes(
+			k.GetPrefix(ctx),
+			address.Derive(
+				authtypes.NewModuleAddress(accumulatortypes.ModuleName),
+				[]byte(strconv.FormatUint(id, 10)),
+			),
+		)
+
+		if err != nil {
+			return nil, errorsmod.Wrap(err, "failed to retrieve NFT address")
+		}
+
+		_, ok := k.GetNFT(ctx, nftAddress)
+		if ok {
+			id++
+			continue
+		}
+
+		break
 	}
 
 	newNft := types.NFT{
