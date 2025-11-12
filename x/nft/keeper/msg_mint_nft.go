@@ -3,7 +3,6 @@ package keeper
 import (
 	"context"
 	"math/big"
-	"time"
 
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,7 +34,7 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 
 	vestingReward := new(big.Int).Div(cost, vestingPeriodsCount)
 
-	nft, err := m.CreateNft(sdkCtx, request.Owner, time.Now().Unix(), vestingReward)
+	nft, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingTime, vestingReward)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}

@@ -102,7 +102,7 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64
 		Address:             nftAddress,
 		Owner:               owner,
 		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewIntFromBigInt(vestingPeriodReward)),
-		VestingPeriodsCount: int64(k.GetVestingPeriodsCount(ctx)),
+		VestingCounter:      0,
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),
 		StartVestingTime:    startVestingTime,

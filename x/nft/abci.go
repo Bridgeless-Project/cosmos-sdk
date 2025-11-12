@@ -16,16 +16,19 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	params := k.GetParams(ctx)
 	nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: params.BatchIndex * params.BatchSize})
-	params.BatchIndex++
-	k.SetParams(ctx, params)
+	if len(nfts) == 0 {
+		params.BatchIndex = 0
+		k.SetParams(ctx, params)
+		return
+	}
 
 	for _, nft := range nfts {
+
 		if ctx.BlockTime().Unix() < nft.StartVestingTime {
 			continue
 		}
 
-		if nft.VestingCounter >= nft.VestingPeriodsCount ||
-			(params.VestingPeriodsCount != 0 && nft.VestingCounter >= int64(params.VestingPeriodsCount)) {
+		if nft.VestingCounter >= int64(params.VestingPeriodsCount) {
 			continue
 		}
 
@@ -39,14 +42,14 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
-		if nft.VestingCounter >= nft.VestingPeriodsCount {
-			continue
+		currentVestingTime := ctx.BlockTime().Unix() - nft.LastVestingTime
+		if nft.LastVestingTime == 0 {
+			currentVestingTime = params.VestingPeriod
 		}
 
-		currentVestingTime := ctx.BlockTime().Unix() - nft.LastVestingTime
 		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingTime), big.NewInt(params.VestingPeriod))
 
-		if nft.VestingPeriodsCount+passedPeriods.Int64() > int64(params.VestingPeriodsCount) {
+		if nft.VestingCounter+passedPeriods.Int64() > int64(params.VestingPeriodsCount) {
 			passedPeriods = big.NewInt(int64(params.VestingPeriodsCount) - nft.VestingPeriodsCount)
 		}
 
@@ -62,4 +65,6 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		k.SetNFT(ctx, nft)
 	}
 
+	params.BatchIndex++
+	k.SetParams(ctx, params)
 }
