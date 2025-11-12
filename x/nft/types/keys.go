@@ -22,6 +22,8 @@ const (
 	ParamsNftVestingPeriodRewardKey = "nft_vesting_period_reward"
 	ParamVestingCountKey            = "vesting_count"
 	ParamNftCostKey                 = "nft_cost"
+	ParamBatchIndexKey              = "batch_index"
+	ParamBatchSizeKey               = "batch_size"
 )
 
 func KeyPrefix(p string) []byte {

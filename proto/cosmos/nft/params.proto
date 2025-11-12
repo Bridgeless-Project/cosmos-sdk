@@ -16,4 +16,6 @@ message Params {
   uint64 vesting_period_reward = 6;
   uint64 vesting_periods_count = 7;
   uint64 nft_cost = 8;
+  uint64 batch_size = 9;
+  uint64 batch_index = 10;
 }

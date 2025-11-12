@@ -25,7 +25,9 @@ func NewParams(
 	vestingPeriod,
 	vestingPeriodReward,
 	vestingCount,
-	nftCost uint64) Params {
+	nftCost,
+	batchSize,
+	batchIndex uint64) Params {
 	return Params{
 		ModuleAdmin:         moduleAdmin,
 		BondDenom:           bondDenom,
@@ -35,12 +37,24 @@ func NewParams(
 		VestingPeriodReward: vestingPeriodReward,
 		NftCost:             nftCost,
 		VestingPeriodsCount: vestingCount,
+		BatchSize:           batchSize,
+		BatchIndex:          batchIndex,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams("", sdk.DefaultBondDenom, "prefix", 0, 1, 1, 1, 0)
+	return NewParams(
+		"",
+		sdk.DefaultBondDenom,
+		"prefix",
+		0,
+		1,
+		1,
+		1,
+		0,
+		1,
+		0)
 }
 
 // ParamSetPairs get the params.ParamSet
@@ -54,6 +68,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodRewardKey), &p.VestingPeriod, validateVestingPeriodReward),
 		paramtypes.NewParamSetPair([]byte(ParamVestingCountKey), &p.VestingPeriod, validateVestingCount),
 		paramtypes.NewParamSetPair([]byte(ParamNftCostKey), &p.NftCost, validateNftCost),
+		paramtypes.NewParamSetPair([]byte(ParamBatchIndexKey), &p.BatchIndex, validateBatchIndex),
+		paramtypes.NewParamSetPair([]byte(ParamBatchSizeKey), &p.BatchSize, validateBatchSize),
 	}
 }
 
@@ -89,6 +105,14 @@ func (p Params) Validate() error {
 
 	if err := validateVestingCount(p.VestingPeriod); err != nil {
 		return errorsmod.Wrap(err, "invalid vesting period")
+	}
+
+	if err := validateBatchSize(p.BatchSize); err != nil {
+		return errorsmod.Wrap(err, "invalid batch size")
+	}
+
+	if err := validateBatchIndex(p.BatchIndex); err != nil {
+		return errorsmod.Wrap(err, "invalid batch index")
 	}
 
 	return nil
@@ -186,6 +210,28 @@ func validateNftCost(i interface{}) error {
 
 	if cost == 0 {
 		return errorsmod.Wrap(ErrInvalidNftCost, "zero nft cost")
+	}
+
+	return nil
+}
+
+func validateBatchSize(i interface{}) error {
+	size, ok := i.(uint64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid batch size type: %T", i)
+	}
+
+	if size == 0 {
+		return errorsmod.Wrap(ErrInvalidBatchSize, "zero batch size")
+	}
+
+	return nil
+}
+
+func validateBatchIndex(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid batch index type: %T", i)
 	}
 
 	return nil

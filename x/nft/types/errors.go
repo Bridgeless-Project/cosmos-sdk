@@ -25,4 +25,5 @@ var (
 	ErrInvalidVestingPeriod      = sdkerrors.Register(ModuleName, 1115, "invalid vesting period")
 	ErrInvalidVestingReward      = sdkerrors.Register(ModuleName, 1116, "invalid vesting reward")
 	ErrInvalidNftCost            = sdkerrors.Register(ModuleName, 1117, "invalid nft cost")
+	ErrInvalidBatchSize          = sdkerrors.Register(ModuleName, 1118, "invalid batch size")
 )
