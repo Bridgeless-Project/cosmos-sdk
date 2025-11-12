@@ -17,18 +17,20 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(moduleAdmin, bondDenom, prefix string, sequence uint64) Params {
+func NewParams(moduleAdmin, bondDenom, prefix string, sequence, vestingPeriod, vestingPeriodReward uint64) Params {
 	return Params{
-		ModuleAdmin: moduleAdmin,
-		BondDenom:   bondDenom,
-		Prefix:      prefix,
-		NftSequence: sequence,
+		ModuleAdmin:         moduleAdmin,
+		BondDenom:           bondDenom,
+		Prefix:              prefix,
+		NftSequence:         sequence,
+		VestingPeriod:       vestingPeriod,
+		VestingPeriodReward: vestingPeriodReward,
 	}
 }
 
 // DefaultParams returns a default set of parameters
 func DefaultParams() Params {
-	return NewParams("", sdk.DefaultBondDenom, "prefix", 0)
+	return NewParams("", sdk.DefaultBondDenom, "prefix", 0, 0, 0)
 }
 
 // ParamSetPairs get the params.ParamSet
@@ -38,6 +40,8 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamBondDenomKey), &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
+		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodKey), &p.VestingPeriod, validateVestingPeriod),
+		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodRewardKey), &p.VestingPeriod, validateVestingPeriodReward),
 	}
 }
 
@@ -57,6 +61,14 @@ func (p Params) Validate() error {
 
 	if err := validateNftSequence(p.NftSequence); err != nil {
 		return errorsmod.Wrap(err, "invalid nft sequence")
+	}
+
+	if err := validateVestingPeriodReward(p.VestingPeriodReward); err != nil {
+		return errorsmod.Wrap(err, "invalid vesting period")
+	}
+
+	if err := validateVestingPeriod(p.VestingPeriod); err != nil {
+		return errorsmod.Wrap(err, "invalid vesting period")
 	}
 
 	return nil
@@ -105,7 +117,25 @@ func validatePrefix(i interface{}) error {
 func validateNftSequence(i interface{}) error {
 	_, ok := i.(uint64)
 	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid parameter type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid nft sequence type: %T", i)
+	}
+
+	return nil
+}
+
+func validateVestingPeriod(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period type: %T", i)
+	}
+
+	return nil
+}
+
+func validateVestingPeriodReward(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period reward type: %T", i)
 	}
 
 	return nil

@@ -30,7 +30,7 @@ func GetTxCmd() *cobra.Command {
 		CmdWithdrawal(),
 		CmdUndelegate(),
 		CmdRedelegate(),
-		CmdCreate(),
+		CmdMint(),
 	)
 	return cmd
 }
@@ -196,9 +196,9 @@ func CmdRedelegate() *cobra.Command {
 	return cmd
 }
 
-func CmdCreate() *cobra.Command {
+func CmdMint() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create [creator-address] [owner-address]]",
+		Use:   "mint [creator-address] [owner-address]]",
 		Short: "create nft",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -208,7 +208,7 @@ func CmdCreate() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgCreate(
+			msg := types.NewMsgMint(
 				clientCtx.GetFromAddress().String(),
 				args[1],
 			)

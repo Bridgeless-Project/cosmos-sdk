@@ -19,12 +19,13 @@ import (
 
 type (
 	Keeper struct {
-		cdc           codec.BinaryCodec
-		storeKey      storetypes.StoreKey
-		memKey        storetypes.StoreKey
-		paramstore    paramtypes.Subspace
-		bankKeeper    types.BankKeeper
-		stakingKeeper types.StakingKeeper
+		cdc               codec.BinaryCodec
+		storeKey          storetypes.StoreKey
+		memKey            storetypes.StoreKey
+		paramstore        paramtypes.Subspace
+		bankKeeper        types.BankKeeper
+		stakingKeeper     types.StakingKeeper
+		accumulatorKeeper types.AccumulatorKeeper
 	}
 )
 
@@ -35,18 +36,20 @@ func NewKeeper(
 	ps paramtypes.Subspace,
 	bankKeeper types.BankKeeper,
 	stakingKeeper types.StakingKeeper,
+	accumulatorKeeper types.AccumulatorKeeper,
 ) *Keeper {
 	if !ps.HasKeyTable() {
 		ps = ps.WithKeyTable(types.ParamKeyTable())
 	}
 
 	return &Keeper{
-		cdc:           cdc,
-		storeKey:      storeKey,
-		memKey:        memKey,
-		paramstore:    ps,
-		bankKeeper:    bankKeeper,
-		stakingKeeper: stakingKeeper,
+		cdc:               cdc,
+		storeKey:          storeKey,
+		memKey:            memKey,
+		paramstore:        ps,
+		bankKeeper:        bankKeeper,
+		stakingKeeper:     stakingKeeper,
+		accumulatorKeeper: accumulatorKeeper,
 	}
 }
 
@@ -82,12 +85,12 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	return params.ModuleAdmin == address
 }
 
-func (k *Keeper) CreateNft(ctx sdk.Context, owner string) (*types.NFT, error) {
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock uint64) (*types.NFT, error) {
 	nftAddress, err := sdk.Bech32ifyAddressBytes(
-		k.BondDenom(ctx),
+		k.GetBondDenom(ctx),
 		address.Derive(
 			authtypes.NewModuleAddress(accumulatortypes.ModuleName),
-			[]byte(strconv.FormatUint(k.NftSequence(ctx), 10)),
+			[]byte(strconv.FormatUint(k.GetNftSequence(ctx), 10)),
 		),
 	)
 	if err != nil {
@@ -98,10 +101,11 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string) (*types.NFT, error) {
 		Address:             nftAddress,
 		Owner:               owner,
 		VestingPeriod:       VestingPeriod,
-		RewardPerPeriod:     sdk.NewCoin(k.BondDenom(ctx), sdk.NewInt(VestingPeriodReward)),
+		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(VestingPeriodReward)),
 		VestingPeriodsCount: VestingPeriodCount,
-		AvailableToWithdraw: sdk.NewCoin(k.BondDenom(ctx), sdk.ZeroInt()),
-		Denom:               k.BondDenom(ctx),
+		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
+		Denom:               k.GetBondDenom(ctx),
+		StartVestingBlock:   startVestingBlock,
 	}
 
 	return &newNft, nil

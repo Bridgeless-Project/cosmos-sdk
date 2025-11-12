@@ -27,22 +27,22 @@ func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
 	k.paramstore.SetParamSet(ctx, &params)
 }
 
-func (k Keeper) ModuleAdmin(ctx sdk.Context) (adminAddress string) {
+func (k Keeper) GetModuleAdmin(ctx sdk.Context) (adminAddress string) {
 	k.paramstore.Get(ctx, []byte(types.ParamModuleAdminKey), &adminAddress)
 	return
 }
 
-func (k Keeper) BondDenom(ctx sdk.Context) (bondDenom string) {
+func (k Keeper) GetBondDenom(ctx sdk.Context) (bondDenom string) {
 	k.paramstore.Get(ctx, []byte(types.ParamBondDenomKey), &bondDenom)
 	return
 }
 
-func (k Keeper) Prefix(ctx sdk.Context) (prefix string) {
+func (k Keeper) GetPrefix(ctx sdk.Context) (prefix string) {
 	k.paramstore.Get(ctx, []byte(types.ParamPrefixKey), &prefix)
 	return
 }
 
-func (k Keeper) NftSequence(ctx sdk.Context) (seq uint64) {
+func (k Keeper) GetNftSequence(ctx sdk.Context) (seq uint64) {
 	k.paramstore.Get(ctx, []byte(types.ParamNftSequenceKey), &seq)
 	return
 }

@@ -12,4 +12,6 @@ message Params {
   string bond_denom = 2;
   string prefix = 3;
   uint64 nft_sequence = 4;
+  uint64 vesting_period = 5;
+  uint64 vesting_period_reward = 6;
 }

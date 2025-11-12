@@ -22,7 +22,7 @@ service Msg {
 
   rpc Redelegate ( MsgRedelegate) returns (MsgRedelegateResponse);
 
-  rpc Create (MsgCreateRequest) returns (MsgCreateResponse);
+  rpc Create (MsgMintRequest) returns (MsgMintResponse);
 }
 
 message MsgWithdrawal {
@@ -72,9 +72,10 @@ message MsgRedelegate {
 
 message MsgRedelegateResponse {}
 
-message MsgCreateRequest {
+message MsgMintRequest {
   string creator = 1;
   string owner = 2;
+  uint64 start_vesting_block = 3;
 }
 
-message MsgCreateResponse {}
+message MsgMintResponse {}

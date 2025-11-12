@@ -2,6 +2,8 @@ package keeper
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +14,6 @@ import (
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
 	"github.com/tendermint/tendermint/libs/log"
 	"golang.org/x/net/context"
-	"time"
 )
 
 type (
@@ -29,6 +30,7 @@ type (
 		GetAllAdmins(ctx sdk.Context) []types.Admin
 		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
 		GetAdminByAddress(ctx context.Context, admin *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error)
+		GetPoolAddress(poolName string) sdk.AccAddress
 	}
 
 	BaseKeeper struct {
@@ -47,8 +49,8 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 	ak accountKeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-) *BaseKeeper {
-	return &BaseKeeper{
+) Keeper {
+	return BaseKeeper{
 		bankKeeper: bankKeeper,
 		cdc:        cdc,
 		storeKey:   storeKey,
@@ -61,6 +63,6 @@ func (k BaseKeeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }
 
-func GetPoolAddress(poolName string) sdk.AccAddress {
+func (k BaseKeeper) GetPoolAddress(poolName string) sdk.AccAddress {
 	return sdk.AccAddress(address.Derive(authtypes.NewModuleAddress(types.ModuleName), []byte(poolName)))
 }

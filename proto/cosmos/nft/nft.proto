@@ -30,6 +30,8 @@ message NFT {
   int64 vesting_counter = 9;
 
   string denom = 10;
+
+  uint64 start_vesting_block = 11;
 }
 
 message Owner {

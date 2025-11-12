@@ -7,27 +7,28 @@ import (
 )
 
 const (
-	TypeMsgCreate = "create"
+	TypeMsgMint = "mint"
 )
 
-var _ sdk.Msg = &MsgCreateRequest{}
+var _ sdk.Msg = &MsgMintRequest{}
 
-func NewMsgCreate(creator, address string) *MsgCreateRequest {
-	return &MsgCreateRequest{
-		Creator: creator,
-		Owner:   address,
+func NewMsgMint(creator, address string, startVestingBlock uint64) *MsgMintRequest {
+	return &MsgMintRequest{
+		Creator:           creator,
+		Owner:             address,
+		StartVestingBlock: startVestingBlock,
 	}
 }
 
-func (msg *MsgCreateRequest) Route() string {
+func (msg *MsgMintRequest) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgCreateRequest) Type() string {
-	return TypeMsgCreate
+func (msg *MsgMintRequest) Type() string {
+	return TypeMsgMint
 }
 
-func (msg *MsgCreateRequest) GetSigners() []sdk.AccAddress {
+func (msg *MsgMintRequest) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -35,12 +36,12 @@ func (msg *MsgCreateRequest) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgCreateRequest) GetSignBytes() []byte {
+func (msg *MsgMintRequest) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgCreateRequest) ValidateBasic() error {
+func (msg *MsgMintRequest) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid creator address (%s)", err)
