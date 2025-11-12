@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+	"math/big"
 	"strconv"
 
 	errorsmod "cosmossdk.io/errors"
@@ -85,9 +86,9 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	return params.ModuleAdmin == address
 }
 
-func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime, vestingPeriodReward int64) (*types.NFT, error) {
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64, vestingPeriodReward *big.Int) (*types.NFT, error) {
 	nftAddress, err := sdk.Bech32ifyAddressBytes(
-		k.GetBondDenom(ctx),
+		k.GetPrefix(ctx),
 		address.Derive(
 			authtypes.NewModuleAddress(accumulatortypes.ModuleName),
 			[]byte(strconv.FormatUint(k.GetNftSequence(ctx), 10)),
@@ -100,7 +101,7 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime, vest
 	newNft := types.NFT{
 		Address:             nftAddress,
 		Owner:               owner,
-		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(vestingPeriodReward)),
+		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewIntFromBigInt(vestingPeriodReward)),
 		VestingPeriodsCount: int64(k.GetVestingPeriodsCount(ctx)),
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),

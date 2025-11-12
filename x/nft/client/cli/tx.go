@@ -209,7 +209,7 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
-			startVestingBlock, err := strconv.ParseUint(args[2], 10, 64)
+			startVestingTime, err := strconv.ParseInt(args[2], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -217,7 +217,7 @@ func CmdMint() *cobra.Command {
 			msg := types.NewMsgMint(
 				clientCtx.GetFromAddress().String(),
 				args[1],
-				startVestingBlock,
+				startVestingTime,
 			)
 
 			if err = msg.ValidateBasic(); err != nil {

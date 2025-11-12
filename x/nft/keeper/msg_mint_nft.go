@@ -28,11 +28,14 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 	vestTime := big.NewInt(vestingTime)
 
 	vestingPeriodsCount := big.NewInt(0).Div(vestTime, period)
-	cost := big.NewInt(0).SetUint64(nftCost)
+	cost, ok := big.NewInt(0).SetString(nftCost, 10)
+	if !ok {
+		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "invalid NFT cost")
+	}
 
 	vestingReward := new(big.Int).Div(cost, vestingPeriodsCount)
 
-	nft, err := m.CreateNft(sdkCtx, request.Owner, time.Now().Unix(), vestingReward.Int64())
+	nft, err := m.CreateNft(sdkCtx, request.Owner, time.Now().Unix(), vestingReward)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}
@@ -49,17 +52,17 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 		return nil, sdkerrors.Wrap(types.ErrInvalidBalance, "balance not found")
 	}
 
-	if balance.Amount.LT(sdk.NewInt(int64(m.GetNFTCost(sdkCtx)))) {
+	if balance.Amount.LT(sdk.NewInt(cost.Int64())) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBalance, "insufficient pool balance, NFT cost is %d, balance: %d",
 			NFTCost.Int64(), balance.Amount.Int64())
 	}
 
+	coinsToDistribute := sdk.NewCoin(m.GetBondDenom(sdkCtx), sdk.NewIntFromBigInt(cost))
+
 	if err = m.accumulatorKeeper.DistributeToAccount(
 		sdkCtx,
 		accumulatortypes.NFTPoolName,
-		sdk.NewCoins(
-			sdk.NewCoin(m.GetBondDenom(sdkCtx), sdk.NewInt(NFTCost.Int64())),
-		),
+		sdk.NewCoins(coinsToDistribute),
 		nftAddress,
 	); err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to mint coins to NFT")

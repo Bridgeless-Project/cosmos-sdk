@@ -57,7 +57,7 @@ func (k Keeper) GetVestingPeriodsCount(ctx sdk.Context) (vestingPeriodCount uint
 	return
 }
 
-func (k Keeper) GetNFTCost(ctx sdk.Context) (nftCost uint64) {
+func (k Keeper) GetNFTCost(ctx sdk.Context) (nftCost string) {
 	k.paramstore.Get(ctx, []byte(types.ParamNftCostKey), &nftCost)
 	return
 }

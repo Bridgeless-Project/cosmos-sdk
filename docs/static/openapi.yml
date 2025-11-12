@@ -23026,9 +23026,6 @@ paths:
                     type: string
                   uri:
                     type: string
-                  vesting_period:
-                    type: string
-                    format: int64
                   reward_per_period:
                     type: object
                     properties:
@@ -23070,6 +23067,9 @@ paths:
                     format: int64
                   denom:
                     type: string
+                  start_vesting_time:
+                    type: string
+                    format: int64
                 description: NFT defines the NFT.
         default:
           description: An unexpected error response.
@@ -23284,9 +23284,6 @@ paths:
                       type: string
                     uri:
                       type: string
-                    vesting_period:
-                      type: string
-                      format: int64
                     reward_per_period:
                       type: object
                       properties:
@@ -23328,6 +23325,9 @@ paths:
                       format: int64
                     denom:
                       type: string
+                    start_vesting_time:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -23906,9 +23906,6 @@ paths:
                       type: string
                     uri:
                       type: string
-                    vesting_period:
-                      type: string
-                      format: int64
                     reward_per_period:
                       type: object
                       properties:
@@ -23950,6 +23947,9 @@ paths:
                       format: int64
                     denom:
                       type: string
+                    start_vesting_time:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -24248,6 +24248,23 @@ paths:
                   prefix:
                     type: string
                   nft_sequence:
+                    type: string
+                    format: uint64
+                  vesting_time:
+                    type: string
+                    format: int64
+                  vesting_period:
+                    type: string
+                    format: int64
+                  vesting_periods_count:
+                    type: string
+                    format: uint64
+                  nft_cost:
+                    type: string
+                  batch_size:
+                    type: string
+                    format: uint64
+                  batch_index:
                     type: string
                     format: uint64
             description: >-
@@ -47660,9 +47677,9 @@ definitions:
 
               signatures required by gogoproto.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
-  cosmos.nft.MsgCreateResponse:
-    type: object
   cosmos.nft.MsgDelegateResponse:
+    type: object
+  cosmos.nft.MsgMintResponse:
     type: object
   cosmos.nft.MsgRedelegateResponse:
     type: object
@@ -47681,9 +47698,6 @@ definitions:
         type: string
       uri:
         type: string
-      vesting_period:
-        type: string
-        format: int64
       reward_per_period:
         type: object
         properties:
@@ -47719,6 +47733,9 @@ definitions:
         format: int64
       denom:
         type: string
+      start_vesting_time:
+        type: string
+        format: int64
     description: NFT defines the NFT.
   cosmos.nft.Params:
     type: object
@@ -47730,6 +47747,23 @@ definitions:
       prefix:
         type: string
       nft_sequence:
+        type: string
+        format: uint64
+      vesting_time:
+        type: string
+        format: int64
+      vesting_period:
+        type: string
+        format: int64
+      vesting_periods_count:
+        type: string
+        format: uint64
+      nft_cost:
+        type: string
+      batch_size:
+        type: string
+        format: uint64
+      batch_index:
         type: string
         format: uint64
     description: Params defines the parameters for the module.
@@ -47747,9 +47781,6 @@ definitions:
               type: string
             uri:
               type: string
-            vesting_period:
-              type: string
-              format: int64
             reward_per_period:
               type: object
               properties:
@@ -47791,6 +47822,9 @@ definitions:
               format: int64
             denom:
               type: string
+            start_vesting_time:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47832,9 +47866,6 @@ definitions:
               type: string
             uri:
               type: string
-            vesting_period:
-              type: string
-              format: int64
             reward_per_period:
               type: object
               properties:
@@ -47876,6 +47907,9 @@ definitions:
               format: int64
             denom:
               type: string
+            start_vesting_time:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47948,9 +47982,6 @@ definitions:
             type: string
           uri:
             type: string
-          vesting_period:
-            type: string
-            format: int64
           reward_per_period:
             type: object
             properties:
@@ -47992,6 +48023,9 @@ definitions:
             format: int64
           denom:
             type: string
+          start_vesting_time:
+            type: string
+            format: int64
         description: NFT defines the NFT.
   cosmos.nft.QueryParamsResponse:
     type: object
@@ -48007,6 +48041,23 @@ definitions:
           prefix:
             type: string
           nft_sequence:
+            type: string
+            format: uint64
+          vesting_time:
+            type: string
+            format: int64
+          vesting_period:
+            type: string
+            format: int64
+          vesting_periods_count:
+            type: string
+            format: uint64
+          nft_cost:
+            type: string
+          batch_size:
+            type: string
+            format: uint64
+          batch_index:
             type: string
             format: uint64
     description: QueryParamsResponse is response type for the Query/Params RPC method.

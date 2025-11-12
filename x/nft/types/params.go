@@ -23,11 +23,11 @@ func NewParams(
 	prefix string,
 	sequence,
 	vestingCount,
-	nftCost,
 	batchSize,
 	batchIndex uint64,
 	vestingTime,
-	vestingPeriod int64) Params {
+	vestingPeriod int64,
+	nftCost string) Params {
 	return Params{
 		ModuleAdmin:         moduleAdmin,
 		BondDenom:           bondDenom,
@@ -54,7 +54,7 @@ func DefaultParams() Params {
 		0,
 		1,
 		1,
-		1)
+		"1")
 }
 
 // ParamSetPairs get the params.ParamSet
@@ -190,13 +190,17 @@ func validateVestingCount(i interface{}) error {
 }
 
 func validateNftCost(i interface{}) error {
-	cost, ok := i.(uint64)
+	d, ok := sdk.NewIntFromString(i.(string))
 	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid nft cost type: %T", i)
+		return errorsmod.Wrap(sdkerrors.ErrInvalidType, "invalid nft cost type")
 	}
 
-	if cost == 0 {
-		return errorsmod.Wrap(ErrInvalidNftCost, "zero nft cost")
+	if d.IsNegative() {
+		return errorsmod.Wrapf(ErrInvalidNftCost, "nft cost amount must be positive: %s", d)
+	}
+
+	if d.IsZero() {
+		return errorsmod.Wrap(ErrInvalidNftCost, "nft cost amount is zero")
 	}
 
 	return nil

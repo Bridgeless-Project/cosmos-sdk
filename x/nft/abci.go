@@ -24,6 +24,10 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
+		if params.VestingPeriodsCount != 0 && nft.VestingCounter >= int64(params.VestingPeriodsCount) {
+			continue
+		}
+
 		// if not full period passed since last vesting skip the nft
 		if ctx.BlockTime().Unix()-nft.LastVestingTime < params.VestingPeriod {
 			continue

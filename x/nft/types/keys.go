@@ -14,16 +14,16 @@ const (
 	MemStoreKey = "mem_nft"
 
 	// ModuleAdminKey defines module admin key
-	ParamModuleAdminKey       = "module_admin"
-	ParamBondDenomKey         = "bond_denom"
+	ParamModuleAdminKey       = "moduleAdmin"
+	ParamBondDenomKey         = "bondDenom"
 	ParamPrefixKey            = "prefix"
-	ParamNftSequenceKey       = "nft_sequence"
-	ParamsNftVestingTimeKey   = "vesting_time"
-	ParamsNftVestingPeriodKey = "nft_vesting_period"
-	ParamVestingCountKey      = "vesting_count"
-	ParamNftCostKey           = "nft_cost"
-	ParamBatchIndexKey        = "batch_index"
-	ParamBatchSizeKey         = "batch_size"
+	ParamNftSequenceKey       = "nftSequence"
+	ParamsNftVestingTimeKey   = "vestingTime"
+	ParamsNftVestingPeriodKey = "nftVestingPeriod"
+	ParamVestingCountKey      = "vestingCount"
+	ParamNftCostKey           = "nftCost"
+	ParamBatchIndexKey        = "batchIndex"
+	ParamBatchSizeKey         = "batchSize"
 )
 
 func KeyPrefix(p string) []byte {
