@@ -100,9 +100,9 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock uint
 	newNft := types.NFT{
 		Address:             nftAddress,
 		Owner:               owner,
-		VestingPeriod:       VestingPeriod,
-		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(VestingPeriodReward)),
-		VestingPeriodsCount: VestingPeriodCount,
+		VestingPeriod:       int64(k.GetVestingPeriod(ctx)),
+		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(int64(k.GetVestingPeriodReward(ctx)))),
+		VestingPeriodsCount: int64(k.GetVestingPeriodsCount(ctx)),
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),
 		StartVestingBlock:   startVestingBlock,

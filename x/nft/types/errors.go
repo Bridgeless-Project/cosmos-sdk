@@ -22,4 +22,7 @@ var (
 	ErrInvalidPrefix             = sdkerrors.Register(ModuleName, 1112, "invalid prefix")
 	ErrInvalidBondDenom          = sdkerrors.Register(ModuleName, 1113, "invalid bond denom")
 	ErrInvalidBalance            = sdkerrors.Register(ModuleName, 1114, "invalid balance")
+	ErrInvalidVestingPeriod      = sdkerrors.Register(ModuleName, 1115, "invalid vesting period")
+	ErrInvalidVestingReward      = sdkerrors.Register(ModuleName, 1116, "invalid vesting reward")
+	ErrInvalidNftCost            = sdkerrors.Register(ModuleName, 1117, "invalid nft cost")
 )

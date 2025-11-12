@@ -35,7 +35,7 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 		return nil, sdkerrors.Wrap(types.ErrInvalidBalance, "balance not found")
 	}
 
-	if balance.Amount.LT(sdk.NewInt(NFTCost.Int64())) {
+	if balance.Amount.LT(sdk.NewInt(int64(m.GetNFTCost(sdkCtx)))) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBalance, "insufficient pool balance, NFT cost is %d, balance: %d",
 			NFTCost.Int64(), balance.Amount.Int64())
 	}
