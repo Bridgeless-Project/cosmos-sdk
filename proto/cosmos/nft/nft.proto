@@ -17,21 +17,19 @@ message NFT {
 
   string  uri = 3;
 
-  int64 vesting_period = 4;
+  cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
 
-  cosmos.base.v1beta1.Coin reward_per_period = 5 [(gogoproto.nullable) = false];
+  int64 vesting_periods_count  = 5;
 
-  int64 vesting_periods_count  = 6;
+  cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
 
-  cosmos.base.v1beta1.Coin available_to_withdraw = 7 [(gogoproto.nullable) = false];
+  int64 last_vesting_time = 7;
 
-  int64 last_vesting_time = 8;
+  int64 vesting_counter = 8;
 
-  int64 vesting_counter = 9;
+  string denom = 9;
 
-  string denom = 10;
-
-  uint64 start_vesting_block = 11;
+  int64 start_vesting_time = 10;
 }
 
 message Owner {

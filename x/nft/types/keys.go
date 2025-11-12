@@ -18,6 +18,7 @@ const (
 	ParamBondDenomKey         = "bond_denom"
 	ParamPrefixKey            = "prefix"
 	ParamNftSequenceKey       = "nft_sequence"
+	ParamsNftVestingTimeKey   = "vesting_time"
 	ParamsNftVestingPeriodKey = "nft_vesting_period"
 	ParamVestingCountKey      = "vesting_count"
 	ParamNftCostKey           = "nft_cost"

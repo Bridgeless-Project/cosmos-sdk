@@ -64,5 +64,9 @@ func (k BaseKeeper) Logger(ctx sdk.Context) log.Logger {
 }
 
 func (k BaseKeeper) GetPoolAddress(poolName string) sdk.AccAddress {
-	return sdk.AccAddress(address.Derive(authtypes.NewModuleAddress(types.ModuleName), []byte(poolName)))
+	return address.Derive(authtypes.NewModuleAddress(types.ModuleName), []byte(poolName))
+}
+
+func GetPoolAddress(poolName string) sdk.AccAddress {
+	return address.Derive(authtypes.NewModuleAddress(types.ModuleName), []byte(poolName))
 }

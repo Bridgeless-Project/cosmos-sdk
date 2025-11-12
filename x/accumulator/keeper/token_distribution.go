@@ -7,7 +7,7 @@ import (
 )
 
 func (k BaseKeeper) DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error {
-	poolAddress := GetPoolAddress(pool)
+	poolAddress := k.GetPoolAddress(pool)
 	if poolAddress == nil {
 		return types.ErrInvalidPool
 	}
@@ -17,7 +17,7 @@ func (k BaseKeeper) DistributeToModule(ctx sdk.Context, pool string, amount sdk.
 }
 
 func (k BaseKeeper) DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error {
-	poolAddress := GetPoolAddress(pool)
+	poolAddress := k.GetPoolAddress(pool)
 	if poolAddress == nil {
 		return types.ErrInvalidPool
 	}

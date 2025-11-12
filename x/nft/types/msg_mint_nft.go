@@ -12,11 +12,11 @@ const (
 
 var _ sdk.Msg = &MsgMintRequest{}
 
-func NewMsgMint(creator, address string, startVestingBlock uint64) *MsgMintRequest {
+func NewMsgMint(creator, address string, startVestingTime int64) *MsgMintRequest {
 	return &MsgMintRequest{
-		Creator:           creator,
-		Owner:             address,
-		StartVestingBlock: startVestingBlock,
+		Creator:          creator,
+		Owner:            address,
+		StartVestingTime: startVestingTime,
 	}
 }
 

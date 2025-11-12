@@ -22,16 +22,18 @@ func NewParams(
 	bondDenom,
 	prefix string,
 	sequence,
-	vestingPeriod,
 	vestingCount,
 	nftCost,
 	batchSize,
-	batchIndex uint64) Params {
+	batchIndex uint64,
+	vestingTime,
+	vestingPeriod int64) Params {
 	return Params{
 		ModuleAdmin:         moduleAdmin,
 		BondDenom:           bondDenom,
 		Prefix:              prefix,
 		NftSequence:         sequence,
+		VestingTime:         vestingTime,
 		VestingPeriod:       vestingPeriod,
 		NftCost:             nftCost,
 		VestingPeriodsCount: vestingCount,
@@ -47,11 +49,12 @@ func DefaultParams() Params {
 		sdk.DefaultBondDenom,
 		"prefix",
 		0,
-		1,
+		0,
 		1,
 		0,
 		1,
-		0)
+		1,
+		1)
 }
 
 // ParamSetPairs get the params.ParamSet
@@ -61,11 +64,12 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamBondDenomKey), &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
-		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodKey), &p.VestingPeriod, validateVestingPeriod),
+		paramtypes.NewParamSetPair([]byte(ParamsNftVestingTimeKey), &p.VestingTime, validateVestingTime),
 		paramtypes.NewParamSetPair([]byte(ParamVestingCountKey), &p.VestingPeriodsCount, validateVestingCount),
 		paramtypes.NewParamSetPair([]byte(ParamNftCostKey), &p.NftCost, validateNftCost),
 		paramtypes.NewParamSetPair([]byte(ParamBatchIndexKey), &p.BatchIndex, validateBatchIndex),
 		paramtypes.NewParamSetPair([]byte(ParamBatchSizeKey), &p.BatchSize, validateBatchSize),
+		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodKey), &p.VestingPeriod, validateVestingPeriod),
 	}
 }
 
@@ -87,15 +91,15 @@ func (p Params) Validate() error {
 		return errorsmod.Wrap(err, "invalid nft sequence")
 	}
 
-	if err := validateVestingPeriod(p.VestingPeriod); err != nil {
-		return errorsmod.Wrap(err, "invalid vesting period")
+	if err := validateVestingTime(p.VestingTime); err != nil {
+		return errorsmod.Wrap(err, "invalid vesting time")
 	}
 
 	if err := validateNftCost(p.NftCost); err != nil {
 		return errorsmod.Wrap(err, "invalid nft cost")
 	}
 
-	if err := validateVestingCount(p.VestingPeriod); err != nil {
+	if err := validateVestingCount(p.VestingPeriodsCount); err != nil {
 		return errorsmod.Wrap(err, "invalid vesting period")
 	}
 
@@ -105,6 +109,10 @@ func (p Params) Validate() error {
 
 	if err := validateBatchIndex(p.BatchIndex); err != nil {
 		return errorsmod.Wrap(err, "invalid batch index")
+	}
+
+	if err := validateVestingPeriod(p.VestingPeriod); err != nil {
+		return errorsmod.Wrap(err, "invalid vesting period")
 	}
 
 	return nil
@@ -159,14 +167,14 @@ func validateNftSequence(i interface{}) error {
 	return nil
 }
 
-func validateVestingPeriod(i interface{}) error {
-	period, ok := i.(uint64)
+func validateVestingTime(i interface{}) error {
+	time, ok := i.(int64)
 	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting time type: %T", i)
 	}
 
-	if period == 0 {
-		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting period")
+	if time == 0 {
+		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting time")
 	}
 
 	return nil
@@ -211,6 +219,19 @@ func validateBatchIndex(i interface{}) error {
 	_, ok := i.(uint64)
 	if !ok {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid batch index type: %T", i)
+	}
+
+	return nil
+}
+
+func validateVestingPeriod(i interface{}) error {
+	period, ok := i.(int64)
+	if !ok {
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period type: %T", i)
+	}
+
+	if period == 0 {
+		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting period")
 	}
 
 	return nil
