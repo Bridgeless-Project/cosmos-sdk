@@ -85,7 +85,7 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	return params.ModuleAdmin == address
 }
 
-func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock uint64) (*types.NFT, error) {
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock uint64, vestingPeriodReward int64) (*types.NFT, error) {
 	nftAddress, err := sdk.Bech32ifyAddressBytes(
 		k.GetBondDenom(ctx),
 		address.Derive(
@@ -101,7 +101,7 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock uint
 		Address:             nftAddress,
 		Owner:               owner,
 		VestingPeriod:       int64(k.GetVestingPeriod(ctx)),
-		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(int64(k.GetVestingPeriodReward(ctx)))),
+		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewInt(vestingPeriodReward)),
 		VestingPeriodsCount: int64(k.GetVestingPeriodsCount(ctx)),
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),

@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"context"
+	"math/big"
 
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +19,15 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 		return nil, sdkerrors.Wrapf(errors.ErrUnauthorized, "invalid NFT creator %s", request.Creator)
 	}
 
-	nft, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingBlock)
+	nftCost := m.GetNFTCost(sdkCtx)
+	vestingPeriod := m.GetVestingPeriod(sdkCtx)
+
+	period := big.NewInt(0).SetUint64(vestingPeriod)
+	cost := big.NewInt(0).SetUint64(nftCost)
+
+	vestingReward := new(big.Int).Div(cost, period)
+
+	nft, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingBlock, vestingReward.Int64())
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}

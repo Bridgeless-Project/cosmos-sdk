@@ -46,11 +46,6 @@ func (k Keeper) GetVestingPeriod(ctx sdk.Context) (vestingPeriod uint64) {
 	return
 }
 
-func (k Keeper) GetVestingPeriodReward(ctx sdk.Context) (vestingPeriodCount uint64) {
-	k.paramstore.Get(ctx, []byte(types.ParamsNftVestingPeriodRewardKey), &vestingPeriodCount)
-	return
-}
-
 func (k Keeper) GetVestingPeriodsCount(ctx sdk.Context) (vestingPeriodCount uint64) {
 	k.paramstore.Get(ctx, []byte(types.ParamVestingCountKey), &vestingPeriodCount)
 	return

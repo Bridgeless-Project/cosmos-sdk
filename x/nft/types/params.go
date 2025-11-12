@@ -23,7 +23,6 @@ func NewParams(
 	prefix string,
 	sequence,
 	vestingPeriod,
-	vestingPeriodReward,
 	vestingCount,
 	nftCost,
 	batchSize,
@@ -34,7 +33,6 @@ func NewParams(
 		Prefix:              prefix,
 		NftSequence:         sequence,
 		VestingPeriod:       vestingPeriod,
-		VestingPeriodReward: vestingPeriodReward,
 		NftCost:             nftCost,
 		VestingPeriodsCount: vestingCount,
 		BatchSize:           batchSize,
@@ -51,7 +49,6 @@ func DefaultParams() Params {
 		0,
 		1,
 		1,
-		1,
 		0,
 		1,
 		0)
@@ -65,8 +62,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
 		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodKey), &p.VestingPeriod, validateVestingPeriod),
-		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodRewardKey), &p.VestingPeriod, validateVestingPeriodReward),
-		paramtypes.NewParamSetPair([]byte(ParamVestingCountKey), &p.VestingPeriod, validateVestingCount),
+		paramtypes.NewParamSetPair([]byte(ParamVestingCountKey), &p.VestingPeriodsCount, validateVestingCount),
 		paramtypes.NewParamSetPair([]byte(ParamNftCostKey), &p.NftCost, validateNftCost),
 		paramtypes.NewParamSetPair([]byte(ParamBatchIndexKey), &p.BatchIndex, validateBatchIndex),
 		paramtypes.NewParamSetPair([]byte(ParamBatchSizeKey), &p.BatchSize, validateBatchSize),
@@ -89,10 +85,6 @@ func (p Params) Validate() error {
 
 	if err := validateNftSequence(p.NftSequence); err != nil {
 		return errorsmod.Wrap(err, "invalid nft sequence")
-	}
-
-	if err := validateVestingPeriodReward(p.VestingPeriodReward); err != nil {
-		return errorsmod.Wrap(err, "invalid vesting period")
 	}
 
 	if err := validateVestingPeriod(p.VestingPeriod); err != nil {
@@ -175,19 +167,6 @@ func validateVestingPeriod(i interface{}) error {
 
 	if period == 0 {
 		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting period")
-	}
-
-	return nil
-}
-
-func validateVestingPeriodReward(i interface{}) error {
-	reward, ok := i.(uint64)
-	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period reward type: %T", i)
-	}
-
-	if reward == 0 {
-		return errorsmod.Wrap(ErrInvalidVestingReward, "zero vesting period reward")
 	}
 
 	return nil
