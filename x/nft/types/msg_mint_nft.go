@@ -1,6 +1,8 @@
 package types
 
 import (
+	"time"
+
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -52,5 +54,12 @@ func (msg *MsgMintRequest) ValidateBasic() error {
 		return sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid owner address (%s)", err)
 	}
 
+	if msg.StartVestingTime <= 0 {
+		return sdkerrors.Wrap(errors.ErrInvalidRequest, "negative start vesting time")
+	}
+
+	if msg.StartVestingTime < time.Now().Unix() {
+		return sdkerrors.Wrap(errors.ErrInvalidRequest, "start vesting time must be greater than current time")
+	}
 	return nil
 }
