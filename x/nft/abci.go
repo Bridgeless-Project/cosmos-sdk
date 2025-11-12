@@ -15,7 +15,7 @@ import (
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	params := k.GetParams(ctx)
-	nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: params.BatchIndex * 100})
+	nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: params.BatchIndex * params.BatchSize})
 	params.BatchIndex++
 	k.SetParams(ctx, params)
 
@@ -24,7 +24,8 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
-		if params.VestingPeriodsCount != 0 && nft.VestingCounter >= int64(params.VestingPeriodsCount) {
+		if nft.VestingCounter >= nft.VestingPeriodsCount ||
+			(params.VestingPeriodsCount != 0 && nft.VestingCounter >= int64(params.VestingPeriodsCount)) {
 			continue
 		}
 
@@ -34,7 +35,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 
 		// if vesting time has passed skip the nft
-		if ctx.BlockTime().Unix()-nft.StartVestingTime > params.VestingTime {
+		if ctx.BlockTime().Unix()-nft.StartVestingTime >= params.VestingTime {
 			continue
 		}
 
@@ -45,13 +46,17 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		currentVestingTime := ctx.BlockTime().Unix() - nft.LastVestingTime
 		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingTime), big.NewInt(params.VestingPeriod))
 
+		if nft.VestingPeriodsCount+passedPeriods.Int64() > int64(params.VestingPeriodsCount) {
+			passedPeriods = big.NewInt(int64(params.VestingPeriodsCount) - nft.VestingPeriodsCount)
+		}
+
 		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
 			nft.Denom,
 			nft.RewardPerPeriod.Amount.Mul(sdk.NewInt(passedPeriods.Int64())),
 		),
 		)
 
-		nft.VestingCounter++
+		nft.VestingCounter += passedPeriods.Int64()
 		nft.LastVestingTime = ctx.BlockTime().Unix()
 
 		k.SetNFT(ctx, nft)
