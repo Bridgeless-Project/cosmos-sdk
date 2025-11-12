@@ -1,6 +1,7 @@
 package nft
 
 import (
+	"math/big"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -19,11 +20,17 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	k.SetParams(ctx, params)
 
 	for _, nft := range nfts {
-		if ctx.BlockHeight() < int64(nft.StartVestingBlock) {
+		if ctx.BlockTime().Unix() < nft.StartVestingTime {
 			continue
 		}
 
-		if ctx.BlockTime().Unix()-nft.LastVestingTime < nft.VestingPeriod {
+		// if not full period passed since last vesting skip the nft
+		if ctx.BlockTime().Unix()-nft.LastVestingTime < params.VestingPeriod {
+			continue
+		}
+
+		// if vesting time has passed skip the nft
+		if ctx.BlockTime().Unix()-nft.StartVestingTime > params.VestingTime {
 			continue
 		}
 
@@ -31,7 +38,15 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
-		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(nft.Denom, nft.RewardPerPeriod.Amount))
+		currentVestingTime := ctx.BlockTime().Unix() - nft.LastVestingTime
+		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingTime), big.NewInt(params.VestingPeriod))
+
+		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
+			nft.Denom,
+			nft.RewardPerPeriod.Amount.Mul(sdk.NewInt(passedPeriods.Int64())),
+		),
+		)
+
 		nft.VestingCounter++
 		nft.LastVestingTime = ctx.BlockTime().Unix()
 
