@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -198,9 +199,9 @@ func CmdRedelegate() *cobra.Command {
 
 func CmdMint() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint [creator-address] [owner-address]]",
-		Short: "create nft",
-		Args:  cobra.ExactArgs(2),
+		Use:   "mint [creator-address] [owner-address] [start_vesting_block]",
+		Short: "mint nft",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cmd.Flags().Set(flags.FlagFrom, args[0])
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -208,9 +209,15 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
+			startVestingBlock, err := strconv.ParseUint(args[2], 10, 64)
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgMint(
 				clientCtx.GetFromAddress().String(),
 				args[1],
+				startVestingBlock,
 			)
 
 			if err = msg.ValidateBasic(); err != nil {
