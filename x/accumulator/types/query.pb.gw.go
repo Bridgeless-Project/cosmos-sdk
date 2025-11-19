@@ -321,11 +321,11 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "accumulator", "params"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "accumulator", "params"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAdmins_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "accumulator", "admins"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_GetAdmins_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"cosmos", "accumulator", "admins"}, "", runtime.AssumeColonVerbOpt(false)))
 
-	pattern_Query_GetAdminByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"cosmos", "accumulator", "admins", "address"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Query_GetAdminByAddress_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"cosmos", "accumulator", "admins", "address"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
