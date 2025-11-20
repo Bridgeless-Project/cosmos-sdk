@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TypeAddAdmin = "send"
+	TypeAddAdmin = "add_admin"
 )
 
 var _ sdk.Msg = &MsgAddAdmin{}

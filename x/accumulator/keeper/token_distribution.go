@@ -67,9 +67,33 @@ func (k BaseKeeper) sendFromAddressToAddress(ctx sdk.Context, poolAddress sdk.Ac
 		receiverAddress,
 		amount,
 	)
-
 	if err != nil {
 		err = errors.Wrap(err, "sending native coins to account")
+		k.Logger(ctx).Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (k BaseKeeper) BurnTokensFromPool(ctx sdk.Context, pool string, amount sdk.Coins) error {
+	poolAddress := GetPoolAddress(pool)
+	err := k.bankKeeper.SendCoinsFromAccountToModule(
+		ctx,
+		poolAddress,
+		types.ModuleName,
+		amount,
+	)
+
+	if err != nil {
+		err = errors.Wrap(err, "sending native coins to module")
+		k.Logger(ctx).Error(err.Error())
+		return err
+	}
+
+	err = k.bankKeeper.BurnCoins(ctx, types.ModuleName, amount)
+	if err != nil {
+		err = errors.Wrap(err, "burning native coins from module")
 		k.Logger(ctx).Error(err.Error())
 		return err
 	}
