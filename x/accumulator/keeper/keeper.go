@@ -30,7 +30,6 @@ type (
 		GetAllAdmins(ctx sdk.Context) []types.Admin
 		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
 		GetAdminByAddress(ctx context.Context, admin *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error)
-		GetPoolAddress(poolName string) sdk.AccAddress
 	}
 
 	BaseKeeper struct {
@@ -61,10 +60,6 @@ func NewKeeper(
 
 func (k BaseKeeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
-}
-
-func (k BaseKeeper) GetPoolAddress(poolName string) sdk.AccAddress {
-	return address.Derive(authtypes.NewModuleAddress(types.ModuleName), []byte(poolName))
 }
 
 func GetPoolAddress(poolName string) sdk.AccAddress {

@@ -24,7 +24,6 @@ type BankKeeper interface {
 }
 
 type AccumulatorKeeper interface {
-	GetPoolAddress(poolName string) sdk.AccAddress
 	DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
 }
 
