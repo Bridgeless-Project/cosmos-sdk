@@ -43,7 +43,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 
 		// if vesting time has passed skip the nft
-		if currentBlockHeight-nft.StartVestingBlock >= params.TotalVestingTime {
+		if currentBlockHeight-nft.StartVestingBlock > params.TotalVestingTime {
 			continue
 		}
 

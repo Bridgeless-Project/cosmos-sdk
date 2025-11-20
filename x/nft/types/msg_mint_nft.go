@@ -52,7 +52,7 @@ func (msg *MsgMintRequest) ValidateBasic() error {
 		return sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid owner address (%s)", err)
 	}
 
-	if msg.StartVestingBlock <= 0 {
+	if msg.StartVestingBlock < 0 {
 		return sdkerrors.Wrap(errors.ErrInvalidRequest, "negative start vesting block")
 	}
 

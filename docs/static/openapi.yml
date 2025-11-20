@@ -23059,15 +23059,12 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
-                  last_vesting_time:
-                    type: string
-                    format: int64
-                  vesting_counter:
+                  last_vesting_block:
                     type: string
                     format: int64
                   denom:
                     type: string
-                  start_vesting_time:
+                  start_vesting_block:
                     type: string
                     format: int64
                 description: NFT defines the NFT.
@@ -23317,15 +23314,12 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    last_vesting_time:
-                      type: string
-                      format: int64
-                    vesting_counter:
+                    last_vesting_block:
                       type: string
                       format: int64
                     denom:
                       type: string
-                    start_vesting_time:
+                    start_vesting_block:
                       type: string
                       format: int64
                   description: NFT defines the NFT.
@@ -23939,15 +23933,12 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    last_vesting_time:
-                      type: string
-                      format: int64
-                    vesting_counter:
+                    last_vesting_block:
                       type: string
                       format: int64
                     denom:
                       type: string
-                    start_vesting_time:
+                    start_vesting_block:
                       type: string
                       format: int64
                   description: NFT defines the NFT.
@@ -24250,16 +24241,16 @@ paths:
                   nft_sequence:
                     type: string
                     format: uint64
-                  vesting_time:
+                  total_vesting_time:
                     type: string
                     format: int64
                   vesting_period:
                     type: string
                     format: int64
-                  vesting_periods_count:
+                  vesting_periods_limit:
                     type: string
                     format: uint64
-                  nft_cost:
+                  nft_token_amount:
                     type: string
                   batch_size:
                     type: string
@@ -47725,15 +47716,12 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      last_vesting_time:
-        type: string
-        format: int64
-      vesting_counter:
+      last_vesting_block:
         type: string
         format: int64
       denom:
         type: string
-      start_vesting_time:
+      start_vesting_block:
         type: string
         format: int64
     description: NFT defines the NFT.
@@ -47749,16 +47737,16 @@ definitions:
       nft_sequence:
         type: string
         format: uint64
-      vesting_time:
+      total_vesting_time:
         type: string
         format: int64
       vesting_period:
         type: string
         format: int64
-      vesting_periods_count:
+      vesting_periods_limit:
         type: string
         format: uint64
-      nft_cost:
+      nft_token_amount:
         type: string
       batch_size:
         type: string
@@ -47814,15 +47802,12 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            last_vesting_time:
-              type: string
-              format: int64
-            vesting_counter:
+            last_vesting_block:
               type: string
               format: int64
             denom:
               type: string
-            start_vesting_time:
+            start_vesting_block:
               type: string
               format: int64
           description: NFT defines the NFT.
@@ -47899,15 +47884,12 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            last_vesting_time:
-              type: string
-              format: int64
-            vesting_counter:
+            last_vesting_block:
               type: string
               format: int64
             denom:
               type: string
-            start_vesting_time:
+            start_vesting_block:
               type: string
               format: int64
           description: NFT defines the NFT.
@@ -48015,15 +47997,12 @@ definitions:
               method
 
               signatures required by gogoproto.
-          last_vesting_time:
-            type: string
-            format: int64
-          vesting_counter:
+          last_vesting_block:
             type: string
             format: int64
           denom:
             type: string
-          start_vesting_time:
+          start_vesting_block:
             type: string
             format: int64
         description: NFT defines the NFT.
@@ -48043,16 +48022,16 @@ definitions:
           nft_sequence:
             type: string
             format: uint64
-          vesting_time:
+          total_vesting_time:
             type: string
             format: int64
           vesting_period:
             type: string
             format: int64
-          vesting_periods_count:
+          vesting_periods_limit:
             type: string
             format: uint64
-          nft_cost:
+          nft_token_amount:
             type: string
           batch_size:
             type: string

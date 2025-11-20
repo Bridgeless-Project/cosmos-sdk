@@ -208,7 +208,7 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
-			startVestingBlock, err := strconv.ParseInt(args[2], 10, 64)
+			startVestingBlock, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -220,7 +220,7 @@ func CmdMint() *cobra.Command {
 
 			msg := types.NewMsgMint(
 				creatorAddress,
-				args[1],
+				args[0],
 				startVestingBlock,
 			)
 
