@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TypeBurnTokens = "msg_burn_tokens"
+	TypeBurnTokens = "burn_tokens"
 )
 
 var _ sdk.Msg = &MsgBurnTokens{}

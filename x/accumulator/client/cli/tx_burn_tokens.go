@@ -14,7 +14,7 @@ func CmdBurnTokens() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "burn [pool_name] [amount]",
 		Short: "burn tokens from a specified pool",
-		Args:  cobra.ExactArgs(6),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
