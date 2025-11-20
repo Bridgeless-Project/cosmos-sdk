@@ -14,14 +14,13 @@ The NFT object contains specific information to describe a token:
 message NFT {
   string address = 1;
   string owner = 2;
-  string uri = 3;
-  int64 vesting_period = 4;
-  cosmos.base.v1beta1.Coin reward_per_period = 5 [(gogoproto.nullable) = false];
-  int64 vesting_periods_count = 6;
-  cosmos.base.v1beta1.Coin available_to_withdraw = 7 [(gogoproto.nullable) = false];
-  int64 last_vesting_time = 8;
-  int64 vesting_counter = 9;
-  string denom = 10;
+  string  uri = 3;
+  cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
+  int64 vesting_periods_count  = 5;
+  cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
+  int64 last_vesting_block = 7;
+  string denom = 8;
+  int64 start_vesting_block = 9;
 }
 ```
 
@@ -33,7 +32,23 @@ There are several commands to update the NFT store:
 - To get all NFTs, there are two methods (with and without pagination):
     - `GetNFTsWithPagination(ctx sdk.Context, pagination *query.PageRequest) ([]types.NFT, *query.PageResponse, error)`
     - `GetNFTs(ctx sdk.Context) (list []types.NFT)`
+## Params
+The NFT module params contains:
 
+```protobuf
+message Params {
+  string module_admin = 1;
+  string bond_denom = 2;
+  string prefix = 3;
+  uint64 nft_sequence = 4;
+  int64 total_vesting_time = 5;
+  int64 vesting_period = 6;
+  uint64 vesting_periods_limit = 7;
+  string nft_token_amount = 8;
+  uint64 batch_size = 9;
+  uint64 batch_index = 10;
+}
+```
 ## Owner
 
 The Owner struct matches the NFT holder (owner) address with the NFT address:

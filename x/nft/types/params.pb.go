@@ -25,6 +25,16 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Params defines the parameters for the module.
 type Params struct {
+	ModuleAdmin         string `protobuf:"bytes,1,opt,name=module_admin,json=moduleAdmin,proto3" json:"module_admin,omitempty"`
+	BondDenom           string `protobuf:"bytes,2,opt,name=bond_denom,json=bondDenom,proto3" json:"bond_denom,omitempty"`
+	Prefix              string `protobuf:"bytes,3,opt,name=prefix,proto3" json:"prefix,omitempty"`
+	NftSequence         uint64 `protobuf:"varint,4,opt,name=nft_sequence,json=nftSequence,proto3" json:"nft_sequence,omitempty"`
+	TotalVestingTime    int64  `protobuf:"varint,5,opt,name=total_vesting_time,json=totalVestingTime,proto3" json:"total_vesting_time,omitempty"`
+	VestingPeriod       int64  `protobuf:"varint,6,opt,name=vesting_period,json=vestingPeriod,proto3" json:"vesting_period,omitempty"`
+	VestingPeriodsLimit uint64 `protobuf:"varint,7,opt,name=vesting_periods_limit,json=vestingPeriodsLimit,proto3" json:"vesting_periods_limit,omitempty"`
+	NftTokenAmount      string `protobuf:"bytes,8,opt,name=nft_token_amount,json=nftTokenAmount,proto3" json:"nft_token_amount,omitempty"`
+	BatchSize           uint64 `protobuf:"varint,9,opt,name=batch_size,json=batchSize,proto3" json:"batch_size,omitempty"`
+	BatchIndex          uint64 `protobuf:"varint,10,opt,name=batch_index,json=batchIndex,proto3" json:"batch_index,omitempty"`
 }
 
 func (m *Params) Reset()         { *m = Params{} }
@@ -60,6 +70,76 @@ func (m *Params) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Params proto.InternalMessageInfo
 
+func (m *Params) GetModuleAdmin() string {
+	if m != nil {
+		return m.ModuleAdmin
+	}
+	return ""
+}
+
+func (m *Params) GetBondDenom() string {
+	if m != nil {
+		return m.BondDenom
+	}
+	return ""
+}
+
+func (m *Params) GetPrefix() string {
+	if m != nil {
+		return m.Prefix
+	}
+	return ""
+}
+
+func (m *Params) GetNftSequence() uint64 {
+	if m != nil {
+		return m.NftSequence
+	}
+	return 0
+}
+
+func (m *Params) GetTotalVestingTime() int64 {
+	if m != nil {
+		return m.TotalVestingTime
+	}
+	return 0
+}
+
+func (m *Params) GetVestingPeriod() int64 {
+	if m != nil {
+		return m.VestingPeriod
+	}
+	return 0
+}
+
+func (m *Params) GetVestingPeriodsLimit() uint64 {
+	if m != nil {
+		return m.VestingPeriodsLimit
+	}
+	return 0
+}
+
+func (m *Params) GetNftTokenAmount() string {
+	if m != nil {
+		return m.NftTokenAmount
+	}
+	return ""
+}
+
+func (m *Params) GetBatchSize() uint64 {
+	if m != nil {
+		return m.BatchSize
+	}
+	return 0
+}
+
+func (m *Params) GetBatchIndex() uint64 {
+	if m != nil {
+		return m.BatchIndex
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Params)(nil), "cosmos.nft.Params")
 }
@@ -67,17 +147,31 @@ func init() {
 func init() { proto.RegisterFile("cosmos/nft/params.proto", fileDescriptor_9e3941e289c0c22d) }
 
 var fileDescriptor_9e3941e289c0c22d = []byte{
-	// 148 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4f, 0xce, 0x2f, 0xce,
-	0xcd, 0x2f, 0xd6, 0xcf, 0x4b, 0x2b, 0xd1, 0x2f, 0x48, 0x2c, 0x4a, 0xcc, 0x2d, 0xd6, 0x2b, 0x28,
-	0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x82, 0x48, 0xe8, 0xe5, 0xa5, 0x95, 0x48, 0x89, 0xa4, 0xe7, 0xa7,
-	0xe7, 0x83, 0x85, 0xf5, 0x41, 0x2c, 0x88, 0x0a, 0x29, 0x11, 0x24, 0xad, 0x79, 0x69, 0x25, 0x10,
-	0x51, 0x25, 0x0e, 0x2e, 0xb6, 0x00, 0xb0, 0x39, 0x4e, 0x4e, 0x27, 0x1e, 0xc9, 0x31, 0x5e, 0x78,
-	0x24, 0xc7, 0xf8, 0xe0, 0x91, 0x1c, 0xe3, 0x84, 0xc7, 0x72, 0x0c, 0x17, 0x1e, 0xcb, 0x31, 0xdc,
-	0x78, 0x2c, 0xc7, 0x10, 0xa5, 0x91, 0x9e, 0x59, 0x92, 0x51, 0x9a, 0xa4, 0x97, 0x9c, 0x9f, 0xab,
-	0x0f, 0x35, 0x04, 0x42, 0xe9, 0x16, 0xa7, 0x64, 0xeb, 0x57, 0x80, 0x4d, 0x2c, 0xa9, 0x2c, 0x48,
-	0x2d, 0x4e, 0x62, 0x03, 0x1b, 0x6a, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x8d, 0xb6, 0x90, 0xc4,
-	0xa7, 0x00, 0x00, 0x00,
+	// 378 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x54, 0x91, 0xb1, 0xce, 0xd3, 0x30,
+	0x10, 0xc7, 0x9b, 0xef, 0xfb, 0x08, 0xc4, 0x85, 0xaa, 0x32, 0x05, 0xac, 0x4a, 0x84, 0x82, 0x84,
+	0x94, 0x01, 0x1a, 0x09, 0x9e, 0xa0, 0x15, 0x0b, 0x12, 0x43, 0xd5, 0x56, 0x0c, 0x2c, 0x56, 0x9a,
+	0x38, 0xa9, 0xd5, 0xda, 0x0e, 0xf1, 0x05, 0x95, 0x3e, 0x05, 0x8f, 0xc5, 0xd8, 0x91, 0x11, 0xb5,
+	0x2f, 0xc1, 0x88, 0x7c, 0x0e, 0x12, 0x9d, 0x12, 0xff, 0x7e, 0xff, 0x3b, 0x9d, 0x7d, 0xe4, 0x59,
+	0x6e, 0xac, 0x32, 0x36, 0xd5, 0x25, 0xa4, 0x75, 0xd6, 0x64, 0xca, 0x4e, 0xeb, 0xc6, 0x80, 0xa1,
+	0xc4, 0x8b, 0xa9, 0x2e, 0x61, 0x3c, 0xaa, 0x4c, 0x65, 0x10, 0xa7, 0xee, 0xcf, 0x27, 0xc6, 0xa3,
+	0xff, 0x4a, 0x75, 0x09, 0x9e, 0xbe, 0xfa, 0x73, 0x43, 0xc2, 0x05, 0x36, 0xa2, 0x2f, 0xc9, 0x43,
+	0x65, 0x8a, 0x76, 0x2f, 0x78, 0x56, 0x28, 0xa9, 0x59, 0x30, 0x09, 0x92, 0x68, 0xd9, 0xf7, 0x6c,
+	0xe6, 0x10, 0x7d, 0x4e, 0xc8, 0xc6, 0xe8, 0x82, 0x17, 0x42, 0x1b, 0xc5, 0x6e, 0x30, 0x10, 0x39,
+	0xf2, 0xc1, 0x01, 0xfa, 0x94, 0x84, 0x75, 0x23, 0x4a, 0x79, 0x60, 0xb7, 0xa8, 0xba, 0x93, 0xeb,
+	0xac, 0x4b, 0xe0, 0x56, 0x7c, 0x6d, 0x85, 0xce, 0x05, 0xbb, 0x9b, 0x04, 0xc9, 0xdd, 0xb2, 0xaf,
+	0x4b, 0x58, 0x75, 0x88, 0xbe, 0x21, 0x14, 0x0c, 0x64, 0x7b, 0xfe, 0x4d, 0x58, 0x90, 0xba, 0xe2,
+	0x20, 0x95, 0x60, 0xf7, 0x26, 0x41, 0x72, 0xbb, 0x1c, 0xa2, 0xf9, 0xec, 0xc5, 0x5a, 0x2a, 0x41,
+	0x5f, 0x93, 0xc1, 0xbf, 0x5c, 0x2d, 0x1a, 0x69, 0x0a, 0x16, 0x62, 0xf2, 0x51, 0x47, 0x17, 0x08,
+	0xe9, 0x3b, 0xf2, 0xe4, 0x3a, 0x66, 0xf9, 0x5e, 0x2a, 0x09, 0xec, 0x3e, 0x0e, 0xf0, 0xf8, 0x2a,
+	0x6d, 0x3f, 0x39, 0x45, 0x13, 0x32, 0x74, 0xb3, 0x82, 0xd9, 0x09, 0xcd, 0x33, 0x65, 0x5a, 0x0d,
+	0xec, 0x01, 0xde, 0x66, 0xa0, 0x4b, 0x58, 0x3b, 0x3c, 0x43, 0x8a, 0x8f, 0x91, 0x41, 0xbe, 0xe5,
+	0x56, 0x1e, 0x05, 0x8b, 0xb0, 0x65, 0x84, 0x64, 0x25, 0x8f, 0x82, 0xbe, 0x20, 0x7d, 0xaf, 0xa5,
+	0x2e, 0xc4, 0x81, 0x11, 0xf4, 0xbe, 0xe2, 0xa3, 0x23, 0xf3, 0xf9, 0xcf, 0x73, 0x1c, 0x9c, 0xce,
+	0x71, 0xf0, 0xfb, 0x1c, 0x07, 0x3f, 0x2e, 0x71, 0xef, 0x74, 0x89, 0x7b, 0xbf, 0x2e, 0x71, 0xef,
+	0x4b, 0x52, 0x49, 0xd8, 0xb6, 0x9b, 0x69, 0x6e, 0x54, 0xda, 0x6d, 0xcd, 0x7f, 0xde, 0xda, 0x62,
+	0x97, 0x1e, 0x70, 0x85, 0xf0, 0xbd, 0x16, 0x76, 0x13, 0xe2, 0x16, 0xdf, 0xff, 0x0d, 0x00, 0x00,
+	0xff, 0xff, 0x51, 0x7e, 0x0a, 0x2f, 0x18, 0x02, 0x00, 0x00,
 }
 
 func (m *Params) Marshal() (dAtA []byte, err error) {
@@ -100,6 +194,64 @@ func (m *Params) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.BatchIndex != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.BatchIndex))
+		i--
+		dAtA[i] = 0x50
+	}
+	if m.BatchSize != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.BatchSize))
+		i--
+		dAtA[i] = 0x48
+	}
+	if len(m.NftTokenAmount) > 0 {
+		i -= len(m.NftTokenAmount)
+		copy(dAtA[i:], m.NftTokenAmount)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.NftTokenAmount)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if m.VestingPeriodsLimit != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.VestingPeriodsLimit))
+		i--
+		dAtA[i] = 0x38
+	}
+	if m.VestingPeriod != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.VestingPeriod))
+		i--
+		dAtA[i] = 0x30
+	}
+	if m.TotalVestingTime != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.TotalVestingTime))
+		i--
+		dAtA[i] = 0x28
+	}
+	if m.NftSequence != 0 {
+		i = encodeVarintParams(dAtA, i, uint64(m.NftSequence))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Prefix) > 0 {
+		i -= len(m.Prefix)
+		copy(dAtA[i:], m.Prefix)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.Prefix)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.BondDenom) > 0 {
+		i -= len(m.BondDenom)
+		copy(dAtA[i:], m.BondDenom)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.BondDenom)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ModuleAdmin) > 0 {
+		i -= len(m.ModuleAdmin)
+		copy(dAtA[i:], m.ModuleAdmin)
+		i = encodeVarintParams(dAtA, i, uint64(len(m.ModuleAdmin)))
+		i--
+		dAtA[i] = 0xa
+	}
 	return len(dAtA) - i, nil
 }
 
@@ -120,6 +272,40 @@ func (m *Params) Size() (n int) {
 	}
 	var l int
 	_ = l
+	l = len(m.ModuleAdmin)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.BondDenom)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	l = len(m.Prefix)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	if m.NftSequence != 0 {
+		n += 1 + sovParams(uint64(m.NftSequence))
+	}
+	if m.TotalVestingTime != 0 {
+		n += 1 + sovParams(uint64(m.TotalVestingTime))
+	}
+	if m.VestingPeriod != 0 {
+		n += 1 + sovParams(uint64(m.VestingPeriod))
+	}
+	if m.VestingPeriodsLimit != 0 {
+		n += 1 + sovParams(uint64(m.VestingPeriodsLimit))
+	}
+	l = len(m.NftTokenAmount)
+	if l > 0 {
+		n += 1 + l + sovParams(uint64(l))
+	}
+	if m.BatchSize != 0 {
+		n += 1 + sovParams(uint64(m.BatchSize))
+	}
+	if m.BatchIndex != 0 {
+		n += 1 + sovParams(uint64(m.BatchIndex))
+	}
 	return n
 }
 
@@ -158,6 +344,248 @@ func (m *Params) Unmarshal(dAtA []byte) error {
 			return fmt.Errorf("proto: Params: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ModuleAdmin", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ModuleAdmin = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BondDenom", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.BondDenom = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Prefix", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Prefix = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NftSequence", wireType)
+			}
+			m.NftSequence = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.NftSequence |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TotalVestingTime", wireType)
+			}
+			m.TotalVestingTime = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.TotalVestingTime |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VestingPeriod", wireType)
+			}
+			m.VestingPeriod = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.VestingPeriod |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VestingPeriodsLimit", wireType)
+			}
+			m.VestingPeriodsLimit = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.VestingPeriodsLimit |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NftTokenAmount", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthParams
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthParams
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NftTokenAmount = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchSize", wireType)
+			}
+			m.BatchSize = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BatchSize |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 10:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field BatchIndex", wireType)
+			}
+			m.BatchIndex = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowParams
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.BatchIndex |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipParams(dAtA[iNdEx:])

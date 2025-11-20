@@ -6,6 +6,7 @@ info:
 paths:
   /cosmos/accumulator/admins:
     get:
+      summary: Parameters queries the list of admins and their vesting params
       operationId: CosmosAccumulatorGetAdmins
       responses:
         '200':
@@ -319,6 +320,242 @@ paths:
           in: query
           required: false
           type: boolean
+      tags:
+        - Query
+  /cosmos/accumulator/admins/{address}:
+    get:
+      summary: Parameters queries the admin and its vesting params
+      operationId: CosmosAccumulatorGetAdminByAddress
+      responses:
+        '200':
+          description: A successful response.
+          schema:
+            type: object
+            properties:
+              admin:
+                type: object
+                properties:
+                  address:
+                    type: string
+                  vesting_period:
+                    type: string
+                    format: int64
+                  reward_per_period:
+                    type: object
+                    properties:
+                      denom:
+                        type: string
+                      amount:
+                        type: string
+                    description: >-
+                      Coin defines a token with a denomination and an amount.
+
+
+                      NOTE: The amount field is an Int which implements the
+                      custom method
+
+                      signatures required by gogoproto.
+                  vesting_periods_count:
+                    type: string
+                    format: int64
+                  last_vesting_time:
+                    type: string
+                    format: int64
+                  vesting_counter:
+                    type: string
+                    format: int64
+                  denom:
+                    type: string
+        default:
+          description: An unexpected error response.
+          schema:
+            type: object
+            properties:
+              code:
+                type: integer
+                format: int32
+              message:
+                type: string
+              details:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    '@type':
+                      type: string
+                      description: >-
+                        A URL/resource name that uniquely identifies the type of
+                        the serialized
+
+                        protocol buffer message. This string must contain at
+                        least
+
+                        one "/" character. The last segment of the URL's path
+                        must represent
+
+                        the fully qualified name of the type (as in
+
+                        `path/google.protobuf.Duration`). The name should be in
+                        a canonical form
+
+                        (e.g., leading "." is not accepted).
+
+
+                        In practice, teams usually precompile into the binary
+                        all types that they
+
+                        expect it to use in the context of Any. However, for
+                        URLs which use the
+
+                        scheme `http`, `https`, or no scheme, one can optionally
+                        set up a type
+
+                        server that maps type URLs to message definitions as
+                        follows:
+
+
+                        * If no scheme is provided, `https` is assumed.
+
+                        * An HTTP GET on the URL must yield a
+                        [google.protobuf.Type][]
+                          value in binary format, or produce an error.
+                        * Applications are allowed to cache lookup results based
+                        on the
+                          URL, or have them precompiled into a binary to avoid any
+                          lookup. Therefore, binary compatibility needs to be preserved
+                          on changes to types. (Use versioned type names to manage
+                          breaking changes.)
+
+                        Note: this functionality is not currently available in
+                        the official
+
+                        protobuf release, and it is not used for type URLs
+                        beginning with
+
+                        type.googleapis.com.
+
+
+                        Schemes other than `http`, `https` (or the empty scheme)
+                        might be
+
+                        used with implementation specific semantics.
+                  additionalProperties: {}
+                  description: >-
+                    `Any` contains an arbitrary serialized protocol buffer
+                    message along with a
+
+                    URL that describes the type of the serialized message.
+
+
+                    Protobuf library provides support to pack/unpack Any values
+                    in the form
+
+                    of utility functions or additional generated methods of the
+                    Any type.
+
+
+                    Example 1: Pack and unpack a message in C++.
+
+                        Foo foo = ...;
+                        Any any;
+                        any.PackFrom(foo);
+                        ...
+                        if (any.UnpackTo(&foo)) {
+                          ...
+                        }
+
+                    Example 2: Pack and unpack a message in Java.
+
+                        Foo foo = ...;
+                        Any any = Any.pack(foo);
+                        ...
+                        if (any.is(Foo.class)) {
+                          foo = any.unpack(Foo.class);
+                        }
+
+                     Example 3: Pack and unpack a message in Python.
+
+                        foo = Foo(...)
+                        any = Any()
+                        any.Pack(foo)
+                        ...
+                        if any.Is(Foo.DESCRIPTOR):
+                          any.Unpack(foo)
+                          ...
+
+                     Example 4: Pack and unpack a message in Go
+
+                         foo := &pb.Foo{...}
+                         any, err := anypb.New(foo)
+                         if err != nil {
+                           ...
+                         }
+                         ...
+                         foo := &pb.Foo{}
+                         if err := any.UnmarshalTo(foo); err != nil {
+                           ...
+                         }
+
+                    The pack methods provided by protobuf library will by
+                    default use
+
+                    'type.googleapis.com/full.type.name' as the type URL and the
+                    unpack
+
+                    methods only use the fully qualified type name after the
+                    last '/'
+
+                    in the type URL, for example "foo.bar.com/x/y.z" will yield
+                    type
+
+                    name "y.z".
+
+
+
+                    JSON
+
+                    ====
+
+                    The JSON representation of an `Any` value uses the regular
+
+                    representation of the deserialized, embedded message, with
+                    an
+
+                    additional field `@type` which contains the type URL.
+                    Example:
+
+                        package google.profile;
+                        message Person {
+                          string first_name = 1;
+                          string last_name = 2;
+                        }
+
+                        {
+                          "@type": "type.googleapis.com/google.profile.Person",
+                          "firstName": <string>,
+                          "lastName": <string>
+                        }
+
+                    If the embedded message type is well-known and has a custom
+                    JSON
+
+                    representation, that representation will be embedded adding
+                    a field
+
+                    `value` which holds the custom JSON in addition to the
+                    `@type`
+
+                    field. Example (for message [google.protobuf.Duration][]):
+
+                        {
+                          "@type": "type.googleapis.com/google.protobuf.Duration",
+                          "value": "1.212s"
+                        }
+      parameters:
+        - name: address
+          in: path
+          required: true
+          type: string
       tags:
         - Query
   /cosmos/accumulator/params:
@@ -12953,6 +13190,7 @@ paths:
                         - PROPOSAL_STATUS_PASSED
                         - PROPOSAL_STATUS_REJECTED
                         - PROPOSAL_STATUS_FAILED
+                        - PROPOSAL_STATUS_CANCELED
                       default: PROPOSAL_STATUS_UNSPECIFIED
                       description: >-
                         ProposalStatus enumerates the valid statuses of a
@@ -12969,6 +13207,8 @@ paths:
                         been rejected.
                          - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                         failed.
+                         - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                        been canceled.(these poposals used to be deleted)
                     final_tally_result:
                       description: >-
                         final_tally_result is the final tally result of the
@@ -12988,6 +13228,9 @@ paths:
                           type: string
                         no_with_veto_count:
                           type: string
+                      title: >-
+                        TallyResult defines a standard tally for a governance
+                        proposal.s
                     submit_time:
                       type: string
                       format: date-time
@@ -13251,6 +13494,8 @@ paths:
             been rejected.
              - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
             failed.
+             - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+            been canceled.(these poposals used to be deleted)
           in: query
           required: false
           type: string
@@ -13261,6 +13506,7 @@ paths:
             - PROPOSAL_STATUS_PASSED
             - PROPOSAL_STATUS_REJECTED
             - PROPOSAL_STATUS_FAILED
+            - PROPOSAL_STATUS_CANCELED
           default: PROPOSAL_STATUS_UNSPECIFIED
         - name: voter
           description: voter defines the voter address for the proposals.
@@ -13532,6 +13778,7 @@ paths:
                       - PROPOSAL_STATUS_PASSED
                       - PROPOSAL_STATUS_REJECTED
                       - PROPOSAL_STATUS_FAILED
+                      - PROPOSAL_STATUS_CANCELED
                     default: PROPOSAL_STATUS_UNSPECIFIED
                     description: >-
                       ProposalStatus enumerates the valid statuses of a
@@ -13548,6 +13795,8 @@ paths:
                       been rejected.
                        - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                       failed.
+                       - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                      been canceled.(these poposals used to be deleted)
                   final_tally_result:
                     description: >-
                       final_tally_result is the final tally result of the
@@ -13567,6 +13816,9 @@ paths:
                         type: string
                       no_with_veto_count:
                         type: string
+                    title: >-
+                      TallyResult defines a standard tally for a governance
+                      proposal.s
                   submit_time:
                     type: string
                     format: date-time
@@ -14378,6 +14630,9 @@ paths:
                     type: string
                   no_with_veto_count:
                     type: string
+                title: >-
+                  TallyResult defines a standard tally for a governance
+                  proposal.s
             description: >-
               QueryTallyResultResponse is the response type for the Query/Tally
               RPC method.
@@ -15229,6 +15484,9 @@ paths:
                       Minimum value of Veto votes to Total votes ratio for
                       proposal to be
                        vetoed. Default value: 1/3.
+                  deposit_locking_period:
+                    type: string
+                    title: During this time new delegations cannot be used for voting
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -15631,6 +15889,7 @@ paths:
                         - PROPOSAL_STATUS_PASSED
                         - PROPOSAL_STATUS_REJECTED
                         - PROPOSAL_STATUS_FAILED
+                        - PROPOSAL_STATUS_CANCELED
                       default: PROPOSAL_STATUS_UNSPECIFIED
                       description: >-
                         ProposalStatus enumerates the valid statuses of a
@@ -15647,6 +15906,8 @@ paths:
                         been rejected.
                          - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                         failed.
+                         - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                        been canceled.(these poposals used to be deleted)
                     final_tally_result:
                       description: >-
                         final_tally_result is the final tally result of the
@@ -15924,6 +16185,8 @@ paths:
             been rejected.
              - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
             failed.
+             - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+            been canceled.(these poposals used to be deleted)
           in: query
           required: false
           type: string
@@ -15934,6 +16197,7 @@ paths:
             - PROPOSAL_STATUS_PASSED
             - PROPOSAL_STATUS_REJECTED
             - PROPOSAL_STATUS_FAILED
+            - PROPOSAL_STATUS_CANCELED
           default: PROPOSAL_STATUS_UNSPECIFIED
         - name: voter
           description: voter defines the voter address for the proposals.
@@ -16201,6 +16465,7 @@ paths:
                       - PROPOSAL_STATUS_PASSED
                       - PROPOSAL_STATUS_REJECTED
                       - PROPOSAL_STATUS_FAILED
+                      - PROPOSAL_STATUS_CANCELED
                     default: PROPOSAL_STATUS_UNSPECIFIED
                     description: >-
                       ProposalStatus enumerates the valid statuses of a
@@ -16217,6 +16482,8 @@ paths:
                       been rejected.
                        - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                       failed.
+                       - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                      been canceled.(these poposals used to be deleted)
                   final_tally_result:
                     description: >-
                       final_tally_result is the final tally result of the
@@ -22693,15 +22960,17 @@ paths:
                   mint_denom:
                     type: string
                     title: type of coin to mint
-                  blocks_per_month:
+                  halving_blocks:
                     type: string
                     format: uint64
-                    title: expected blocks per month
-                  end_block:
-                    type: string
-                    format: uint64
-                    title: block when no additional tokens will be minted
-                  month_reward:
+                    title: each halving_blocks block_reward is davide on 2
+                  max_halving_periods:
+                    type: integer
+                    format: int64
+                  current_halving_period:
+                    type: integer
+                    format: int64
+                  block_reward:
                     type: object
                     properties:
                       denom:
@@ -22757,9 +23026,6 @@ paths:
                     type: string
                   uri:
                     type: string
-                  vesting_period:
-                    type: string
-                    format: int64
                   reward_per_period:
                     type: object
                     properties:
@@ -22793,14 +23059,14 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
-                  last_vesting_time:
-                    type: string
-                    format: int64
-                  vesting_counter:
+                  last_vesting_block:
                     type: string
                     format: int64
                   denom:
                     type: string
+                  start_vesting_block:
+                    type: string
+                    format: int64
                 description: NFT defines the NFT.
         default:
           description: An unexpected error response.
@@ -23015,9 +23281,6 @@ paths:
                       type: string
                     uri:
                       type: string
-                    vesting_period:
-                      type: string
-                      format: int64
                     reward_per_period:
                       type: object
                       properties:
@@ -23051,14 +23314,14 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    last_vesting_time:
-                      type: string
-                      format: int64
-                    vesting_counter:
+                    last_vesting_block:
                       type: string
                       format: int64
                     denom:
                       type: string
+                    start_vesting_block:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -23637,9 +23900,6 @@ paths:
                       type: string
                     uri:
                       type: string
-                    vesting_period:
-                      type: string
-                      format: int64
                     reward_per_period:
                       type: object
                       properties:
@@ -23673,14 +23933,14 @@ paths:
                         custom method
 
                         signatures required by gogoproto.
-                    last_vesting_time:
-                      type: string
-                      format: int64
-                    vesting_counter:
+                    last_vesting_block:
                       type: string
                       format: int64
                     denom:
                       type: string
+                    start_vesting_block:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -23971,6 +24231,33 @@ paths:
               params:
                 description: params holds all the parameters of this module.
                 type: object
+                properties:
+                  module_admin:
+                    type: string
+                  bond_denom:
+                    type: string
+                  prefix:
+                    type: string
+                  nft_sequence:
+                    type: string
+                    format: uint64
+                  total_vesting_time:
+                    type: string
+                    format: int64
+                  vesting_period:
+                    type: string
+                    format: int64
+                  vesting_periods_limit:
+                    type: string
+                    format: uint64
+                  nft_token_amount:
+                    type: string
+                  batch_size:
+                    type: string
+                    format: uint64
+                  batch_index:
+                    type: string
+                    format: uint64
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.
@@ -27114,6 +27401,8 @@ paths:
                     title: >-
                       min_commission_rate is the chain-wide minimum commission
                       rate that a validator can charge their delegators
+                  minimal_delegation_amount:
+                    type: string
             description: >-
               QueryParamsResponse is response type for the Query/Params RPC
               method.
@@ -32481,6 +32770,43 @@ definitions:
       super_admin:
         type: string
     description: Params defines the parameters for the module.
+  cosmos.accumulator.QueryAdminByAddressResponse:
+    type: object
+    properties:
+      admin:
+        type: object
+        properties:
+          address:
+            type: string
+          vesting_period:
+            type: string
+            format: int64
+          reward_per_period:
+            type: object
+            properties:
+              denom:
+                type: string
+              amount:
+                type: string
+            description: >-
+              Coin defines a token with a denomination and an amount.
+
+
+              NOTE: The amount field is an Int which implements the custom
+              method
+
+              signatures required by gogoproto.
+          vesting_periods_count:
+            type: string
+            format: int64
+          last_vesting_time:
+            type: string
+            format: int64
+          vesting_counter:
+            type: string
+            format: int64
+          denom:
+            type: string
   cosmos.accumulator.QueryAdminsResponse:
     type: object
     properties:
@@ -42846,6 +43172,7 @@ definitions:
           - PROPOSAL_STATUS_PASSED
           - PROPOSAL_STATUS_REJECTED
           - PROPOSAL_STATUS_FAILED
+          - PROPOSAL_STATUS_CANCELED
         default: PROPOSAL_STATUS_UNSPECIFIED
         description: |-
           ProposalStatus enumerates the valid statuses of a proposal.
@@ -42861,6 +43188,8 @@ definitions:
           been rejected.
            - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
           failed.
+           - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+          been canceled.(these poposals used to be deleted)
       final_tally_result:
         description: |-
           final_tally_result is the final tally result of the proposal. When
@@ -42876,6 +43205,7 @@ definitions:
             type: string
           no_with_veto_count:
             type: string
+        title: TallyResult defines a standard tally for a governance proposal.s
       submit_time:
         type: string
         format: date-time
@@ -42915,6 +43245,7 @@ definitions:
       - PROPOSAL_STATUS_PASSED
       - PROPOSAL_STATUS_REJECTED
       - PROPOSAL_STATUS_FAILED
+      - PROPOSAL_STATUS_CANCELED
     default: PROPOSAL_STATUS_UNSPECIFIED
     description: |-
       ProposalStatus enumerates the valid statuses of a proposal.
@@ -42930,6 +43261,8 @@ definitions:
       been rejected.
        - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
       failed.
+       - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+      been canceled.(these poposals used to be deleted)
   cosmos.gov.v1.QueryDepositResponse:
     type: object
     properties:
@@ -43269,6 +43602,7 @@ definitions:
               - PROPOSAL_STATUS_PASSED
               - PROPOSAL_STATUS_REJECTED
               - PROPOSAL_STATUS_FAILED
+              - PROPOSAL_STATUS_CANCELED
             default: PROPOSAL_STATUS_UNSPECIFIED
             description: |-
               ProposalStatus enumerates the valid statuses of a proposal.
@@ -43284,6 +43618,8 @@ definitions:
               been rejected.
                - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
               failed.
+               - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+              been canceled.(these poposals used to be deleted)
           final_tally_result:
             description: >-
               final_tally_result is the final tally result of the proposal. When
@@ -43302,6 +43638,7 @@ definitions:
                 type: string
               no_with_veto_count:
                 type: string
+            title: TallyResult defines a standard tally for a governance proposal.s
           submit_time:
             type: string
             format: date-time
@@ -43529,6 +43866,7 @@ definitions:
                 - PROPOSAL_STATUS_PASSED
                 - PROPOSAL_STATUS_REJECTED
                 - PROPOSAL_STATUS_FAILED
+                - PROPOSAL_STATUS_CANCELED
               default: PROPOSAL_STATUS_UNSPECIFIED
               description: |-
                 ProposalStatus enumerates the valid statuses of a proposal.
@@ -43544,6 +43882,8 @@ definitions:
                 been rejected.
                  - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                 failed.
+                 - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                been canceled.(these poposals used to be deleted)
             final_tally_result:
               description: >-
                 final_tally_result is the final tally result of the proposal.
@@ -43563,6 +43903,7 @@ definitions:
                   type: string
                 no_with_veto_count:
                   type: string
+              title: TallyResult defines a standard tally for a governance proposal.s
             submit_time:
               type: string
               format: date-time
@@ -43633,6 +43974,7 @@ definitions:
             type: string
           no_with_veto_count:
             type: string
+        title: TallyResult defines a standard tally for a governance proposal.s
     description: >-
       QueryTallyResultResponse is the response type for the Query/Tally RPC
       method.
@@ -43777,7 +44119,7 @@ definitions:
         type: string
       no_with_veto_count:
         type: string
-    description: TallyResult defines a standard tally for a governance proposal.
+    title: TallyResult defines a standard tally for a governance proposal.s
   cosmos.gov.v1.Vote:
     type: object
     properties:
@@ -44108,6 +44450,7 @@ definitions:
           - PROPOSAL_STATUS_PASSED
           - PROPOSAL_STATUS_REJECTED
           - PROPOSAL_STATUS_FAILED
+          - PROPOSAL_STATUS_CANCELED
         default: PROPOSAL_STATUS_UNSPECIFIED
         description: |-
           ProposalStatus enumerates the valid statuses of a proposal.
@@ -44123,6 +44466,8 @@ definitions:
           been rejected.
            - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
           failed.
+           - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+          been canceled.(these poposals used to be deleted)
       final_tally_result:
         description: |-
           final_tally_result is the final tally result of the proposal. When
@@ -44174,6 +44519,7 @@ definitions:
       - PROPOSAL_STATUS_PASSED
       - PROPOSAL_STATUS_REJECTED
       - PROPOSAL_STATUS_FAILED
+      - PROPOSAL_STATUS_CANCELED
     default: PROPOSAL_STATUS_UNSPECIFIED
     description: |-
       ProposalStatus enumerates the valid statuses of a proposal.
@@ -44189,6 +44535,8 @@ definitions:
       been rejected.
        - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
       failed.
+       - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+      been canceled.(these poposals used to be deleted)
   cosmos.gov.v1beta1.QueryDepositResponse:
     type: object
     properties:
@@ -44340,6 +44688,9 @@ definitions:
               Minimum value of Veto votes to Total votes ratio for proposal to
               be
                vetoed. Default value: 1/3.
+          deposit_locking_period:
+            type: string
+            title: During this time new delegations cannot be used for voting
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   cosmos.gov.v1beta1.QueryProposalResponse:
     type: object
@@ -44522,6 +44873,7 @@ definitions:
               - PROPOSAL_STATUS_PASSED
               - PROPOSAL_STATUS_REJECTED
               - PROPOSAL_STATUS_FAILED
+              - PROPOSAL_STATUS_CANCELED
             default: PROPOSAL_STATUS_UNSPECIFIED
             description: |-
               ProposalStatus enumerates the valid statuses of a proposal.
@@ -44537,6 +44889,8 @@ definitions:
               been rejected.
                - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
               failed.
+               - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+              been canceled.(these poposals used to be deleted)
           final_tally_result:
             description: >-
               final_tally_result is the final tally result of the proposal. When
@@ -44775,6 +45129,7 @@ definitions:
                 - PROPOSAL_STATUS_PASSED
                 - PROPOSAL_STATUS_REJECTED
                 - PROPOSAL_STATUS_FAILED
+                - PROPOSAL_STATUS_CANCELED
               default: PROPOSAL_STATUS_UNSPECIFIED
               description: |-
                 ProposalStatus enumerates the valid statuses of a proposal.
@@ -44790,6 +45145,8 @@ definitions:
                 been rejected.
                  - PROPOSAL_STATUS_FAILED: PROPOSAL_STATUS_FAILED defines a proposal status of a proposal that has
                 failed.
+                 - PROPOSAL_STATUS_CANCELED: PROPOSAL_STATUS_CANCELED defines a proposal status of a proposal that has
+                been canceled.(these poposals used to be deleted)
             final_tally_result:
               description: >-
                 final_tally_result is the final tally result of the proposal.
@@ -45044,6 +45401,9 @@ definitions:
         description: |-
           Minimum value of Veto votes to Total votes ratio for proposal to be
            vetoed. Default value: 1/3.
+      deposit_locking_period:
+        type: string
+        title: During this time new delegations cannot be used for voting
     description: TallyParams defines the params for tallying votes on governance proposals.
   cosmos.gov.v1beta1.TallyResult:
     type: object
@@ -47249,15 +47609,17 @@ definitions:
       mint_denom:
         type: string
         title: type of coin to mint
-      blocks_per_month:
+      halving_blocks:
         type: string
         format: uint64
-        title: expected blocks per month
-      end_block:
-        type: string
-        format: uint64
-        title: block when no additional tokens will be minted
-      month_reward:
+        title: each halving_blocks block_reward is davide on 2
+      max_halving_periods:
+        type: integer
+        format: int64
+      current_halving_period:
+        type: integer
+        format: int64
+      block_reward:
         type: object
         properties:
           denom:
@@ -47280,15 +47642,17 @@ definitions:
           mint_denom:
             type: string
             title: type of coin to mint
-          blocks_per_month:
+          halving_blocks:
             type: string
             format: uint64
-            title: expected blocks per month
-          end_block:
-            type: string
-            format: uint64
-            title: block when no additional tokens will be minted
-          month_reward:
+            title: each halving_blocks block_reward is davide on 2
+          max_halving_periods:
+            type: integer
+            format: int64
+          current_halving_period:
+            type: integer
+            format: int64
+          block_reward:
             type: object
             properties:
               denom:
@@ -47305,6 +47669,8 @@ definitions:
               signatures required by gogoproto.
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
   cosmos.nft.MsgDelegateResponse:
+    type: object
+  cosmos.nft.MsgMintResponse:
     type: object
   cosmos.nft.MsgRedelegateResponse:
     type: object
@@ -47323,9 +47689,6 @@ definitions:
         type: string
       uri:
         type: string
-      vesting_period:
-        type: string
-        format: int64
       reward_per_period:
         type: object
         properties:
@@ -47353,17 +47716,44 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
-      last_vesting_time:
-        type: string
-        format: int64
-      vesting_counter:
+      last_vesting_block:
         type: string
         format: int64
       denom:
         type: string
+      start_vesting_block:
+        type: string
+        format: int64
     description: NFT defines the NFT.
   cosmos.nft.Params:
     type: object
+    properties:
+      module_admin:
+        type: string
+      bond_denom:
+        type: string
+      prefix:
+        type: string
+      nft_sequence:
+        type: string
+        format: uint64
+      total_vesting_time:
+        type: string
+        format: int64
+      vesting_period:
+        type: string
+        format: int64
+      vesting_periods_limit:
+        type: string
+        format: uint64
+      nft_token_amount:
+        type: string
+      batch_size:
+        type: string
+        format: uint64
+      batch_index:
+        type: string
+        format: uint64
     description: Params defines the parameters for the module.
   cosmos.nft.QueryAllNFTsByOwnerResponse:
     type: object
@@ -47379,9 +47769,6 @@ definitions:
               type: string
             uri:
               type: string
-            vesting_period:
-              type: string
-              format: int64
             reward_per_period:
               type: object
               properties:
@@ -47415,14 +47802,14 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            last_vesting_time:
-              type: string
-              format: int64
-            vesting_counter:
+            last_vesting_block:
               type: string
               format: int64
             denom:
               type: string
+            start_vesting_block:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47464,9 +47851,6 @@ definitions:
               type: string
             uri:
               type: string
-            vesting_period:
-              type: string
-              format: int64
             reward_per_period:
               type: object
               properties:
@@ -47500,14 +47884,14 @@ definitions:
                 method
 
                 signatures required by gogoproto.
-            last_vesting_time:
-              type: string
-              format: int64
-            vesting_counter:
+            last_vesting_block:
               type: string
               format: int64
             denom:
               type: string
+            start_vesting_block:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47580,9 +47964,6 @@ definitions:
             type: string
           uri:
             type: string
-          vesting_period:
-            type: string
-            format: int64
           reward_per_period:
             type: object
             properties:
@@ -47616,14 +47997,14 @@ definitions:
               method
 
               signatures required by gogoproto.
-          last_vesting_time:
-            type: string
-            format: int64
-          vesting_counter:
+          last_vesting_block:
             type: string
             format: int64
           denom:
             type: string
+          start_vesting_block:
+            type: string
+            format: int64
         description: NFT defines the NFT.
   cosmos.nft.QueryParamsResponse:
     type: object
@@ -47631,6 +48012,33 @@ definitions:
       params:
         description: params holds all the parameters of this module.
         type: object
+        properties:
+          module_admin:
+            type: string
+          bond_denom:
+            type: string
+          prefix:
+            type: string
+          nft_sequence:
+            type: string
+            format: uint64
+          total_vesting_time:
+            type: string
+            format: int64
+          vesting_period:
+            type: string
+            format: int64
+          vesting_periods_limit:
+            type: string
+            format: uint64
+          nft_token_amount:
+            type: string
+          batch_size:
+            type: string
+            format: uint64
+          batch_index:
+            type: string
+            format: uint64
     description: QueryParamsResponse is response type for the Query/Params RPC method.
   cosmos.params.v1beta1.ParamChange:
     type: object
@@ -48422,6 +48830,8 @@ definitions:
         title: >-
           min_commission_rate is the chain-wide minimum commission rate that a
           validator can charge their delegators
+      minimal_delegation_amount:
+        type: string
     description: Params defines the parameters for the staking module.
   cosmos.staking.v1beta1.Pool:
     type: object
@@ -49359,6 +49769,8 @@ definitions:
             title: >-
               min_commission_rate is the chain-wide minimum commission rate that
               a validator can charge their delegators
+          minimal_delegation_amount:
+            type: string
     description: QueryParamsResponse is response type for the Query/Params RPC method.
   cosmos.staking.v1beta1.QueryPoolResponse:
     type: object

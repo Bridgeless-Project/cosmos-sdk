@@ -49,8 +49,8 @@ func NewKeeper(
 	memKey storetypes.StoreKey,
 	ak accountKeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
-) *BaseKeeper {
-	return &BaseKeeper{
+) Keeper {
+	return BaseKeeper{
 		bankKeeper: bankKeeper,
 		cdc:        cdc,
 		storeKey:   storeKey,

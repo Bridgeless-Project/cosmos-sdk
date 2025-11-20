@@ -2,6 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -29,6 +31,7 @@ func GetTxCmd() *cobra.Command {
 		CmdWithdrawal(),
 		CmdUndelegate(),
 		CmdRedelegate(),
+		CmdMint(),
 	)
 	return cmd
 }
@@ -186,6 +189,45 @@ func CmdRedelegate() *cobra.Command {
 			if err = msg.ValidateBasic(); err != nil {
 				return err
 			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdMint() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "mint [owner-address] [start-vesting-block]",
+		Short: "mint nft",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			startVestingBlock, err := strconv.ParseInt(args[1], 10, 64)
+			if err != nil {
+				return err
+			}
+
+			creatorAddress := clientCtx.GetFromAddress().String()
+			if creatorAddress == "" {
+				return fmt.Errorf("must provide creator address")
+			}
+
+			msg := types.NewMsgMint(
+				creatorAddress,
+				args[0],
+				startVestingBlock,
+			)
+
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}

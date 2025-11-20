@@ -3,6 +3,11 @@ package simapp
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"path/filepath"
+
 	"github.com/cosmos/cosmos-sdk/x/accumulator"
 	accumulatorkeeper "github.com/cosmos/cosmos-sdk/x/accumulator/keeper"
 	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
@@ -13,10 +18,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
-	"io"
-	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
@@ -273,6 +274,13 @@ func NewSimApp(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
 
+	app.BankKeeper = app.BankKeeper.SetHooks(
+		banktypes.NewMultiBankHooks(app.NFTKeeper.Hooks()),
+	)
+
+	app.AccumulatorKeeper = accumulatorkeeper.NewKeeper(
+		appCodec, keys[accumulatortypes.StoreKey], keys[accumulatortypes.MemStoreKey], app.AccountKeeper, app.BankKeeper)
+
 	app.NFTKeeper = nftkeeper.NewKeeper(
 		appCodec,
 		keys[nfttypes.StoreKey],
@@ -280,14 +288,8 @@ func NewSimApp(
 		app.GetSubspace(nfttypes.ModuleName),
 		app.BankKeeper,
 		app.StakingKeeper,
+		app.AccumulatorKeeper,
 	)
-
-	app.BankKeeper = app.BankKeeper.SetHooks(
-		banktypes.NewMultiBankHooks(app.NFTKeeper.Hooks()),
-	)
-
-	app.AccumulatorKeeper = accumulatorkeeper.NewKeeper(
-		appCodec, keys[accumulatortypes.StoreKey], keys[accumulatortypes.MemStoreKey], app.AccountKeeper, app.BankKeeper)
 
 	app.MintKeeper = mintkeeper.NewKeeper(
 		appCodec, keys[minttypes.StoreKey], app.GetSubspace(minttypes.ModuleName), app.StakingKeeper,

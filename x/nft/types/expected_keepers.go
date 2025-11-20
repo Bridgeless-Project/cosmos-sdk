@@ -1,11 +1,12 @@
 package types
 
 import (
+	"time"
+
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
-	"time"
 )
 
 // AccountKeeper defines the expected account keeper used for simulations (noalias)
@@ -23,7 +24,7 @@ type BankKeeper interface {
 }
 
 type AccumulatorKeeper interface {
-	DistributeTokens(ctx sdk.Context, fromPool string, isSentToModule bool, amount sdk.Coins, receiverModule string, receiverAddress *sdk.AccAddress) error
+	DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
 }
 
 type StakingKeeper interface {

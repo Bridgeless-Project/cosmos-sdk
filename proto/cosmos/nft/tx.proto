@@ -21,6 +21,8 @@ service Msg {
   rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
 
   rpc Redelegate ( MsgRedelegate) returns (MsgRedelegateResponse);
+
+  rpc Mint (MsgMintRequest) returns (MsgMintResponse);
 }
 
 message MsgWithdrawal {
@@ -69,3 +71,11 @@ message MsgRedelegate {
 }
 
 message MsgRedelegateResponse {}
+
+message MsgMintRequest {
+  string creator = 1;
+  string owner = 2;
+  int64 start_vesting_block = 3;
+}
+
+message MsgMintResponse {}

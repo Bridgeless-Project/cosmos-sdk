@@ -306,6 +306,8 @@ service Msg {
   rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
   
   rpc Redelegate ( MsgRedelegate) returns (MsgRedelegateResponse);
+
+  rpc Mint (MsgMintRequest) returns (MsgMintResponse);
 }
 ```
 
@@ -366,4 +368,18 @@ message MsgUndelegate {
 }
 
 message MsgUndelegateResponse {}
+```
+
+#### Mint
+
+This message is used to mint the new NFT to specified account with predefined start vesting block.
+
+```protobuf
+message MsgMintRequest {
+  string creator = 1;
+  string owner = 2;
+  int64 start_vesting_block = 3;
+}
+
+message MsgMintResponse {}
 ```
