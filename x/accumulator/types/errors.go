@@ -8,9 +8,10 @@ import (
 
 // x/accumulator module sentinel errors
 var (
-	ErrInvalidPool     = sdkerrors.Register(ModuleName, 1100, "invalid pool address")
-	ErrInvalidReceiver = sdkerrors.Register(ModuleName, 1101, "invalid receiver address")
-	ErrForbidden       = sdkerrors.Register(ModuleName, 1102, "permission denied")
-	ErrAdminExists     = sdkerrors.Register(ModuleName, 1103, "admin already exists")
-	ErrAdminNotFound   = sdkerrors.Register(ModuleName, 1104, "admin not found")
+	ErrInvalidPool        = sdkerrors.Register(ModuleName, 1100, "invalid pool address")
+	ErrInvalidReceiver    = sdkerrors.Register(ModuleName, 1101, "invalid receiver address")
+	ErrForbidden          = sdkerrors.Register(ModuleName, 1102, "permission denied")
+	ErrAdminExists        = sdkerrors.Register(ModuleName, 1103, "admin already exists")
+	ErrAdminNotFound      = sdkerrors.Register(ModuleName, 1104, "admin not found")
+	ErrInvalidPoolBalance = sdkerrors.Register(ModuleName, 1105, "invalid pool balance")
 )

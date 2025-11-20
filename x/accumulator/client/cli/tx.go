@@ -2,16 +2,11 @@ package cli
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/x/accumulator/types"
-)
-
-var (
-	DefaultRelativePacketTimeoutTimestamp = uint64((time.Duration(10) * time.Minute).Nanoseconds())
 )
 
 // GetTxCmd returns the transaction commands for this module
@@ -26,6 +21,7 @@ func GetTxCmd() *cobra.Command {
 
 	cmd.AddCommand(
 		CmdNewAdmin(),
+		CmdBurnTokens(),
 	)
 	// this line is used by starport scaffolding # 1
 

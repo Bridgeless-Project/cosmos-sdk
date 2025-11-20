@@ -18,7 +18,9 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgAddAdmin:
 			res, err := msgServer.AddAdmin(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-
+		case *types.MsgBurnTokens:
+			res, err := msgServer.BurnTokens(ctx, msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		}
 		return nil, nil
 
