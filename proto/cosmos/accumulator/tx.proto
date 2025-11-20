@@ -12,6 +12,7 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/accumulator/types";
 
 service Msg {
   rpc AddAdmin(MsgAddAdmin) returns (MsgAddAdminResponse);
+  rpc BurnTokens(MsgBurnTokens) returns (MsgBurnTokensResponse);
 }
 
 // this line is used by starport scaffolding # proto/tx/message
@@ -33,3 +34,11 @@ message MsgAddAdmin {
 
 message MsgAddAdminResponse {}
 
+
+message MsgBurnTokens {
+  string sender = 1;
+  string pool_name = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message MsgBurnTokensResponse {}
