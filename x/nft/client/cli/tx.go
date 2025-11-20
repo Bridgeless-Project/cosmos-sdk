@@ -199,7 +199,7 @@ func CmdRedelegate() *cobra.Command {
 
 func CmdMint() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint [owner-address] [start-vesting-block-time-unix]",
+		Use:   "mint [owner-address] [start-vesting-block]",
 		Short: "mint nft",
 		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -208,7 +208,7 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
-			startVestingTime, err := strconv.ParseInt(args[2], 10, 64)
+			startVestingBlock, err := strconv.ParseInt(args[2], 10, 64)
 			if err != nil {
 				return err
 			}
@@ -221,7 +221,7 @@ func CmdMint() *cobra.Command {
 			msg := types.NewMsgMint(
 				creatorAddress,
 				args[1],
-				startVestingTime,
+				startVestingBlock,
 			)
 
 			if err = msg.ValidateBasic(); err != nil {
