@@ -11,12 +11,10 @@ The `EndBlocker` function is responsible for updating the vesting state of each 
 
 Each NFT contains vesting information structured as follows:
 
-- **Vesting Period**: The period (in seconds) between each vesting event.
-- **Reward Per Period**: The amount of reward to be vested per period.
-- **Vesting Periods Count**: The total number of vesting periods.
+- **Vesting Periods Count**: The current count of how many periods have vested.
 - **Available to Withdraw**: The amount available for withdrawal.
-- **Last Vesting Time**: The timestamp of the last vesting event.
-- **Vesting Counter**: The current count of how many periods have vested.
+- **Last Vesting Time**: The block of the last vesting event.
+- **Start Vesting Time** The start block of the vesting.
 
 ## Purpose of EndBlocker
 
