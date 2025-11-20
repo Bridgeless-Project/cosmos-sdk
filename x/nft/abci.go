@@ -22,35 +22,40 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		return
 	}
 
-	for _, nft := range nfts {
+	currentBlockHeight := ctx.BlockHeader().Height
 
-		if ctx.BlockTime().Unix() < nft.StartVestingTime {
+	for _, nft := range nfts {
+		if nft.StartVestingBlock == 0 {
+			nft.StartVestingBlock = currentBlockHeight
+		}
+
+		if currentBlockHeight < nft.StartVestingBlock {
 			continue
 		}
 
-		if nft.VestingCounter >= int64(params.VestingPeriodsCount) {
+		if nft.VestingPeriodsCount >= int64(params.VestingPeriodsLimit) {
 			continue
 		}
 
 		// if not full period passed since last vesting skip the nft
-		if ctx.BlockTime().Unix()-nft.LastVestingTime < params.VestingPeriod {
+		if currentBlockHeight-nft.LastVestingBlock < params.VestingPeriod {
 			continue
 		}
 
 		// if vesting time has passed skip the nft
-		if ctx.BlockTime().Unix()-nft.StartVestingTime >= params.VestingTime {
+		if currentBlockHeight-nft.StartVestingBlock >= params.TotalVestingTime {
 			continue
 		}
 
-		currentVestingTime := ctx.BlockTime().Unix() - nft.LastVestingTime
-		if nft.LastVestingTime == 0 {
-			currentVestingTime = params.VestingPeriod
+		currentVestingPeriod := currentBlockHeight - nft.LastVestingBlock
+		if nft.LastVestingBlock == 0 {
+			currentVestingPeriod = params.VestingPeriod
 		}
 
-		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingTime), big.NewInt(params.VestingPeriod))
+		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingPeriod), big.NewInt(params.VestingPeriod))
 
-		if nft.VestingCounter+passedPeriods.Int64() > int64(params.VestingPeriodsCount) {
-			passedPeriods = big.NewInt(int64(params.VestingPeriodsCount) - nft.VestingPeriodsCount)
+		if nft.VestingPeriodsCount+passedPeriods.Int64() > int64(params.VestingPeriodsLimit) {
+			passedPeriods = big.NewInt(int64(params.VestingPeriodsLimit) - nft.VestingPeriodsCount)
 		}
 
 		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
@@ -59,8 +64,8 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		),
 		)
 
-		nft.VestingCounter += passedPeriods.Int64()
-		nft.LastVestingTime = ctx.BlockTime().Unix()
+		nft.VestingPeriodsCount += passedPeriods.Int64()
+		nft.LastVestingBlock = currentBlockHeight
 
 		k.SetNFT(ctx, nft)
 	}

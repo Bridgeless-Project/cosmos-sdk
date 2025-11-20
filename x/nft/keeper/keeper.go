@@ -86,13 +86,13 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	return params.ModuleAdmin == address
 }
 
-func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64, vestingPeriodReward *big.Int) (*types.NFT, error) {
-	id := k.GetNftSequence(ctx) + 1
-
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock int64, vestingPeriodReward *big.Int) (*types.NFT, uint64, error) {
 	var (
 		nftAddress string
 		err        error
 	)
+
+	sequence := k.GetNftSequence(ctx) + 1
 
 	// loop is used to avoid sequence collisions
 	for {
@@ -100,17 +100,17 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64
 			k.GetPrefix(ctx),
 			address.Derive(
 				authtypes.NewModuleAddress(accumulatortypes.ModuleName),
-				[]byte(strconv.FormatUint(id, 10)),
+				[]byte(strconv.FormatUint(sequence, 10)),
 			),
 		)
 
 		if err != nil {
-			return nil, errorsmod.Wrap(err, "failed to retrieve NFT address")
+			return nil, 0, errorsmod.Wrap(err, "failed to retrieve NFT address")
 		}
 
 		_, ok := k.GetNFT(ctx, nftAddress)
 		if ok {
-			id++
+			sequence++
 			continue
 		}
 
@@ -121,11 +121,11 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingTime int64
 		Address:             nftAddress,
 		Owner:               owner,
 		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewIntFromBigInt(vestingPeriodReward)),
-		VestingCounter:      0,
+		VestingPeriodsCount: 0,
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),
-		StartVestingTime:    startVestingTime,
+		StartVestingBlock:   startVestingBlock,
 	}
 
-	return &newNft, nil
+	return &newNft, sequence, nil
 }

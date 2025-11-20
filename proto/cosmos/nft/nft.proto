@@ -23,13 +23,12 @@ message NFT {
 
   cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
 
-  int64 last_vesting_time = 7;
+  int64 last_vesting_block = 7;
 
-  int64 vesting_counter = 8;
 
-  string denom = 9;
+  string denom = 8;
 
-  int64 start_vesting_time = 10;
+  int64 start_vesting_block = 9;
 }
 
 message Owner {

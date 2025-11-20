@@ -22,7 +22,7 @@ func NewParams(
 	bondDenom,
 	prefix string,
 	sequence,
-	vestingCount,
+	vestingPeriodsLimit,
 	batchSize,
 	batchIndex uint64,
 	vestingTime,
@@ -33,10 +33,10 @@ func NewParams(
 		BondDenom:           bondDenom,
 		Prefix:              prefix,
 		NftSequence:         sequence,
-		VestingTime:         vestingTime,
+		TotalVestingTime:    vestingTime,
 		VestingPeriod:       vestingPeriod,
-		NftCost:             nftCost,
-		VestingPeriodsCount: vestingCount,
+		NftTokenAmount:      nftCost,
+		VestingPeriodsLimit: vestingPeriodsLimit,
 		BatchSize:           batchSize,
 		BatchIndex:          batchIndex,
 	}
@@ -64,9 +64,9 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamBondDenomKey), &p.BondDenom, validateBondDenom),
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
-		paramtypes.NewParamSetPair([]byte(ParamsNftVestingTimeKey), &p.VestingTime, validateVestingTime),
-		paramtypes.NewParamSetPair([]byte(ParamVestingCountKey), &p.VestingPeriodsCount, validateVestingCount),
-		paramtypes.NewParamSetPair([]byte(ParamNftCostKey), &p.NftCost, validateNftCost),
+		paramtypes.NewParamSetPair([]byte(ParamsNftTotalVestingTimeKey), &p.TotalVestingTime, validateVestingTime),
+		paramtypes.NewParamSetPair([]byte(ParamVestingPeriodsLimitKey), &p.VestingPeriodsLimit, validateVestingCount),
+		paramtypes.NewParamSetPair([]byte(ParamNftTokenAmountKey), &p.NftTokenAmount, validateNftCost),
 		paramtypes.NewParamSetPair([]byte(ParamBatchIndexKey), &p.BatchIndex, validateBatchIndex),
 		paramtypes.NewParamSetPair([]byte(ParamBatchSizeKey), &p.BatchSize, validateBatchSize),
 		paramtypes.NewParamSetPair([]byte(ParamsNftVestingPeriodKey), &p.VestingPeriod, validateVestingPeriod),
@@ -91,15 +91,15 @@ func (p Params) Validate() error {
 		return errorsmod.Wrap(err, "invalid nft sequence")
 	}
 
-	if err := validateVestingTime(p.VestingTime); err != nil {
+	if err := validateVestingTime(p.TotalVestingTime); err != nil {
 		return errorsmod.Wrap(err, "invalid vesting time")
 	}
 
-	if err := validateNftCost(p.NftCost); err != nil {
-		return errorsmod.Wrap(err, "invalid nft cost")
+	if err := validateNftCost(p.NftTokenAmount); err != nil {
+		return errorsmod.Wrap(err, "invalid nft token amount")
 	}
 
-	if err := validateVestingCount(p.VestingPeriodsCount); err != nil {
+	if err := validateVestingCount(p.VestingPeriodsLimit); err != nil {
 		return errorsmod.Wrap(err, "invalid vesting period")
 	}
 

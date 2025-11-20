@@ -75,7 +75,7 @@ message MsgRedelegateResponse {}
 message MsgMintRequest {
   string creator = 1;
   string owner = 2;
-  int64 start_vesting_time = 3;
+  int64 start_vesting_block = 3;
 }
 
 message MsgMintResponse {}

@@ -7,6 +7,7 @@ import (
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
+	accumulatorKeeper "github.com/cosmos/cosmos-sdk/x/accumulator/keeper"
 	accumulatortypes "github.com/cosmos/cosmos-sdk/x/accumulator/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
@@ -19,22 +20,18 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 		return nil, sdkerrors.Wrapf(errors.ErrUnauthorized, "invalid NFT creator %s", request.Creator)
 	}
 
-	nftCost := m.GetNFTCost(sdkCtx)
-	vestingTime := m.GetVestingTime(sdkCtx)
-	vestingPeriod := m.GetVestingPeriod(sdkCtx)
+	vestingPeriod := big.NewInt(params.VestingPeriod)
+	totalVestingTime := big.NewInt(params.TotalVestingTime)
 
-	period := big.NewInt(vestingPeriod)
-	vestTime := big.NewInt(vestingTime)
-
-	vestingPeriodsCount := big.NewInt(0).Div(vestTime, period)
-	cost, ok := big.NewInt(0).SetString(nftCost, 10)
+	vestingPeriodsCount := big.NewInt(0).Div(totalVestingTime, vestingPeriod)
+	cost, ok := big.NewInt(0).SetString(params.NftTokenAmount, 10)
 	if !ok {
 		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "invalid NFT cost")
 	}
 
 	vestingReward := new(big.Int).Div(cost, vestingPeriodsCount)
 
-	nft, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingTime, vestingReward)
+	nft, sequence, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingBlock, vestingReward)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}
@@ -44,7 +41,7 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 		return nil, sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid NFT address %s", nft.Address)
 	}
 
-	nftPoolAddress := m.accumulatorKeeper.GetPoolAddress(accumulatortypes.NFTPoolName)
+	nftPoolAddress := accumulatorKeeper.GetPoolAddress(accumulatortypes.NFTPoolName)
 	poolBalances := m.bankKeeper.GetAllBalances(sdkCtx, nftPoolAddress)
 	ok, balance := poolBalances.Find(m.GetBondDenom(sdkCtx))
 	if !ok {
@@ -53,10 +50,10 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 
 	if balance.Amount.LT(sdk.NewInt(cost.Int64())) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBalance, "insufficient pool balance, NFT cost is %d, balance: %d",
-			NFTCost.Int64(), balance.Amount.Int64())
+			params.NftTokenAmount, balance.Amount.Int64())
 	}
 
-	coinsToDistribute := sdk.NewCoin(m.GetBondDenom(sdkCtx), sdk.NewIntFromBigInt(cost))
+	coinsToDistribute := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(cost))
 
 	if err = m.accumulatorKeeper.DistributeToAccount(
 		sdkCtx,
@@ -68,7 +65,7 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 	}
 
 	m.SetNFT(sdkCtx, *nft)
-	params.NftSequence++
+	params.NftSequence = sequence
 	m.SetParams(sdkCtx, params)
 
 	return &types.MsgMintResponse{}, nil

@@ -199,11 +199,10 @@ func CmdRedelegate() *cobra.Command {
 
 func CmdMint() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint [creator-address] [owner-address] [start_vesting_block]",
+		Use:   "mint [owner-address] [start-vesting-block-time-unix]",
 		Short: "mint nft",
-		Args:  cobra.ExactArgs(3),
+		Args:  cobra.ExactArgs(2),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cmd.Flags().Set(flags.FlagFrom, args[0])
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -214,8 +213,13 @@ func CmdMint() *cobra.Command {
 				return err
 			}
 
+			creatorAddress := clientCtx.GetFromAddress().String()
+			if creatorAddress == "" {
+				return fmt.Errorf("must provide creator address")
+			}
+
 			msg := types.NewMsgMint(
-				clientCtx.GetFromAddress().String(),
+				creatorAddress,
 				args[1],
 				startVestingTime,
 			)

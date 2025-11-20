@@ -1,19 +1,14 @@
 package keeper
 
 import (
-	"math/big"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
-var NFTCost = new(big.Int).Mul(big.NewInt(1280000), new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil))
-
 // GetParams get all parameters as types.Params
-func (k Keeper) GetParams(ctx sdk.Context) types.Params {
-	var params types.Params
+func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
 	k.paramstore.GetParamSet(ctx, &params)
-	return params
+	return
 }
 
 // SetParams set the params
@@ -42,7 +37,7 @@ func (k Keeper) GetNftSequence(ctx sdk.Context) (seq uint64) {
 }
 
 func (k Keeper) GetVestingTime(ctx sdk.Context) (vestingTime int64) {
-	k.paramstore.Get(ctx, []byte(types.ParamsNftVestingTimeKey), &vestingTime)
+	k.paramstore.Get(ctx, []byte(types.ParamsNftTotalVestingTimeKey), &vestingTime)
 	return
 }
 
@@ -57,7 +52,7 @@ func (k Keeper) GetVestingPeriodsCount(ctx sdk.Context) (vestingPeriodCount uint
 	return
 }
 
-func (k Keeper) GetNFTCost(ctx sdk.Context) (nftCost string) {
-	k.paramstore.Get(ctx, []byte(types.ParamNftCostKey), &nftCost)
+func (k Keeper) GetNFTToeknAmount(ctx sdk.Context) (nftTokenAmount string) {
+	k.paramstore.Get(ctx, []byte(types.ParamNftTokenAmountKey), &nftTokenAmount)
 	return
 }
