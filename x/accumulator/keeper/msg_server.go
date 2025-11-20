@@ -50,7 +50,7 @@ func (m msgServer) BurnTokens(goctx context.Context, req *types.MsgBurnTokens) (
 		return nil, types.ErrForbidden
 	}
 
-	err := m.BurnTokensFromPool(ctx, req.PoolName, sdk.NewCoins(req.Amount))
+	err := m.BurnTokensFromPool(ctx, req.PoolName, req.Amount)
 	if err != nil {
 		return nil, errors.Wrap(err, "burning tokens from pool")
 	}

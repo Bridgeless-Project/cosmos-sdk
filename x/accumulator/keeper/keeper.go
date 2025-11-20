@@ -30,7 +30,7 @@ type (
 		GetAllAdmins(ctx sdk.Context) []types.Admin
 		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
 		GetAdminByAddress(ctx context.Context, admin *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error)
-		BurnTokensFromPool(ctx sdk.Context, pool string, amount sdk.Coins) error
+		BurnTokensFromPool(ctx sdk.Context, pool string, amount sdk.Coin) error
 	}
 
 	BaseKeeper struct {
