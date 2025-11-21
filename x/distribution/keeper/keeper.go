@@ -125,7 +125,16 @@ func (k Keeper) WithdrawValidatorCommission(ctx sdk.Context, valAddr sdk.ValAddr
 
 	// update outstanding
 	outstanding := k.GetValidatorOutstandingRewards(ctx, valAddr).Rewards
-	k.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: outstanding.Sub(sdk.NewDecCoinsFromCoins(commission...))})
+	// TODO get why validator receives more than outstanding rewards
+	outstanding, ok := outstanding.SafeSub(sdk.NewDecCoinsFromCoins(commission...))
+	if !ok {
+		for i := range outstanding {
+			if outstanding[i].IsNegative() {
+				outstanding[i].Amount = sdk.ZeroDec()
+			}
+		}
+	}
+	k.SetValidatorOutstandingRewards(ctx, valAddr, types.ValidatorOutstandingRewards{Rewards: outstanding})
 
 	if !commission.IsZero() {
 		accAddr := sdk.AccAddress(valAddr)
