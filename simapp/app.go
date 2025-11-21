@@ -279,7 +279,12 @@ func NewSimApp(
 	)
 
 	app.AccumulatorKeeper = accumulatorkeeper.NewKeeper(
-		appCodec, keys[accumulatortypes.StoreKey], keys[accumulatortypes.MemStoreKey], app.AccountKeeper, app.BankKeeper)
+		appCodec,
+		keys[accumulatortypes.StoreKey],
+		keys[accumulatortypes.MemStoreKey],
+		app.GetSubspace(accumulatortypes.ModuleName),
+		app.AccountKeeper,
+		app.BankKeeper)
 
 	app.NFTKeeper = nftkeeper.NewKeeper(
 		appCodec,
