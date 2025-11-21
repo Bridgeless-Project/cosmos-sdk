@@ -21,4 +21,6 @@ message Params {
 
   cosmos.base.v1beta1.Coin block_reward = 5
   [(gogoproto.nullable) = false, (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Coin"];
+
+  uint64 start_height = 6;
 }
