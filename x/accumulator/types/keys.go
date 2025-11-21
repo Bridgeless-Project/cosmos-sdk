@@ -18,7 +18,7 @@ const (
 
 	ParamsKey = "params"
 
-	ParamSuperAdminKey = "super_admin"
+	ParamSuperAdminKey = "superAdmin"
 )
 
 func KeyPrefix(p string) []byte {
