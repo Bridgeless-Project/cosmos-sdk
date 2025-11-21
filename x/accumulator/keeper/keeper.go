@@ -22,6 +22,7 @@ type (
 		Logger(c sdk.Context) log.Logger
 		GetParams(ctx sdk.Context) (params types.Params)
 		SetParams(ctx sdk.Context, params types.Params)
+		Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error)
 		DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
 		DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
 		SetAdmin(ctx sdk.Context, admin types.Admin)
