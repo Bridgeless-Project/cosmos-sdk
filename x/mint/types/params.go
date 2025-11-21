@@ -3,8 +3,9 @@ package types
 import (
 	"errors"
 	"fmt"
-	"sigs.k8s.io/yaml"
 	"strings"
+
+	"sigs.k8s.io/yaml"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
@@ -22,6 +23,7 @@ var (
 	KeyMaxHalvingPeriods    = []byte("MaxHalvingPeriods")
 	KeyCurrentHalvingPeriod = []byte("CurrentHalvingPeriod")
 	KeyBlockReward          = []byte("BlockReward")
+	KeyStartHeight          = []byte("StartHeight")
 )
 
 // ParamTable for minting module.
@@ -30,7 +32,7 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 func NewParams(
-	mintDenom string, halvingBlocks uint64, blockReward sdk.Coin, currentHalvingPeriod, maxHalvingPeriods uint32,
+	mintDenom string, halvingBlocks uint64, blockReward sdk.Coin, currentHalvingPeriod, maxHalvingPeriods uint32, startBlock uint64,
 ) Params {
 	return Params{
 		MintDenom:            mintDenom,
@@ -38,6 +40,7 @@ func NewParams(
 		BlockReward:          blockReward,
 		CurrentHalvingPeriod: currentHalvingPeriod,
 		MaxHalvingPeriods:    maxHalvingPeriods,
+		StartHeight:          startBlock,
 	}
 }
 
@@ -49,6 +52,7 @@ func DefaultParams() Params {
 		BlockReward:          sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(6)),
 		CurrentHalvingPeriod: 0,
 		MaxHalvingPeriods:    DefaultMaxHalvingPeriods,
+		StartHeight:          0,
 	}
 }
 
@@ -74,6 +78,10 @@ func (p Params) Validate() error {
 		return err
 	}
 
+	if err := validateStartHeight(p.StartHeight); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -91,6 +99,7 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair(KeyMaxHalvingPeriods, &p.MaxHalvingPeriods, validateMaxHalvingPeriods),
 		paramtypes.NewParamSetPair(KeyCurrentHalvingPeriod, &p.CurrentHalvingPeriod, validateCurrentHalvingPeriod),
 		paramtypes.NewParamSetPair(KeyBlockReward, &p.BlockReward, validateBlockReward),
+		paramtypes.NewParamSetPair(KeyStartHeight, &p.StartHeight, validateStartHeight),
 	}
 }
 
@@ -155,6 +164,15 @@ func validateBlockReward(i interface{}) error {
 
 	if !v.IsValid() {
 		return errors.New(fmt.Sprintf("invalid block reward: %s", v))
+	}
+
+	return nil
+}
+
+func validateStartHeight(i interface{}) error {
+	_, ok := i.(uint64)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
 	}
 
 	return nil
