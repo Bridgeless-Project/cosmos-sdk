@@ -10,7 +10,7 @@ import (
 func (m msgServer) AddAdmin(goctx context.Context, req *types.MsgAddAdmin) (*types.MsgAddAdminResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
-	if m.GetParams(ctx).SuperAdmin != req.Creator {
+	if m.GetSuperAdmin(ctx) != req.Creator {
 		return nil, types.ErrForbidden
 	}
 

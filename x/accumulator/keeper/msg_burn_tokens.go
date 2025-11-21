@@ -11,7 +11,7 @@ import (
 func (m msgServer) BurnTokens(goctx context.Context, req *types.MsgBurnTokens) (*types.MsgBurnTokensResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
-	if m.GetParams(ctx).SuperAdmin != req.Sender {
+	if m.GetSuperAdmin(ctx) != req.Sender {
 		return nil, types.ErrForbidden
 	}
 
