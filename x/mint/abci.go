@@ -21,8 +21,15 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 		return
 	}
 
+	if uint64(ctx.BlockHeight()) < params.StartHeight {
+		k.Logger(ctx).Info("The block is less than the starting height")
+		return
+	}
+
 	// validate halving params
-	if uint64(ctx.BlockHeight())%params.HalvingBlocks == 0 && params.CurrentHalvingPeriod < params.MaxHalvingPeriods {
+	if (uint64(ctx.BlockHeight())-params.StartHeight)%params.HalvingBlocks == 0 &&
+		params.CurrentHalvingPeriod < params.MaxHalvingPeriods {
+
 		// halving the rewards
 		params.BlockReward.Amount = params.BlockReward.Amount.Quo(sdk.NewInt(2))
 		params.CurrentHalvingPeriod++
