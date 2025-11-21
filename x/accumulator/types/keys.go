@@ -17,6 +17,8 @@ const (
 	MemStoreKey = "mem_accumulator"
 
 	ParamsKey = "params"
+
+	ParamSuperAdminKey = "super_admin"
 )
 
 func KeyPrefix(p string) []byte {

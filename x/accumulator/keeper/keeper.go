@@ -12,6 +12,7 @@ import (
 	accountKeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/tendermint/tendermint/libs/log"
 	"golang.org/x/net/context"
 )
@@ -19,9 +20,8 @@ import (
 type (
 	Keeper interface {
 		Logger(c sdk.Context) log.Logger
-		GetParams(c sdk.Context) types.Params
-		SetParams(c sdk.Context, params types.Params)
-		Params(c context.Context, req *types.QueryParamsRequest) (*types.QueryParamsResponse, error)
+		GetParams(ctx sdk.Context) (params types.Params)
+		SetParams(ctx sdk.Context, params types.Params)
 		DistributeToModule(ctx sdk.Context, pool string, amount sdk.Coins, receiverModule string) error
 		DistributeToAccount(ctx sdk.Context, pool string, amount sdk.Coins, receiver sdk.AccAddress) error
 		SetAdmin(ctx sdk.Context, admin types.Admin)
@@ -31,12 +31,15 @@ type (
 		GetAdmins(ctx context.Context, admins *types.QueryAdmins) (*types.QueryAdminsResponse, error)
 		GetAdminByAddress(ctx context.Context, admin *types.QueryAdminByAddress) (*types.QueryAdminByAddressResponse, error)
 		BurnTokensFromPool(ctx sdk.Context, pool string, amount sdk.Coin) error
+		GetSuperAdmin(ctx sdk.Context) (superAdmin string)
+		SetSuperAdmin(ctx sdk.Context, superAdmin string)
 	}
 
 	BaseKeeper struct {
 		cdc             codec.BinaryCodec
 		storeKey        storetypes.StoreKey
 		memKey          storetypes.StoreKey
+		paramstore      paramtypes.Subspace
 		bankKeeper      bankkeeper.Keeper
 		ak              accountKeeper.AccountKeeper
 		lastVestingTime time.Time
@@ -47,12 +50,18 @@ func NewKeeper(
 	cdc codec.BinaryCodec,
 	storeKey,
 	memKey storetypes.StoreKey,
+	ps paramtypes.Subspace,
 	ak accountKeeper.AccountKeeper,
 	bankKeeper bankkeeper.Keeper,
 ) Keeper {
+	if !ps.HasKeyTable() {
+		ps = ps.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return BaseKeeper{
 		bankKeeper: bankKeeper,
 		cdc:        cdc,
+		paramstore: ps,
 		storeKey:   storeKey,
 		ak:         ak,
 		memKey:     memKey,

@@ -7,24 +7,20 @@ import (
 
 // GetParams get all parameters as types.Params
 func (k BaseKeeper) GetParams(ctx sdk.Context) (params types.Params) {
-	store := ctx.KVStore(k.storeKey)
-
-	b := store.Get(types.KeyPrefix(types.ParamsKey))
-
-	if b == nil {
-		return types.DefaultParams()
-	}
-
-	k.cdc.MustUnmarshal(b, &params)
-	return params
+	k.paramstore.GetParamSet(ctx, &params)
+	return
 }
 
 // SetParams set the params
 func (k BaseKeeper) SetParams(ctx sdk.Context, params types.Params) {
-	if err := params.Validate(); err != nil {
-		panic("failed to set params: " + err.Error())
-	}
+	k.paramstore.SetParamSet(ctx, &params)
+}
 
-	b := k.cdc.MustMarshal(&params)
-	ctx.KVStore(k.storeKey).Set(types.KeyPrefix(types.ParamsKey), b)
+func (k BaseKeeper) GetSuperAdmin(ctx sdk.Context) (superAdmin string) {
+	k.paramstore.Get(ctx, []byte(types.ParamSuperAdminKey), &superAdmin)
+	return
+}
+
+func (k BaseKeeper) SetSuperAdmin(ctx sdk.Context, superAdmin string) {
+	k.paramstore.Set(ctx, []byte(types.ParamSuperAdminKey), []byte(superAdmin))
 }

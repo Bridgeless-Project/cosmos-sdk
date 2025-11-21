@@ -2,7 +2,7 @@ go 1.19
 
 module github.com/cosmos/cosmos-sdk
 
-require (
+require (	
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-rc.0
 	github.com/99designs/keyring v1.2.1
@@ -60,7 +60,6 @@ require (
 	google.golang.org/protobuf v1.34.2
 	pgregory.net/rapid v0.5.5
 	sigs.k8s.io/yaml v1.3.0
-
 )
 
 require (
@@ -187,7 +186,6 @@ replace (
 	// use cometbft
 	github.com/tendermint/tendermint => github.com/cometbft/cometbft v0.34.28
 	nhooyr.io/websocket => github.com/coder/websocket v1.8.7
-
 )
 
 retract (
