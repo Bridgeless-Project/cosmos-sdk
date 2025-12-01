@@ -12,12 +12,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
-func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*types.MsgMintResponse, error) {
+func (m msgServer) Mint(ctx context.Context, msg *types.MsgMint) (*types.MsgMintResponse, error) {
 	sdkCtx := sdk.UnwrapSDKContext(ctx)
 	params := m.Keeper.GetParams(sdkCtx)
 
-	if !m.IsModuleAdmin(sdkCtx, request.Creator) {
-		return nil, sdkerrors.Wrapf(errors.ErrUnauthorized, "invalid NFT creator %s", request.Creator)
+	if !m.IsModuleAdmin(sdkCtx, msg.Creator) {
+		return nil, sdkerrors.Wrapf(errors.ErrUnauthorized, "invalid NFT creator %s", msg.Creator)
 	}
 
 	vestingPeriod := big.NewInt(params.VestingPeriod)
@@ -31,7 +31,7 @@ func (m msgServer) Mint(ctx context.Context, request *types.MsgMintRequest) (*ty
 
 	vestingRewardPerPeriod := new(big.Int).Div(nftTokenAnount, vestingPeriodsCount)
 
-	nft, sequence, err := m.CreateNft(sdkCtx, request.Owner, request.StartVestingBlock, vestingRewardPerPeriod)
+	nft, sequence, err := m.CreateNft(sdkCtx, msg.Owner, msg.StartVestingBlock, vestingRewardPerPeriod, msg.NftMetadataUri)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}

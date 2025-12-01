@@ -6,8 +6,12 @@ package types
 import (
 	context "context"
 	fmt "fmt"
-	_ "github.com/cosmos/cosmos-sdk/codec/types"
+	_ "github.com/cosmos/cosmos-proto"
+	types2 "github.com/cosmos/cosmos-sdk/codec/types"
+	github_com_cosmos_cosmos_sdk_types "github.com/cosmos/cosmos-sdk/types"
 	types "github.com/cosmos/cosmos-sdk/types"
+	_ "github.com/cosmos/cosmos-sdk/types/msgservice"
+	types1 "github.com/cosmos/cosmos-sdk/x/staking/types"
 	_ "github.com/gogo/protobuf/gogoproto"
 	grpc1 "github.com/gogo/protobuf/grpc"
 	proto "github.com/gogo/protobuf/proto"
@@ -551,24 +555,25 @@ func (m *MsgRedelegateResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgRedelegateResponse proto.InternalMessageInfo
 
-type MsgMintRequest struct {
+type MsgMint struct {
 	Creator           string `protobuf:"bytes,1,opt,name=creator,proto3" json:"creator,omitempty"`
 	Owner             string `protobuf:"bytes,2,opt,name=owner,proto3" json:"owner,omitempty"`
 	StartVestingBlock int64  `protobuf:"varint,3,opt,name=start_vesting_block,json=startVestingBlock,proto3" json:"start_vesting_block,omitempty"`
+	NftMetadataUri    string `protobuf:"bytes,4,opt,name=nft_metadata_uri,json=nftMetadataUri,proto3" json:"nft_metadata_uri,omitempty"`
 }
 
-func (m *MsgMintRequest) Reset()         { *m = MsgMintRequest{} }
-func (m *MsgMintRequest) String() string { return proto.CompactTextString(m) }
-func (*MsgMintRequest) ProtoMessage()    {}
-func (*MsgMintRequest) Descriptor() ([]byte, []int) {
+func (m *MsgMint) Reset()         { *m = MsgMint{} }
+func (m *MsgMint) String() string { return proto.CompactTextString(m) }
+func (*MsgMint) ProtoMessage()    {}
+func (*MsgMint) Descriptor() ([]byte, []int) {
 	return fileDescriptor_5e5808dbd8674559, []int{10}
 }
-func (m *MsgMintRequest) XXX_Unmarshal(b []byte) error {
+func (m *MsgMint) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
 }
-func (m *MsgMintRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+func (m *MsgMint) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	if deterministic {
-		return xxx_messageInfo_MsgMintRequest.Marshal(b, m, deterministic)
+		return xxx_messageInfo_MsgMint.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
 		n, err := m.MarshalToSizedBuffer(b)
@@ -578,37 +583,44 @@ func (m *MsgMintRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return b[:n], nil
 	}
 }
-func (m *MsgMintRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MsgMintRequest.Merge(m, src)
+func (m *MsgMint) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgMint.Merge(m, src)
 }
-func (m *MsgMintRequest) XXX_Size() int {
+func (m *MsgMint) XXX_Size() int {
 	return m.Size()
 }
-func (m *MsgMintRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_MsgMintRequest.DiscardUnknown(m)
+func (m *MsgMint) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgMint.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_MsgMintRequest proto.InternalMessageInfo
+var xxx_messageInfo_MsgMint proto.InternalMessageInfo
 
-func (m *MsgMintRequest) GetCreator() string {
+func (m *MsgMint) GetCreator() string {
 	if m != nil {
 		return m.Creator
 	}
 	return ""
 }
 
-func (m *MsgMintRequest) GetOwner() string {
+func (m *MsgMint) GetOwner() string {
 	if m != nil {
 		return m.Owner
 	}
 	return ""
 }
 
-func (m *MsgMintRequest) GetStartVestingBlock() int64 {
+func (m *MsgMint) GetStartVestingBlock() int64 {
 	if m != nil {
 		return m.StartVestingBlock
 	}
 	return 0
+}
+
+func (m *MsgMint) GetNftMetadataUri() string {
+	if m != nil {
+		return m.NftMetadataUri
+	}
+	return ""
 }
 
 type MsgMintResponse struct {
@@ -647,6 +659,85 @@ func (m *MsgMintResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MsgMintResponse proto.InternalMessageInfo
 
+type MsgBecomeValidator struct {
+	Description       types1.Description                     `protobuf:"bytes,1,opt,name=description,proto3" json:"description"`
+	Commission        types1.CommissionRates                 `protobuf:"bytes,2,opt,name=commission,proto3" json:"commission"`
+	MinSelfDelegation github_com_cosmos_cosmos_sdk_types.Int `protobuf:"bytes,3,opt,name=min_self_delegation,json=minSelfDelegation,proto3,customtype=github.com/cosmos/cosmos-sdk/types.Int" json:"min_self_delegation"`
+	DelegatorAddress  string                                 `protobuf:"bytes,4,opt,name=delegator_address,json=delegatorAddress,proto3" json:"delegator_address,omitempty"`
+	ValidatorAddress  string                                 `protobuf:"bytes,5,opt,name=validator_address,json=validatorAddress,proto3" json:"validator_address,omitempty"`
+	Pubkey            *types2.Any                            `protobuf:"bytes,6,opt,name=pubkey,proto3" json:"pubkey,omitempty"`
+	NftAddresses      []string                               `protobuf:"bytes,7,rep,name=nft_addresses,json=nftAddresses,proto3" json:"nft_addresses,omitempty"`
+}
+
+func (m *MsgBecomeValidator) Reset()         { *m = MsgBecomeValidator{} }
+func (m *MsgBecomeValidator) String() string { return proto.CompactTextString(m) }
+func (*MsgBecomeValidator) ProtoMessage()    {}
+func (*MsgBecomeValidator) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5e5808dbd8674559, []int{12}
+}
+func (m *MsgBecomeValidator) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgBecomeValidator) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgBecomeValidator.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgBecomeValidator) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgBecomeValidator.Merge(m, src)
+}
+func (m *MsgBecomeValidator) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgBecomeValidator) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgBecomeValidator.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgBecomeValidator proto.InternalMessageInfo
+
+type MsgBecomeValidatorResponse struct {
+}
+
+func (m *MsgBecomeValidatorResponse) Reset()         { *m = MsgBecomeValidatorResponse{} }
+func (m *MsgBecomeValidatorResponse) String() string { return proto.CompactTextString(m) }
+func (*MsgBecomeValidatorResponse) ProtoMessage()    {}
+func (*MsgBecomeValidatorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_5e5808dbd8674559, []int{13}
+}
+func (m *MsgBecomeValidatorResponse) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *MsgBecomeValidatorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_MsgBecomeValidatorResponse.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *MsgBecomeValidatorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MsgBecomeValidatorResponse.Merge(m, src)
+}
+func (m *MsgBecomeValidatorResponse) XXX_Size() int {
+	return m.Size()
+}
+func (m *MsgBecomeValidatorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_MsgBecomeValidatorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MsgBecomeValidatorResponse proto.InternalMessageInfo
+
 func init() {
 	proto.RegisterType((*MsgWithdrawal)(nil), "cosmos.nft.MsgWithdrawal")
 	proto.RegisterType((*MsgWithdrawalResponse)(nil), "cosmos.nft.MsgWithdrawalResponse")
@@ -658,52 +749,75 @@ func init() {
 	proto.RegisterType((*MsgSendResponse)(nil), "cosmos.nft.MsgSendResponse")
 	proto.RegisterType((*MsgRedelegate)(nil), "cosmos.nft.MsgRedelegate")
 	proto.RegisterType((*MsgRedelegateResponse)(nil), "cosmos.nft.MsgRedelegateResponse")
-	proto.RegisterType((*MsgMintRequest)(nil), "cosmos.nft.MsgMintRequest")
+	proto.RegisterType((*MsgMint)(nil), "cosmos.nft.MsgMint")
 	proto.RegisterType((*MsgMintResponse)(nil), "cosmos.nft.MsgMintResponse")
+	proto.RegisterType((*MsgBecomeValidator)(nil), "cosmos.nft.MsgBecomeValidator")
+	proto.RegisterType((*MsgBecomeValidatorResponse)(nil), "cosmos.nft.MsgBecomeValidatorResponse")
 }
 
 func init() { proto.RegisterFile("cosmos/nft/tx.proto", fileDescriptor_5e5808dbd8674559) }
 
 var fileDescriptor_5e5808dbd8674559 = []byte{
-	// 594 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x95, 0x3d, 0x6f, 0xd3, 0x40,
-	0x18, 0xc7, 0x63, 0x92, 0xbe, 0x5d, 0x79, 0x51, 0x9d, 0x56, 0x49, 0x0c, 0x72, 0x4a, 0xa6, 0x2c,
-	0xd8, 0x6a, 0x19, 0x60, 0x43, 0x0a, 0x1d, 0x10, 0x92, 0x3b, 0xb8, 0x02, 0x24, 0x96, 0xea, 0x6c,
-	0x3f, 0xb9, 0x5a, 0x8d, 0xef, 0x8c, 0xef, 0x92, 0xb4, 0x12, 0x1f, 0x82, 0x81, 0x01, 0xf1, 0x09,
-	0xf8, 0x20, 0x0c, 0x1d, 0x3b, 0x32, 0x21, 0x94, 0x7c, 0x11, 0x14, 0xdf, 0xc5, 0x76, 0x1c, 0xca,
-	0x90, 0x2e, 0x9d, 0xe2, 0x7b, 0xfe, 0xff, 0x3c, 0xf7, 0x7b, 0x9e, 0x7b, 0x43, 0x75, 0x9f, 0xf1,
-	0x88, 0x71, 0x9b, 0xf6, 0x85, 0x2d, 0x2e, 0xac, 0x38, 0x61, 0x82, 0xe9, 0x48, 0x06, 0x2d, 0xda,
-	0x17, 0x86, 0xa9, 0x0c, 0x1e, 0xe6, 0x60, 0x8f, 0x0e, 0x3c, 0x10, 0xf8, 0xc0, 0xf6, 0x59, 0x48,
-	0xa5, 0xd7, 0x68, 0x13, 0xc6, 0xc8, 0x00, 0xec, 0x74, 0xe4, 0x0d, 0xfb, 0xb6, 0x08, 0x23, 0xe0,
-	0x02, 0x47, 0xb1, 0x32, 0xec, 0x12, 0x46, 0x58, 0xfa, 0x69, 0xcf, 0xbe, 0x54, 0xb4, 0x51, 0x98,
-	0x37, 0xc6, 0x09, 0x8e, 0xb8, 0x12, 0x5a, 0xe5, 0x7c, 0x98, 0x5e, 0x4a, 0xa9, 0xf3, 0x19, 0x3d,
-	0x70, 0x38, 0xf9, 0x10, 0x8a, 0xb3, 0x20, 0xc1, 0x63, 0x3c, 0xd0, 0x9b, 0x68, 0xc3, 0x4f, 0x00,
-	0x0b, 0x96, 0x34, 0xb5, 0x7d, 0xad, 0xbb, 0xe5, 0xce, 0x87, 0x33, 0x05, 0x07, 0x41, 0x02, 0x9c,
-	0x37, 0xef, 0x49, 0x45, 0x0d, 0xf5, 0x17, 0x68, 0x1d, 0x47, 0x6c, 0x48, 0x45, 0x73, 0x6d, 0x5f,
-	0xeb, 0x6e, 0x1f, 0xb6, 0x2c, 0x55, 0xec, 0xac, 0x40, 0x4b, 0x15, 0x68, 0xbd, 0x66, 0x21, 0xed,
-	0xd5, 0xae, 0x7e, 0xb7, 0x2b, 0xae, 0xb2, 0x77, 0x1a, 0x68, 0x6f, 0x61, 0x76, 0x17, 0x78, 0xcc,
-	0x28, 0x87, 0xce, 0x37, 0x0d, 0x6d, 0x3b, 0x9c, 0x1c, 0xc1, 0x00, 0x08, 0x16, 0xb0, 0x12, 0xd5,
-	0x13, 0xb4, 0x35, 0xc2, 0x83, 0x30, 0x48, 0xff, 0x55, 0x4d, 0xb5, 0x3c, 0xb0, 0x3a, 0xf3, 0x1e,
-	0xaa, 0x17, 0xc8, 0x32, 0xe2, 0xef, 0x5a, 0xda, 0xc9, 0x77, 0x34, 0xb8, 0x83, 0xcc, 0xb2, 0xcf,
-	0x39, 0x5b, 0x46, 0xfd, 0x55, 0x43, 0x1b, 0x0e, 0x27, 0x27, 0x40, 0x83, 0x55, 0x79, 0x13, 0xf0,
-	0xc3, 0x38, 0x04, 0x2a, 0xe6, 0xbc, 0x59, 0x60, 0x75, 0xde, 0x1d, 0xf4, 0x48, 0x51, 0x65, 0xa4,
-	0x3f, 0x65, 0x7f, 0x5d, 0xb8, 0x55, 0x7f, 0x3b, 0xe8, 0x7e, 0xd6, 0xce, 0x93, 0xc4, 0x57, 0xc8,
-	0x0b, 0xb1, 0x05, 0xcf, 0x31, 0x8c, 0x9b, 0xb5, 0x92, 0xe7, 0x18, 0xc6, 0xb7, 0x5d, 0x89, 0xbc,
-	0x8a, 0xac, 0xbe, 0x18, 0x3d, 0x74, 0x38, 0x71, 0x42, 0x2a, 0x5c, 0xf8, 0x34, 0x04, 0x2e, 0xfe,
-	0x53, 0xdf, 0x2e, 0x5a, 0x63, 0x63, 0x0a, 0x89, 0xaa, 0x4e, 0x0e, 0x74, 0x0b, 0xd5, 0xb9, 0xc0,
-	0x89, 0x38, 0x1d, 0x01, 0x17, 0x21, 0x25, 0xa7, 0xde, 0x80, 0xf9, 0xe7, 0x69, 0x89, 0x55, 0x77,
-	0x27, 0x95, 0xde, 0x4b, 0xa5, 0x37, 0x13, 0x54, 0x93, 0xe5, 0x8c, 0x12, 0xe2, 0xf0, 0x47, 0x15,
-	0x55, 0x1d, 0x4e, 0xf4, 0x97, 0xa8, 0x96, 0x6e, 0x89, 0xba, 0x95, 0xdf, 0x5a, 0x96, 0x5a, 0x11,
-	0xe3, 0xf1, 0x3f, 0x82, 0xf3, 0x0c, 0xfa, 0x1b, 0xb4, 0x39, 0x3f, 0xce, 0x7a, 0xab, 0x64, 0xcc,
-	0xcf, 0xb9, 0xf1, 0xf4, 0x46, 0x29, 0xcb, 0xf4, 0x16, 0xa1, 0xc2, 0x61, 0x2a, 0xe7, 0xca, 0xa5,
-	0xa5, 0x5c, 0xcb, 0xdb, 0x5c, 0x3f, 0x42, 0x9b, 0xd9, 0x55, 0xd2, 0x28, 0xd9, 0xe7, 0x82, 0xd1,
-	0xbe, 0x41, 0x28, 0x12, 0x15, 0xb6, 0x5f, 0x99, 0x28, 0x97, 0x96, 0x88, 0x96, 0x97, 0x5b, 0x7f,
-	0x85, 0x6a, 0xb3, 0xce, 0xeb, 0x46, 0xc9, 0x5a, 0xd8, 0x00, 0x4b, 0x8d, 0x2e, 0x2e, 0x55, 0xaf,
-	0x77, 0x35, 0x31, 0xb5, 0xeb, 0x89, 0xa9, 0xfd, 0x99, 0x98, 0xda, 0x97, 0xa9, 0x59, 0xb9, 0x9e,
-	0x9a, 0x95, 0x5f, 0x53, 0xb3, 0xf2, 0xb1, 0x4b, 0x42, 0x71, 0x36, 0xf4, 0x2c, 0x9f, 0x45, 0xb6,
-	0x7a, 0x11, 0xe4, 0xcf, 0x33, 0x1e, 0x9c, 0xdb, 0x17, 0xf2, 0x59, 0xba, 0x8c, 0x81, 0x7b, 0xeb,
-	0xe9, 0x1b, 0xf0, 0xfc, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xc5, 0xe5, 0xf9, 0xd1, 0xb1, 0x06,
-	0x00, 0x00,
+	// 937 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x56, 0xcf, 0x6f, 0xdc, 0x44,
+	0x14, 0x5e, 0x77, 0xf3, 0xa3, 0x99, 0xb4, 0xb4, 0xf1, 0xa6, 0x8a, 0xb3, 0x44, 0xbb, 0x61, 0x41,
+	0x65, 0x85, 0x14, 0x5b, 0x09, 0x48, 0x20, 0xc4, 0x25, 0x6e, 0x40, 0x94, 0x6a, 0x2b, 0xe4, 0xa8,
+	0x45, 0x70, 0x59, 0xcd, 0xda, 0xb3, 0xee, 0x28, 0xeb, 0x19, 0x6b, 0x66, 0x36, 0xe9, 0x4a, 0x9c,
+	0x38, 0x71, 0x44, 0x82, 0x03, 0xe2, 0xd4, 0x3f, 0x81, 0x43, 0xff, 0x04, 0x0e, 0x15, 0xa7, 0xaa,
+	0x27, 0xc4, 0xa1, 0x42, 0xc9, 0x01, 0x2e, 0xfc, 0x07, 0x1c, 0x90, 0xc7, 0x33, 0x63, 0xc7, 0x26,
+	0x41, 0x4a, 0x2e, 0x3d, 0xad, 0xe7, 0x7d, 0xef, 0x7d, 0xf3, 0xbd, 0xcf, 0xe3, 0x37, 0x0b, 0x5a,
+	0x21, 0xe5, 0x09, 0xe5, 0x1e, 0x19, 0x0b, 0x4f, 0x3c, 0x76, 0x53, 0x46, 0x05, 0xb5, 0x41, 0x1e,
+	0x74, 0xc9, 0x58, 0xb4, 0x3b, 0x2a, 0x61, 0x04, 0x39, 0xf2, 0x0e, 0xb7, 0x47, 0x48, 0xc0, 0x6d,
+	0x2f, 0xa4, 0x98, 0xe4, 0xb9, 0xed, 0x6e, 0x4c, 0x69, 0x3c, 0x41, 0x9e, 0x5c, 0x8d, 0xa6, 0x63,
+	0x4f, 0xe0, 0x04, 0x71, 0x01, 0x93, 0x54, 0x25, 0xac, 0xc6, 0x34, 0xa6, 0xf2, 0xd1, 0xcb, 0x9e,
+	0x54, 0x74, 0x3d, 0xa7, 0x1d, 0xe6, 0x80, 0xda, 0x2f, 0x87, 0xd6, 0x4a, 0x92, 0x52, 0xc8, 0x60,
+	0xa2, 0x81, 0xf5, 0xea, 0x56, 0x90, 0xcc, 0x2a, 0x35, 0x09, 0x8f, 0xbd, 0xc3, 0xed, 0xec, 0x47,
+	0x01, 0x6f, 0x29, 0x80, 0x0b, 0x78, 0x80, 0x49, 0x6c, 0x3a, 0x50, 0xeb, 0x3c, 0xab, 0xf7, 0x35,
+	0xb8, 0x3e, 0xe0, 0xf1, 0x17, 0x58, 0x3c, 0x8a, 0x18, 0x3c, 0x82, 0x13, 0xdb, 0x01, 0x8b, 0x21,
+	0x43, 0x50, 0x50, 0xe6, 0x58, 0x9b, 0x56, 0x7f, 0x29, 0xd0, 0xcb, 0x0c, 0x81, 0x51, 0xc4, 0x10,
+	0xe7, 0xce, 0x95, 0x1c, 0x51, 0x4b, 0xfb, 0x7d, 0xb0, 0x00, 0x13, 0x3a, 0x25, 0xc2, 0x99, 0xdf,
+	0xb4, 0xfa, 0xcb, 0x3b, 0xeb, 0xae, 0x6a, 0x2b, 0xb3, 0xce, 0x55, 0x1b, 0xbb, 0x77, 0x28, 0x26,
+	0xfe, 0xdc, 0xb3, 0x97, 0xdd, 0x46, 0xa0, 0xd2, 0x7b, 0x6b, 0xe0, 0xd6, 0xa9, 0xdd, 0x03, 0xc4,
+	0x53, 0x4a, 0x38, 0xea, 0xfd, 0x68, 0x81, 0xe5, 0x01, 0x8f, 0xf7, 0xd0, 0x04, 0xc5, 0x50, 0xa0,
+	0x0b, 0xa9, 0xda, 0x00, 0x4b, 0x87, 0x70, 0x82, 0x23, 0x59, 0xd5, 0x94, 0x58, 0x11, 0xb8, 0xb8,
+	0xe6, 0x5b, 0xa0, 0x55, 0x52, 0x66, 0x14, 0xff, 0x64, 0x49, 0x27, 0x1f, 0x90, 0xe8, 0x15, 0xd4,
+	0x9c, 0xfb, 0x5c, 0x68, 0x33, 0xaa, 0x7f, 0xb0, 0xc0, 0xe2, 0x80, 0xc7, 0xfb, 0x88, 0x44, 0x17,
+	0xd5, 0xcb, 0x50, 0x88, 0x53, 0x8c, 0x88, 0xd0, 0x7a, 0x4d, 0xe0, 0xe2, 0x7a, 0x57, 0xc0, 0x0d,
+	0xa5, 0xca, 0x28, 0xfd, 0x25, 0xf7, 0x37, 0x40, 0x97, 0xf2, 0xb7, 0x07, 0xae, 0x19, 0x3b, 0xf7,
+	0x59, 0xa8, 0x24, 0x9f, 0x8a, 0x9d, 0xca, 0xb9, 0x8f, 0x8e, 0x9c, 0xb9, 0x4a, 0xce, 0x7d, 0x74,
+	0x74, 0xd9, 0x37, 0x51, 0x74, 0x61, 0xfa, 0xfb, 0x3e, 0x7f, 0x13, 0x03, 0x4c, 0xc4, 0x39, 0x9d,
+	0xad, 0x82, 0x79, 0x7a, 0x44, 0x10, 0x53, 0x7d, 0xe5, 0x0b, 0xdb, 0x05, 0x2d, 0x2e, 0x20, 0x13,
+	0xc3, 0x43, 0xc4, 0x05, 0x26, 0xf1, 0x70, 0x34, 0xa1, 0xe1, 0x81, 0x6c, 0xae, 0x19, 0xac, 0x48,
+	0xe8, 0x61, 0x8e, 0xf8, 0x19, 0x60, 0xf7, 0xc1, 0x4d, 0x32, 0x16, 0xc3, 0x04, 0x09, 0x18, 0x41,
+	0x01, 0x87, 0x53, 0x86, 0x55, 0x97, 0xaf, 0x91, 0xb1, 0x18, 0xa8, 0xf0, 0x03, 0x86, 0xd5, 0x8b,
+	0xc8, 0x44, 0x19, 0xa1, 0x7f, 0xcf, 0x01, 0x7b, 0xc0, 0x63, 0x1f, 0x85, 0x34, 0x41, 0x0f, 0xcd,
+	0xd9, 0xbc, 0x07, 0x96, 0x23, 0xc4, 0x43, 0x86, 0x53, 0x81, 0x29, 0x91, 0xba, 0x97, 0x77, 0xde,
+	0xd4, 0xb6, 0xe8, 0xa1, 0xa3, 0x9d, 0xd9, 0x2b, 0x52, 0x95, 0x41, 0xe5, 0x6a, 0x7b, 0x00, 0x40,
+	0x48, 0x93, 0x04, 0x73, 0x9e, 0x71, 0x5d, 0x91, 0x5c, 0x6f, 0x9f, 0xc5, 0x75, 0xc7, 0x64, 0x06,
+	0x50, 0x20, 0xae, 0xf8, 0x4a, 0x04, 0xf6, 0x04, 0xb4, 0x12, 0x4c, 0x86, 0x1c, 0x4d, 0xc6, 0x43,
+	0x65, 0x7c, 0xc6, 0x2b, 0x5f, 0xbe, 0xff, 0x51, 0x96, 0xfe, 0xfb, 0xcb, 0xee, 0xed, 0x18, 0x8b,
+	0x47, 0xd3, 0x91, 0x1b, 0xd2, 0x44, 0x4d, 0x65, 0xf5, 0xb3, 0xc5, 0xa3, 0x03, 0x4f, 0xcc, 0x52,
+	0xc4, 0xdd, 0xbb, 0x44, 0xbc, 0x78, 0xba, 0xa5, 0x2f, 0x89, 0xbb, 0x44, 0x04, 0x2b, 0x09, 0x26,
+	0xfb, 0x68, 0x32, 0xde, 0x33, 0xb4, 0xf6, 0xc7, 0x60, 0x45, 0x6d, 0x42, 0xd9, 0x50, 0x9f, 0x43,
+	0x69, 0xaf, 0xef, 0xbc, 0x78, 0xba, 0xb5, 0xaa, 0xaa, 0x77, 0x73, 0x64, 0x5f, 0x30, 0x4c, 0xe2,
+	0xe0, 0xa6, 0x29, 0x51, 0xf1, 0x8c, 0xc6, 0x1c, 0x39, 0x43, 0x33, 0xff, 0x7f, 0x34, 0xa6, 0x44,
+	0xd3, 0x7c, 0x02, 0x16, 0xd2, 0xe9, 0xe8, 0x00, 0xcd, 0x9c, 0x05, 0x69, 0xe3, 0xaa, 0x9b, 0xdf,
+	0x25, 0xae, 0xbe, 0x4b, 0xdc, 0x5d, 0x32, 0xf3, 0x9d, 0x5f, 0x0b, 0xc6, 0x90, 0xcd, 0x52, 0x41,
+	0xdd, 0xcf, 0xa7, 0xa3, 0x7b, 0x68, 0x16, 0xa8, 0x6a, 0x7b, 0x17, 0x5c, 0xcf, 0xce, 0x8c, 0x12,
+	0x82, 0xb8, 0xb3, 0xb8, 0xd9, 0xec, 0x2f, 0xf9, 0x1b, 0x99, 0x7b, 0x67, 0xca, 0xb9, 0x46, 0xc6,
+	0x62, 0x57, 0x57, 0x7c, 0xf8, 0xde, 0xb7, 0x4f, 0xba, 0x8d, 0xbf, 0x9e, 0x74, 0x1b, 0xdf, 0xfc,
+	0xf9, 0xf3, 0x3b, 0x75, 0x8f, 0x64, 0xb4, 0xd6, 0x72, 0x6f, 0x03, 0xb4, 0xeb, 0xc7, 0x4d, 0x9f,
+	0xc6, 0x9d, 0x7f, 0x9a, 0xa0, 0x39, 0xe0, 0xb1, 0xfd, 0x01, 0x98, 0x93, 0x43, 0xac, 0xe5, 0x16,
+	0x37, 0xb8, 0xab, 0x66, 0x48, 0xfb, 0xf5, 0xff, 0x08, 0x6a, 0x06, 0xfb, 0x53, 0x70, 0x55, 0x5f,
+	0x40, 0xf6, 0x7a, 0x25, 0xb1, 0xb8, 0x99, 0xda, 0x6f, 0x9c, 0x09, 0x19, 0xa6, 0xcf, 0x00, 0x28,
+	0x8d, 0xff, 0x2a, 0x57, 0x01, 0xd5, 0xb8, 0xea, 0x83, 0xd9, 0xde, 0x03, 0x57, 0xcd, 0xe5, 0xb7,
+	0x56, 0x49, 0xd7, 0x40, 0xbb, 0x7b, 0x06, 0x50, 0x56, 0x54, 0x1a, 0x98, 0x55, 0x45, 0x05, 0x54,
+	0x53, 0x54, 0x1f, 0x50, 0x99, 0xc3, 0x72, 0x38, 0x55, 0x1d, 0xce, 0x82, 0x35, 0x87, 0xcb, 0x13,
+	0xc3, 0xfe, 0x12, 0xdc, 0xa8, 0x4e, 0x8b, 0x4e, 0x25, 0xbf, 0x82, 0xb7, 0x6f, 0x9f, 0x8f, 0x6b,
+	0x6a, 0xdf, 0x7f, 0x76, 0xdc, 0xb1, 0x9e, 0x1f, 0x77, 0xac, 0x3f, 0x8e, 0x3b, 0xd6, 0x77, 0x27,
+	0x9d, 0xc6, 0xf3, 0x93, 0x4e, 0xe3, 0xb7, 0x93, 0x4e, 0xe3, 0xab, 0xfe, 0xb9, 0x9f, 0xf3, 0xe3,
+	0xfc, 0x6f, 0x5f, 0xf6, 0x51, 0x8f, 0x16, 0xe4, 0x97, 0xf0, 0xee, 0xbf, 0x01, 0x00, 0x00, 0xff,
+	0xff, 0x77, 0xa1, 0xcd, 0xaf, 0x11, 0x0a, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -723,7 +837,8 @@ type MsgClient interface {
 	Undelegate(ctx context.Context, in *MsgUndelegate, opts ...grpc.CallOption) (*MsgUndelegateResponse, error)
 	Delegate(ctx context.Context, in *MsgDelegate, opts ...grpc.CallOption) (*MsgDelegateResponse, error)
 	Redelegate(ctx context.Context, in *MsgRedelegate, opts ...grpc.CallOption) (*MsgRedelegateResponse, error)
-	Mint(ctx context.Context, in *MsgMintRequest, opts ...grpc.CallOption) (*MsgMintResponse, error)
+	Mint(ctx context.Context, in *MsgMint, opts ...grpc.CallOption) (*MsgMintResponse, error)
+	BecomeValidator(ctx context.Context, in *MsgBecomeValidator, opts ...grpc.CallOption) (*MsgBecomeValidatorResponse, error)
 }
 
 type msgClient struct {
@@ -779,9 +894,18 @@ func (c *msgClient) Redelegate(ctx context.Context, in *MsgRedelegate, opts ...g
 	return out, nil
 }
 
-func (c *msgClient) Mint(ctx context.Context, in *MsgMintRequest, opts ...grpc.CallOption) (*MsgMintResponse, error) {
+func (c *msgClient) Mint(ctx context.Context, in *MsgMint, opts ...grpc.CallOption) (*MsgMintResponse, error) {
 	out := new(MsgMintResponse)
 	err := c.cc.Invoke(ctx, "/cosmos.nft.Msg/Mint", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *msgClient) BecomeValidator(ctx context.Context, in *MsgBecomeValidator, opts ...grpc.CallOption) (*MsgBecomeValidatorResponse, error) {
+	out := new(MsgBecomeValidatorResponse)
+	err := c.cc.Invoke(ctx, "/cosmos.nft.Msg/BecomeValidator", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -795,7 +919,8 @@ type MsgServer interface {
 	Undelegate(context.Context, *MsgUndelegate) (*MsgUndelegateResponse, error)
 	Delegate(context.Context, *MsgDelegate) (*MsgDelegateResponse, error)
 	Redelegate(context.Context, *MsgRedelegate) (*MsgRedelegateResponse, error)
-	Mint(context.Context, *MsgMintRequest) (*MsgMintResponse, error)
+	Mint(context.Context, *MsgMint) (*MsgMintResponse, error)
+	BecomeValidator(context.Context, *MsgBecomeValidator) (*MsgBecomeValidatorResponse, error)
 }
 
 // UnimplementedMsgServer can be embedded to have forward compatible implementations.
@@ -817,8 +942,11 @@ func (*UnimplementedMsgServer) Delegate(ctx context.Context, req *MsgDelegate) (
 func (*UnimplementedMsgServer) Redelegate(ctx context.Context, req *MsgRedelegate) (*MsgRedelegateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Redelegate not implemented")
 }
-func (*UnimplementedMsgServer) Mint(ctx context.Context, req *MsgMintRequest) (*MsgMintResponse, error) {
+func (*UnimplementedMsgServer) Mint(ctx context.Context, req *MsgMint) (*MsgMintResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Mint not implemented")
+}
+func (*UnimplementedMsgServer) BecomeValidator(ctx context.Context, req *MsgBecomeValidator) (*MsgBecomeValidatorResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method BecomeValidator not implemented")
 }
 
 func RegisterMsgServer(s grpc1.Server, srv MsgServer) {
@@ -916,7 +1044,7 @@ func _Msg_Redelegate_Handler(srv interface{}, ctx context.Context, dec func(inte
 }
 
 func _Msg_Mint_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MsgMintRequest)
+	in := new(MsgMint)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -928,7 +1056,25 @@ func _Msg_Mint_Handler(srv interface{}, ctx context.Context, dec func(interface{
 		FullMethod: "/cosmos.nft.Msg/Mint",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MsgServer).Mint(ctx, req.(*MsgMintRequest))
+		return srv.(MsgServer).Mint(ctx, req.(*MsgMint))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Msg_BecomeValidator_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgBecomeValidator)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).BecomeValidator(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cosmos.nft.Msg/BecomeValidator",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).BecomeValidator(ctx, req.(*MsgBecomeValidator))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -960,6 +1106,10 @@ var _Msg_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Mint",
 			Handler:    _Msg_Mint_Handler,
+		},
+		{
+			MethodName: "BecomeValidator",
+			Handler:    _Msg_BecomeValidator_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -1351,7 +1501,7 @@ func (m *MsgRedelegateResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
-func (m *MsgMintRequest) Marshal() (dAtA []byte, err error) {
+func (m *MsgMint) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
 	n, err := m.MarshalToSizedBuffer(dAtA[:size])
@@ -1361,16 +1511,23 @@ func (m *MsgMintRequest) Marshal() (dAtA []byte, err error) {
 	return dAtA[:n], nil
 }
 
-func (m *MsgMintRequest) MarshalTo(dAtA []byte) (int, error) {
+func (m *MsgMint) MarshalTo(dAtA []byte) (int, error) {
 	size := m.Size()
 	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
-func (m *MsgMintRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+func (m *MsgMint) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if len(m.NftMetadataUri) > 0 {
+		i -= len(m.NftMetadataUri)
+		copy(dAtA[i:], m.NftMetadataUri)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.NftMetadataUri)))
+		i--
+		dAtA[i] = 0x22
+	}
 	if m.StartVestingBlock != 0 {
 		i = encodeVarintTx(dAtA, i, uint64(m.StartVestingBlock))
 		i--
@@ -1409,6 +1566,117 @@ func (m *MsgMintResponse) MarshalTo(dAtA []byte) (int, error) {
 }
 
 func (m *MsgMintResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgBecomeValidator) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgBecomeValidator) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgBecomeValidator) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.NftAddresses) > 0 {
+		for iNdEx := len(m.NftAddresses) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.NftAddresses[iNdEx])
+			copy(dAtA[i:], m.NftAddresses[iNdEx])
+			i = encodeVarintTx(dAtA, i, uint64(len(m.NftAddresses[iNdEx])))
+			i--
+			dAtA[i] = 0x3a
+		}
+	}
+	if m.Pubkey != nil {
+		{
+			size, err := m.Pubkey.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTx(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if len(m.ValidatorAddress) > 0 {
+		i -= len(m.ValidatorAddress)
+		copy(dAtA[i:], m.ValidatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.ValidatorAddress)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.DelegatorAddress) > 0 {
+		i -= len(m.DelegatorAddress)
+		copy(dAtA[i:], m.DelegatorAddress)
+		i = encodeVarintTx(dAtA, i, uint64(len(m.DelegatorAddress)))
+		i--
+		dAtA[i] = 0x22
+	}
+	{
+		size := m.MinSelfDelegation.Size()
+		i -= size
+		if _, err := m.MinSelfDelegation.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.Commission.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.Description.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTx(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
+}
+
+func (m *MsgBecomeValidatorResponse) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MsgBecomeValidatorResponse) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MsgBecomeValidatorResponse) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	i := len(dAtA)
 	_ = i
 	var l int
@@ -1587,7 +1855,7 @@ func (m *MsgRedelegateResponse) Size() (n int) {
 	return n
 }
 
-func (m *MsgMintRequest) Size() (n int) {
+func (m *MsgMint) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -1604,10 +1872,56 @@ func (m *MsgMintRequest) Size() (n int) {
 	if m.StartVestingBlock != 0 {
 		n += 1 + sovTx(uint64(m.StartVestingBlock))
 	}
+	l = len(m.NftMetadataUri)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
 	return n
 }
 
 func (m *MsgMintResponse) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	return n
+}
+
+func (m *MsgBecomeValidator) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.Description.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.Commission.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = m.MinSelfDelegation.Size()
+	n += 1 + l + sovTx(uint64(l))
+	l = len(m.DelegatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	l = len(m.ValidatorAddress)
+	if l > 0 {
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if m.Pubkey != nil {
+		l = m.Pubkey.Size()
+		n += 1 + l + sovTx(uint64(l))
+	}
+	if len(m.NftAddresses) > 0 {
+		for _, s := range m.NftAddresses {
+			l = len(s)
+			n += 1 + l + sovTx(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *MsgBecomeValidatorResponse) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2767,7 +3081,7 @@ func (m *MsgRedelegateResponse) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
-func (m *MsgMintRequest) Unmarshal(dAtA []byte) error {
+func (m *MsgMint) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
 	for iNdEx < l {
@@ -2790,10 +3104,10 @@ func (m *MsgMintRequest) Unmarshal(dAtA []byte) error {
 		fieldNum := int32(wire >> 3)
 		wireType := int(wire & 0x7)
 		if wireType == 4 {
-			return fmt.Errorf("proto: MsgMintRequest: wiretype end group for non-group")
+			return fmt.Errorf("proto: MsgMint: wiretype end group for non-group")
 		}
 		if fieldNum <= 0 {
-			return fmt.Errorf("proto: MsgMintRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+			return fmt.Errorf("proto: MsgMint: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:
@@ -2879,6 +3193,38 @@ func (m *MsgMintRequest) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NftMetadataUri", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NftMetadataUri = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTx(dAtA[iNdEx:])
@@ -2927,6 +3273,338 @@ func (m *MsgMintResponse) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: MsgMintResponse: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgBecomeValidator) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgBecomeValidator: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgBecomeValidator: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Description", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Description.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Commission", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.Commission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinSelfDelegation", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.MinSelfDelegation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DelegatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DelegatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidatorAddress", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ValidatorAddress = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Pubkey", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Pubkey == nil {
+				m.Pubkey = &types2.Any{}
+			}
+			if err := m.Pubkey.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NftAddresses", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTx
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthTx
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTx
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NftAddresses = append(m.NftAddresses, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTx(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthTx
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MsgBecomeValidatorResponse) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTx
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MsgBecomeValidatorResponse: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MsgBecomeValidatorResponse: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		default:
