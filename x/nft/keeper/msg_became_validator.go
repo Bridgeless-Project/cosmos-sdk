@@ -13,7 +13,6 @@ import (
 
 func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameValidator) (*types.MsgBecameValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
-
 	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
 	if err != nil {
 		return nil, err
@@ -33,6 +32,11 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 		return nil, stakingTypes.ErrValidatorPubKeyExists
 	}
 
+	minDelegation, ok := sdk.NewIntFromString(m.stakingKeeper.MinDelegationAmount(ctx))
+	if !ok {
+		return nil, errors.New("invalid min delegation amount")
+	}
+
 	bondDenom := m.stakingKeeper.BondDenom(ctx)
 	amount := sdk.NewCoin(bondDenom, sdk.NewInt(0))
 	nfts := make([]types.NFT, 0)
@@ -45,6 +49,10 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 		nftbalance := m.bankKeeper.GetBalance(ctx, sdk.AccAddress(nft.Address), bondDenom)
 		amount = amount.Add(nftbalance)
 		nfts = append(nfts, nft)
+	}
+
+	if amount.Amount.LTE(minDelegation) {
+		return nil, types.ErrMinSelfDelegation
 	}
 
 	if len(nfts) == 0 {
