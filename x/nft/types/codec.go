@@ -21,7 +21,7 @@ func RegisterInterfaces(registry cdctypes.InterfaceRegistry) {
 		&MsgUndelegate{},
 		&MsgSend{},
 		&MsgMint{},
-		&MsgBecomeValidator{},
+		&MsgBecameValidator{},
 	)
 
 	msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)

@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecomeValidator) (*types.MsgBecomeValidatorResponse, error) {
+func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameValidator) (*types.MsgBecameValidatorResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	valAddr, err := sdk.ValAddressFromBech32(msg.ValidatorAddress)
@@ -124,5 +124,5 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecomeVa
 		),
 	})
 
-	return new(types.MsgBecomeValidatorResponse), nil
+	return new(types.MsgBecameValidatorResponse), nil
 }

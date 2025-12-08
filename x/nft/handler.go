@@ -31,7 +31,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgRedelegate:
 			res, err := msgServer.Redelegate(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
-		case *types.MsgMintRequest:
+		case *types.MsgMint:
 			res, err := msgServer.Mint(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
 		}

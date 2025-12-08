@@ -27,6 +27,7 @@ func GetTxCmd() *cobra.Command {
 		CmdUndelegate(),
 		CmdRedelegate(),
 		CmdMint(),
+		CmdBecameValidator(),
 	)
 	return cmd
 }

@@ -160,7 +160,7 @@ func CmdBecameValidator() *cobra.Command {
 	return cmd
 }
 
-func buildBecameValidatorMsg(clientCtx client.Context, txf tx.Factory, fs *flag.FlagSet) (tx.Factory, *types.MsgBecomeValidator, error) {
+func buildBecameValidatorMsg(clientCtx client.Context, txf tx.Factory, fs *flag.FlagSet) (tx.Factory, *types.MsgBecameValidator, error) {
 	valAddr := clientCtx.GetFromAddress()
 	pkStr, err := fs.GetString(FlagPubKey)
 	if err != nil {
@@ -218,7 +218,7 @@ func buildBecameValidatorMsg(clientCtx client.Context, txf tx.Factory, fs *flag.
 		return txf, nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "minimum self delegation must be a positive integer")
 	}
 
-	msg, err := types.NewMsgBecomeValidator(
+	msg, err := types.NewMsgBecameValidator(
 		sdk.ValAddress(valAddr), pk, description, commissionRates, minSelfDelegation, nfts,
 	)
 	if err != nil {

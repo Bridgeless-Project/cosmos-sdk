@@ -13,18 +13,18 @@ const (
 	TypeMsgBecameValidator = "became_validator"
 )
 
-var _ sdk.Msg = &MsgBecomeValidator{}
+var _ sdk.Msg = &MsgBecameValidator{}
 
-// NewMsgBecomeValidator creates a new MsgBecomeValidator instance.
+// NewMsgBecameValidator creates a new MsgBecameValidator instance.
 // Delegator address and validator address are the same.
-func NewMsgBecomeValidator(
+func NewMsgBecameValidator(
 	valAddr sdk.ValAddress,
 	pubKey cryptotypes.PubKey, //nolint:interfacer
 	description stakingtype.Description,
 	commission stakingtype.CommissionRates,
 	minSelfDelegation math.Int,
 	nftAddresses []string,
-) (*MsgBecomeValidator, error) {
+) (*MsgBecameValidator, error) {
 	var pkAny *codectypes.Any
 	if pubKey != nil {
 		var err error
@@ -32,7 +32,7 @@ func NewMsgBecomeValidator(
 			return nil, err
 		}
 	}
-	return &MsgBecomeValidator{
+	return &MsgBecameValidator{
 		Description:       description,
 		DelegatorAddress:  sdk.AccAddress(valAddr).String(),
 		ValidatorAddress:  valAddr.String(),
@@ -44,16 +44,16 @@ func NewMsgBecomeValidator(
 }
 
 // Route implements the sdk.Msg interface.
-func (msg MsgBecomeValidator) Route() string { return RouterKey }
+func (msg MsgBecameValidator) Route() string { return RouterKey }
 
 // Type implements the sdk.Msg interface.
-func (msg MsgBecomeValidator) Type() string { return TypeMsgBecameValidator }
+func (msg MsgBecameValidator) Type() string { return TypeMsgBecameValidator }
 
 // GetSigners implements the sdk.Msg interface. It returns the address(es) that
 // must sign over msg.GetSignBytes().
 // If the validator address is not same as delegator's, then the validator must
 // sign the msg as well.
-func (msg MsgBecomeValidator) GetSigners() []sdk.AccAddress {
+func (msg MsgBecameValidator) GetSigners() []sdk.AccAddress {
 	// delegator is first signer so delegator pays fees
 	delegator, _ := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	addrs := []sdk.AccAddress{delegator}
@@ -68,13 +68,13 @@ func (msg MsgBecomeValidator) GetSigners() []sdk.AccAddress {
 }
 
 // GetSignBytes returns the message bytes to sign over.
-func (msg MsgBecomeValidator) GetSignBytes() []byte {
+func (msg MsgBecameValidator) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(&msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // ValidateBasic implements the sdk.Msg interface.
-func (msg MsgBecomeValidator) ValidateBasic() error {
+func (msg MsgBecameValidator) ValidateBasic() error {
 	// note that unmarshaling from bech32 ensures both non-empty and valid
 	delAddr, err := sdk.AccAddressFromBech32(msg.DelegatorAddress)
 	if err != nil {
@@ -123,7 +123,7 @@ func (msg MsgBecomeValidator) ValidateBasic() error {
 }
 
 // UnpackInterfaces implements UnpackInterfacesMessage.UnpackInterfaces
-func (msg MsgBecomeValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
+func (msg MsgBecameValidator) UnpackInterfaces(unpacker codectypes.AnyUnpacker) error {
 	var pubKey cryptotypes.PubKey
 	return unpacker.UnpackAny(msg.Pubkey, &pubKey)
 }

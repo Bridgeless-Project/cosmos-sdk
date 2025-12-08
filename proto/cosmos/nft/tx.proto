@@ -29,13 +29,13 @@ service Msg {
 
   rpc Mint (MsgMint) returns (MsgMintResponse);
 
-  rpc BecomeValidator(MsgBecomeValidator) returns (MsgBecomeValidatorResponse);
+  rpc BecameValidator(MsgBecameValidator) returns (MsgBecameValidatorResponse);
 }
 
 message MsgWithdrawal {
   string creator = 1;
   string address = 2;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
 
 }
 
@@ -45,7 +45,7 @@ message MsgDelegate {
   string creator = 1;
   string address = 2;
   string validator = 3;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false];
 }
 
 message MsgDelegateResponse {}
@@ -54,7 +54,7 @@ message MsgUndelegate {
   string creator = 1;
   string address = 2;
   string validator = 3;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false];
 
 }
 
@@ -64,7 +64,7 @@ message MsgSend {
   string creator = 1;
   string address = 2;
   string recipient = 3;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false];
 }
 
 message MsgSendResponse {}
@@ -88,19 +88,7 @@ message MsgMint {
 
 message MsgMintResponse {}
 
-message MsgBecomeValidator{
-//  string creator = 1;
-//  repeated string nft_addresses = 2 [(gogoproto.nullable) = false];
-//  string moniker = 3;
-//  string description = 4;
-//  google.protobuf.Any pubkey = 5 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
-//  string validator_address = 6;
-//
-//  string commission_rate = 7
-//    [(cosmos_proto.scalar) = "cosmos.Dec", (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Dec"];
-//
-//    cosmos.staking.v1beta1.CommissionRates commission  = 8 [(gogoproto.nullable) = false];
-
+message MsgBecameValidator{
   option (cosmos.msg.v1.signer) = "delegator_address";
   option (cosmos.msg.v1.signer) = "validator_address";
 
@@ -123,4 +111,9 @@ message MsgBecomeValidator{
   ];
 }
 
-message MsgBecomeValidatorResponse {}
+message MsgBecameValidatorResponse {}
+
+message MsgStakingWithdrawalRewards {
+  string creator = 1;
+  string validator_address = 2 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+}
