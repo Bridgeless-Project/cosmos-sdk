@@ -37,22 +37,28 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 		return nil, errors.New("invalid min delegation amount")
 	}
 
-	bondDenom := m.stakingKeeper.BondDenom(ctx)
-	amount := sdk.NewCoin(bondDenom, sdk.NewInt(0))
+	bondDenom := m.GetBondDenom(ctx)
+	amount := sdk.NewInt(0)
 	nfts := make([]types.NFT, 0)
+
 	for _, nftAddress := range msg.NftAddresses {
 		nft, ok := m.GetNFT(ctx, nftAddress)
 		if !ok {
 			return nil, types.ErrNFTNotFound
 		}
 
-		nftbalance := m.bankKeeper.GetBalance(ctx, sdk.AccAddress(nft.Address), bondDenom)
-		amount = amount.Add(nftbalance)
+		addr, err := sdk.AccAddressFromBech32(nft.Address)
+		if err != nil {
+			return nil, errors.Wrap(err, "invalid nft address")
+		}
+
+		nftbalance := m.bankKeeper.GetBalance(ctx, addr, bondDenom)
+		amount = amount.Add(nftbalance.Amount)
 		nfts = append(nfts, nft)
 	}
 
-	if amount.Amount.LTE(minDelegation) {
-		return nil, types.ErrMinSelfDelegation
+	if amount.LTE(minDelegation) {
+		return nil, errors.Wrapf(types.ErrMinSelfDelegation, "provided delegation: %s, required: %s. Nft Addresses: %s, bonf denom: %s", amount.String(), minDelegation.String(), msg.NftAddresses, bondDenom)
 	}
 
 	if len(nfts) == 0 {
@@ -113,7 +119,12 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 	// the validator account and global shares are updated within here
 	// NOTE source will always be from a wallet which are unbonded
 	for _, nft := range nfts {
-		err = m.DelegateNFT(ctx, sdk.AccAddress(nft.Address), delegatorAddress, valAddr, sdk.NewInt(0), true)
+		addr, err := sdk.AccAddressFromBech32(nft.Address)
+		if err != nil {
+			return nil, errors.Wrap(err, "invalid nft address")
+		}
+
+		err = m.DelegateNFT(ctx, addr, delegatorAddress, valAddr, sdk.NewInt(0), true)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to delegate NFTs to validator")
 		}
