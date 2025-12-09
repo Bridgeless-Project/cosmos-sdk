@@ -379,7 +379,35 @@ message MsgMintRequest {
   string creator = 1;
   string owner = 2;
   int64 start_vesting_block = 3;
+  string nft_metadata_uri = 4;
 }
 
 message MsgMintResponse {}
+```
+
+#### Became validator
+
+This message allows users to delegate NFT at the same way as default coins to become validators.
+
+```protobuf
+option (cosmos.msg.v1.signer) = "delegator_address";
+  option (cosmos.msg.v1.signer) = "validator_address";
+
+  option (gogoproto.equal)           = false;
+  option (gogoproto.goproto_getters) = false;
+
+  cosmos.staking.v1beta1.Description     description         = 1 [(gogoproto.nullable) = false];
+  cosmos.staking.v1beta1.CommissionRates commission          = 2 [(gogoproto.nullable) = false];
+  string          min_self_delegation = 3 [
+    (cosmos_proto.scalar)  = "cosmos.Int",
+    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.nullable)   = false
+  ];
+  string                   delegator_address = 4 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  string                   validator_address = 5 [(cosmos_proto.scalar) = "cosmos.AddressString"];
+  google.protobuf.Any      pubkey            = 6 [(cosmos_proto.accepts_interface) = "cosmos.crypto.PubKey"];
+  repeated string nft_addresses = 7 [
+    (gogoproto.nullable) = false,
+    (cosmos_proto.scalar) = "cosmos.AddressString"
+  ];
 ```
