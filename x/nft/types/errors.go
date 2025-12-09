@@ -27,4 +27,5 @@ var (
 	ErrInvalidBatchSize          = sdkerrors.Register(ModuleName, 1118, "invalid batch size")
 	ErrNoNFTsProvided            = sdkerrors.Register(ModuleName, 1119, "nfts not provided")
 	ErrMinSelfDelegation         = sdkerrors.Register(ModuleName, 1120, "min self delegation not met")
+	ErrEmptyNftMetadataUri       = sdkerrors.Register(ModuleName, 1121, "empty nft metadata uri")
 )

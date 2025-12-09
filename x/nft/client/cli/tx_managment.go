@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/spf13/cobra"
-
-	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
+	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 )
 
 func CmdWithdrawal() *cobra.Command {
@@ -90,11 +91,18 @@ func CmdMint() *cobra.Command {
 				return fmt.Errorf("must provide creator address")
 			}
 
-			msg := types.NewMsgMint(
-				creatorAddress,
-				args[0],
-				startVestingBlock,
-			)
+			fmt.Println("creator address:", creatorAddress)
+
+			txf := tx.NewFactoryCLI(clientCtx, cmd.Flags()).
+				WithTxConfig(clientCtx.TxConfig).WithAccountRetriever(clientCtx.AccountRetriever)
+			txf, msg, err := buildMintMsg(clientCtx, txf, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			msg.Creator = creatorAddress
+			msg.Owner = args[0]
+			msg.StartVestingBlock = startVestingBlock
 
 			if err = msg.ValidateBasic(); err != nil {
 				return err
@@ -103,7 +111,25 @@ func CmdMint() *cobra.Command {
 			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
 		},
 	}
+	cmd.Flags().AddFlagSet(FlagSetMetadata())
+
+	_ = cmd.MarkFlagRequired(flags.FlagFrom)
+	_ = cmd.MarkFlagRequired(FlagMetadataUri)
 
 	flags.AddTxFlagsToCmd(cmd)
+
 	return cmd
+}
+
+func buildMintMsg(clientCtx client.Context, txf tx.Factory, fs *flag.FlagSet) (tx.Factory, *types.MsgMint, error) {
+	metadataURI, err := fs.GetString(FlagMetadataUri)
+	if err != nil {
+		return txf, nil, errors.Wrap(err, "failed to get the metadata URI")
+	}
+
+	msg := &types.MsgMint{
+		NftMetadataUri: metadataURI,
+	}
+
+	return txf, msg, nil
 }

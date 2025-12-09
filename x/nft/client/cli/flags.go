@@ -22,7 +22,8 @@ const (
 	FlagSecurityContact = "security-contact"
 	FlagDetails         = "details"
 
-	FlagNFTs = "nfts"
+	FlagNFTs        = "nfts"
+	FlagMetadataUri = "metadata"
 
 	FlagCommissionRate          = "commission-rate"
 	FlagCommissionMaxRate       = "commission-max-rate"
@@ -118,5 +119,11 @@ func flagSetDescriptionCreate() *flag.FlagSet {
 	fs.String(FlagSecurityContact, "", "The validator's (optional) security contact email")
 	fs.String(FlagDetails, "", "The validator's (optional) details")
 
+	return fs
+}
+
+func FlagSetMetadata() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(FlagMetadataUri, "", "The metadata URI")
 	return fs
 }
