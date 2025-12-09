@@ -143,6 +143,7 @@ func CmdBecameValidator() *cobra.Command {
 		},
 	}
 
+	cmd.Flags().AddFlagSet(FlagSetNfts())
 	cmd.Flags().AddFlagSet(FlagSetPublicKey())
 	cmd.Flags().AddFlagSet(FlagSetAmount())
 	cmd.Flags().AddFlagSet(flagSetDescriptionCreate())

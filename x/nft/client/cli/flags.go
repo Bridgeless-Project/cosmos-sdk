@@ -101,6 +101,14 @@ func flagSetCommissionUpdate() *flag.FlagSet {
 	return fs
 }
 
+func FlagSetNfts() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+
+	fs.StringArray(FlagNFTs, []string{}, "The nfts list")
+
+	return fs
+}
+
 func flagSetDescriptionCreate() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
