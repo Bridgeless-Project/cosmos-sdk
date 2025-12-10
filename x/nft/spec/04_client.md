@@ -387,7 +387,7 @@ message MsgMintResponse {}
 
 #### Became validator
 
-This message allows users to delegate NFT at the same way as default coins to become validators.
+This message allows users to delegate NFT at the same way as native coins to become validators.
 
 ```protobuf
 option (cosmos.msg.v1.signer) = "delegator_address";

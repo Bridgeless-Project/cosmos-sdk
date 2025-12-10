@@ -12,7 +12,7 @@ var (
 	ErrValidatorNotFound         = sdkerrors.Register(ModuleName, 1102, "validator not found")
 	ErrFailedToDelegate          = sdkerrors.Register(ModuleName, 1103, "failed to delegate nft")
 	ErrFailedToSendTokenAmount   = sdkerrors.Register(ModuleName, 1104, "failed to send token amount")
-	ErrNFTIsAlreadyDelegated     = sdkerrors.Register(ModuleName, 1105, "NFT is delegated")
+	ErrNFTIsDelegated            = sdkerrors.Register(ModuleName, 1105, "NFT is delegated")
 	ErrNFTNotFound               = sdkerrors.Register(ModuleName, 1106, "NFT not found")
 	ErrNFTInvalidOwner           = sdkerrors.Register(ModuleName, 1107, "NFT's owner is invalid")
 	ErrFailedToBeginRedeligation = sdkerrors.Register(ModuleName, 1108, "failed to begin redelegation")

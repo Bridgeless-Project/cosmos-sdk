@@ -34,6 +34,10 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgMint:
 			res, err := msgServer.Mint(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgBecameValidator:
+			res, err := msgServer.BecameValidator(ctx, msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		}
 
 		return nil, nil

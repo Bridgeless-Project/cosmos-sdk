@@ -150,7 +150,7 @@ func (k *Keeper) DelegateNFT(
 	}
 
 	if k.IsDelegated(ctx, nftAddress) {
-		return types.ErrNFTIsAlreadyDelegated
+		return types.ErrNFTIsDelegated
 	}
 	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
 	if !found {
