@@ -295,6 +295,8 @@ Example Output:
 
 ## Message
 
+### GRPC
+
 ```protobuf
 service Msg {
   rpc Send(MsgSend) returns (MsgSendResponse);
@@ -411,3 +413,67 @@ option (cosmos.msg.v1.signer) = "delegator_address";
     (cosmos_proto.scalar) = "cosmos.AddressString"
   ];
 ```
+
+### CLI
+
+#### Send
+
+This command is used to change the NFT owner.
+
+Usage example:
+```
+bridgeless-cored tx nft send bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc3 bridge100mehmdwp8kwlj7aak450cu02u9d32cza95yrv8q776sytjfg3mstssj37
+```
+
+#### Withdrawal
+
+
+This command is used to withdraw available vested nft amount
+
+Usage example:
+```
+bridgeless-cored tx nft withdrawal bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridge1yyxxs2jt6ygrxqm8sl0danzdfnwl9ugyellmnkj6ru64ltfv3ngsvntsh
+```
+
+#### Delegate
+
+This command is used to stake tokens from nft balance to a validator 
+
+Usage example:
+```
+bridgeless-cored tx nft delegate bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridgevaloper13glrg2sgryqeh0nxr0f8nhmq2svtphkzqkk72j 
+bridge1pzshdwk3vwky3w9gak42glq5cshv47jdzypuexgv5wxultyp8ffqvnt4vc 1279999999999999999999998abridge
+```
+
+#### Undelegate
+
+This command is used to unstake tokens from nft balance to a validator 
+
+Usage example:
+
+```
+ bridgeless-cored tx nft undelegate bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridgevaloper13glrg2sgryqeh0nxr0f8nhmq2svtphkzqkk72j bridge1pzshdwk3vwky3w9gak42glq5cshv47jdzypuexgv5wxultyp8ffqvnt4vc 1279999999999999999999998abridg
+```
+
+#### Mint
+
+This command is used to mint the new NFT to specified account with predefined start vesting block.
+
+Usage example:
+```
+ bridgeless-cored tx nft mint bridge1ujw3sj07jl0yzga82636zjuqp9j6p6084mdlam 0 --metadata https://example.com
+```
+
+NOTE: The `--metadata` flag is required to mint the NFT. This flag requires metadata url to be passed in.
+
+#### Became validator
+
+This command allows users to delegate NFT at the same way as native coins to become validators.
+
+Usage example:
+```
+bridgeless-cored tx nft became-validator --nfts bridge1pzshdwk3vwky3w9gak42glq5cshv47jdzypuexgv5wxultyp8ffqvnt4vc --nfts bridge1j7nc
+8s9fzfjn26sfguy50efgw40ahyvdzajkgklvfzceyzhyk9gqqmj5ce --moniker full_node_1 --details hello  --chain-id bridge_13441-1 --fees 1000000000abridge --from $(bridgeless-cored keys show validator_key -a) --commission-max-change-rate "0.01" --commission-max-rate "0.2" --commission-rate "0.1" --min-self-delegation "1" --sign-mode direct --gas auto
+```
+
+NOTE: Multiple NFTs can be delegated to become validator to add new nft to list use `--nfts` flag for each new one.
