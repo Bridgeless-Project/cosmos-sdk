@@ -60,7 +60,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
 			nft.Denom,
-			nft.RewardPerPeriod.Amount.Mul(sdk.NewInt(passedPeriods.Int64())),
+			nft.RewardPerPeriod.Amount.Mul(sdk.NewIntFromBigInt(passedPeriods)),
 		),
 		)
 
