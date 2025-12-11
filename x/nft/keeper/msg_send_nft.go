@@ -22,7 +22,7 @@ func (k msgServer) Send(goctx context.Context, request *types.MsgSend) (*types.M
 
 	nftAddress, _ := sdk.AccAddressFromBech32(request.Address)
 	if k.IsDelegated(ctx, nftAddress) {
-		return nil, types.ErrTokenIsDelegated
+		return nil, types.ErrNFTIsDelegated
 	}
 
 	if nft.Owner != request.Creator {

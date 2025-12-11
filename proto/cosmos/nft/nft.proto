@@ -15,7 +15,7 @@ message NFT {
 
   string owner = 2;
 
-  string  uri = 3;
+  string uri = 3;
 
   cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
 
@@ -24,7 +24,6 @@ message NFT {
   cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
 
   int64 last_vesting_block = 7;
-
 
   string denom = 8;
 

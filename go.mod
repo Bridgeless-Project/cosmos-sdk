@@ -2,7 +2,7 @@ go 1.19
 
 module github.com/cosmos/cosmos-sdk
 
-require (	
+require (
 	cosmossdk.io/errors v1.0.0-beta.7
 	cosmossdk.io/math v1.0.0-rc.0
 	github.com/99designs/keyring v1.2.1

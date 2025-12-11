@@ -15,6 +15,7 @@ import (
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/tendermint/tendermint/libs/log"
 )
 
@@ -86,7 +87,7 @@ func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	return params.ModuleAdmin == address
 }
 
-func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock int64, vestingPeriodReward *big.Int) (*types.NFT, uint64, error) {
+func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock int64, vestingPeriodReward *big.Int, uri string) (*types.NFT, uint64, error) {
 	var (
 		nftAddress string
 		err        error
@@ -125,7 +126,58 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock int6
 		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 		Denom:               k.GetBondDenom(ctx),
 		StartVestingBlock:   startVestingBlock,
+		Uri:                 uri,
 	}
 
 	return &newNft, sequence, nil
+}
+
+func (k *Keeper) DelegateNFT(
+	ctx sdk.Context,
+	nftAddress sdk.AccAddress,
+	delegator sdk.AccAddress,
+	valAddr sdk.ValAddress,
+	amount sdk.Int,
+	isStakeAll bool,
+) error {
+	nft, ok := k.GetNFT(ctx, nftAddress.String())
+	if !ok {
+		return types.ErrNFTNotFound
+	}
+
+	if nft.Owner != delegator.String() {
+		return types.ErrNFTInvalidOwner
+	}
+
+	if k.IsDelegated(ctx, nftAddress) {
+		return types.ErrNFTIsDelegated
+	}
+	validator, found := k.stakingKeeper.GetValidator(ctx, valAddr)
+	if !found {
+		return types.ErrValidatorNotFound
+	}
+
+	balance := k.bankKeeper.GetBalance(ctx, nftAddress, k.GetBondDenom(ctx))
+	if balance.IsNegative() || balance.IsZero() {
+		k.Logger(ctx).Error("nft has no balance to delegate", "nft", nftAddress.String())
+		return types.ErrInvalidAmount
+	}
+
+	// if we are going to stake whole balance, override the amount
+	if isStakeAll {
+		amount = balance.Amount
+	}
+
+	if amount.GT(balance.Amount) {
+		k.Logger(ctx).Error("nft has insufficient balance to delegate", "nft", nftAddress.String(), "balance", balance.Amount.String(), "requested", amount.String())
+		return types.ErrInvalidAmount
+	}
+
+	_, err := k.stakingKeeper.Delegate(ctx, nftAddress, amount, stakingtypes.Unbonded, validator, true)
+	if err != nil {
+		k.Logger(ctx).Error("failed to delegate", "error", err)
+		return types.ErrFailedToDelegate
+	}
+
+	return nil
 }

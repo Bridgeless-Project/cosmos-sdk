@@ -1,6 +1,8 @@
 package types
 
 import (
+	"strings"
+
 	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/errors"
@@ -10,25 +12,26 @@ const (
 	TypeMsgMint = "mint"
 )
 
-var _ sdk.Msg = &MsgMintRequest{}
+var _ sdk.Msg = &MsgMint{}
 
-func NewMsgMint(creator, address string, startVestingBlock int64) *MsgMintRequest {
-	return &MsgMintRequest{
+func NewMsgMint(creator, address, metadataUri string, startVestingBlock int64) *MsgMint {
+	return &MsgMint{
 		Creator:           creator,
 		Owner:             address,
 		StartVestingBlock: startVestingBlock,
+		NftMetadataUri:    metadataUri,
 	}
 }
 
-func (msg *MsgMintRequest) Route() string {
+func (msg *MsgMint) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgMintRequest) Type() string {
+func (msg *MsgMint) Type() string {
 	return TypeMsgMint
 }
 
-func (msg *MsgMintRequest) GetSigners() []sdk.AccAddress {
+func (msg *MsgMint) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -36,12 +39,12 @@ func (msg *MsgMintRequest) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgMintRequest) GetSignBytes() []byte {
+func (msg *MsgMint) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgMintRequest) ValidateBasic() error {
+func (msg *MsgMint) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid creator address (%s)", err)
@@ -50,6 +53,10 @@ func (msg *MsgMintRequest) ValidateBasic() error {
 	_, err = sdk.AccAddressFromBech32(msg.Owner)
 	if err != nil {
 		return sdkerrors.Wrapf(errors.ErrInvalidAddress, "invalid owner address (%s)", err)
+	}
+
+	if strings.TrimSpace(msg.NftMetadataUri) == "" {
+		return sdkerrors.Wrap(ErrEmptyNftMetadataUri, "nft metadata uri is required")
 	}
 
 	if msg.StartVestingBlock < 0 {
