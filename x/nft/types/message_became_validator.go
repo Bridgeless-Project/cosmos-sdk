@@ -7,6 +7,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	stakingtype "github.com/cosmos/cosmos-sdk/x/staking/types"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -113,7 +114,13 @@ func (msg MsgBecameValidator) ValidateBasic() error {
 		)
 	}
 
+	nftsMap := make(map[string]struct{})
 	for _, nftAddr := range msg.NftAddresses {
+		if _, ok := nftsMap[nftAddr]; ok {
+			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "duplicate NFT address: %s", nftAddr)
+		}
+
+		nftsMap[nftAddr] = struct{}{}
 		if _, err = sdk.AccAddressFromBech32(nftAddr); err != nil {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, nftAddr)
 		}
