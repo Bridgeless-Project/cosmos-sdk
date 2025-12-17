@@ -24,10 +24,6 @@ func (h Hooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Ad
 		return nil
 	}
 
-	if !sender.Equals(sdk.MustAccAddressFromBech32(nft.Owner)) {
-		return sdkerrors.Wrap(types.ErrNFTInvalidOwner, "sender is not the owner of the NFT")
-	}
-
 	// validate that user can send only multiple of reward per period
 	if !amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount).IsZero() {
 		return sdkerrors.Wrap(types.ErrInvalidAmount, "amount is not a multiple of reward per period")
