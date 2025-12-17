@@ -24,6 +24,8 @@ func (h Hooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Ad
 		return nil
 	}
 
+	// TODO: Investigate the hook usage and validation of withdrawal amount
+
 	// validate that user can send only multiple of reward per period
 	if !amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount).IsZero() {
 		return sdkerrors.Wrap(types.ErrInvalidAmount, "amount is not a multiple of reward per period")
