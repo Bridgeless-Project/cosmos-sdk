@@ -57,8 +57,15 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 		nfts = append(nfts, nft)
 	}
 
-	if amount.LTE(minDelegation) {
-		return nil, errors.Wrapf(types.ErrMinSelfDelegation, "provided delegation: %s, required: %s. Nft Addresses: %s, bonf denom: %s", amount.String(), minDelegation.String(), msg.NftAddresses, bondDenom)
+	if amount.LT(minDelegation) {
+		return nil, errors.Wrapf(
+			types.ErrMinSelfDelegation,
+			"provided delegation: %s%s, required: %s%s.",
+			amount.String(),
+			bondDenom,
+			minDelegation.String(),
+			bondDenom,
+		)
 	}
 
 	if len(nfts) == 0 {
