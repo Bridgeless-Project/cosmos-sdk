@@ -114,13 +114,13 @@ func (msg MsgBecameValidator) ValidateBasic() error {
 		)
 	}
 
-	nftsMap := make(map[string]struct{})
+	nftsMap := make(map[string]interface{})
 	for _, nftAddr := range msg.NftAddresses {
 		if _, ok := nftsMap[nftAddr]; ok {
 			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "duplicate NFT address: %s", nftAddr)
 		}
 
-		nftsMap[nftAddr] = struct{}{}
+		nftsMap[nftAddr] = nil
 		if _, err = sdk.AccAddressFromBech32(nftAddr); err != nil {
 			return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, nftAddr)
 		}
