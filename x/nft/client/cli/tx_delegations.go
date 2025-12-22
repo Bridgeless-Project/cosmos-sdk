@@ -122,6 +122,38 @@ func CmdRedelegate() *cobra.Command {
 	return cmd
 }
 
+func CmdStakingRewardsWithdrawal() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "staking-rewards [from_key_or_address] [validator] [nft_address]",
+		Args:  cobra.ExactArgs(3),
+		Short: "staking-rewards sends the delegation rewards of a delegator's nft from a single validator to the delegator's nft address",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			err := cmd.Flags().Set(flags.FlagFrom, args[0])
+			if err != nil {
+				return err
+			}
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgStakingWithdrawalRewards(
+				clientCtx.GetFromAddress().String(),
+				args[1],
+				args[2],
+			)
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
 func CmdBecameValidator() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "became-validator",

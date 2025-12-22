@@ -28,6 +28,7 @@ func GetTxCmd() *cobra.Command {
 		CmdRedelegate(),
 		CmdMint(),
 		CmdBecameValidator(),
+		CmdStakingRewardsWithdrawal(),
 	)
 	return cmd
 }
