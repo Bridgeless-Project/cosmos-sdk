@@ -31,7 +31,9 @@ func (m msgServer) Mint(ctx context.Context, msg *types.MsgMint) (*types.MsgMint
 
 	vestingRewardPerPeriod := new(big.Int).Div(nftTokenAnount, vestingPeriodsCount)
 
-	nft, sequence, err := m.CreateNft(sdkCtx, msg.Owner, msg.StartVestingBlock, vestingRewardPerPeriod, msg.NftMetadataUri)
+	totalNftTokenAmount := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAnount))
+
+	nft, sequence, err := m.CreateNft(sdkCtx, msg.Owner, msg.StartVestingBlock, vestingRewardPerPeriod, msg.NftMetadataUri, totalNftTokenAmount)
 	if err != nil {
 		return nil, sdkerrors.Wrap(err, "failed to create NFT")
 	}
