@@ -137,24 +137,18 @@ func (k Keeper) GetAllNFTsByOwnerWithPagination(ctx sdk.Context, ownerAddress st
 // GetAllOwnersWithPagination returns all nft holders address with pagination
 func (k Keeper) GetAllOwnersWithPagination(ctx sdk.Context, pagination *query.PageRequest) ([]string, *query.PageResponse, error) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
-	uOwner := make(map[string]struct{})
+	var owners []string
 	pageRes, err := query.Paginate(store, pagination, func(key []byte, value []byte) error {
 		var owner types.Owner
 
 		k.cdc.MustUnmarshal(value, &owner)
-		uOwner[owner.Address] = struct{}{}
+		owners = append(owners, owner.Address)
 
 		return nil
 	})
 
 	if err != nil {
 		return nil, nil, status.Error(codes.Internal, err.Error())
-	}
-
-	// TODO make better
-	var owners []string
-	for owner := range uOwner {
-		owners = append(owners, owner)
 	}
 
 	return owners, pageRes, nil

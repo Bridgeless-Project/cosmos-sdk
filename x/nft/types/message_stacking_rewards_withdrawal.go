@@ -6,29 +6,28 @@ import (
 )
 
 const (
-	TypeMsgUndelegate = "undelegate"
+	TypeMsgStakingRewardsWithdrawal = "staking-rewards-withdrawal"
 )
 
-var _ sdk.Msg = &MsgUndelegate{}
+var _ sdk.Msg = &MsgStakingWithdrawalRewards{}
 
-func NewMsgUndelegate(creator, validator, address string, amount sdk.Coin) *MsgUndelegate {
-	return &MsgUndelegate{
+func NewMsgStakingWithdrawalRewards(creator, validator, nft string) *MsgStakingWithdrawalRewards {
+	return &MsgStakingWithdrawalRewards{
 		Creator:   creator,
-		Nft:       address,
 		Validator: validator,
-		Amount:    amount,
+		Nft:       nft,
 	}
 }
 
-func (msg *MsgUndelegate) Route() string {
+func (msg *MsgStakingWithdrawalRewards) Route() string {
 	return RouterKey
 }
 
-func (msg *MsgUndelegate) Type() string {
-	return TypeMsgUndelegate
+func (msg *MsgStakingWithdrawalRewards) Type() string {
+	return TypeMsgStakingRewardsWithdrawal
 }
 
-func (msg *MsgUndelegate) GetSigners() []sdk.AccAddress {
+func (msg *MsgStakingWithdrawalRewards) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		panic(err)
@@ -36,12 +35,12 @@ func (msg *MsgUndelegate) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (msg *MsgUndelegate) GetSignBytes() []byte {
+func (msg *MsgStakingWithdrawalRewards) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgUndelegate) ValidateBasic() error {
+func (msg *MsgStakingWithdrawalRewards) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
@@ -49,7 +48,7 @@ func (msg *MsgUndelegate) ValidateBasic() error {
 
 	_, err = sdk.AccAddressFromBech32(msg.Nft)
 	if err != nil {
-		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid NFT address (%s)", err)
 	}
 
 	_, err = sdk.ValAddressFromBech32(msg.Validator)

@@ -14,7 +14,7 @@ var _ sdk.Msg = &MsgWithdrawal{}
 func NewMsgWithdrawal(creator, address string) *MsgWithdrawal {
 	return &MsgWithdrawal{
 		Creator: creator,
-		Address: address,
+		Nft:     address,
 	}
 }
 
@@ -45,7 +45,7 @@ func (msg *MsgWithdrawal) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
-	_, err = sdk.AccAddressFromBech32(msg.Address)
+	_, err = sdk.AccAddressFromBech32(msg.Nft)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
 	}

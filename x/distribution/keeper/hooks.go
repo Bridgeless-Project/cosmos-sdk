@@ -126,3 +126,8 @@ func (h Hooks) AfterValidatorBeginUnbonding(_ sdk.Context, _ sdk.ConsAddress, _ 
 func (h Hooks) BeforeDelegationRemoved(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) error {
 	return nil
 }
+
+// ProcessStakingRewardsWithdrawal is used by NFT module to withdraw staking rewards. It allows to avoid importing the distribution module there.
+func (h Hooks) ProcessStakingRewardsWithdrawal(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error) {
+	return h.k.WithdrawDelegationRewards(ctx, delAddr, valAddr)
+}

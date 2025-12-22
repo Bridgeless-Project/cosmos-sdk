@@ -11,7 +11,7 @@ import (
 func (k msgServer) Redelegate(goctx context.Context, request *types.MsgRedelegate) (*types.MsgRedelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
-	nft, ok := k.GetNFT(ctx, request.Address)
+	nft, ok := k.GetNFT(ctx, request.Nft)
 	if !ok {
 		return nil, types.ErrNFTNotFound
 	}
@@ -20,11 +20,17 @@ func (k msgServer) Redelegate(goctx context.Context, request *types.MsgRedelegat
 		return nil, types.ErrNFTInvalidOwner
 	}
 
-	nftAddress, _ := sdk.AccAddressFromBech32(request.Address)
+	nftAddress, _ := sdk.AccAddressFromBech32(request.Nft)
 	validatorSrcAddress, _ := sdk.ValAddressFromBech32(request.ValidatorSrc)
 	validatorNEwAddress, _ := sdk.ValAddressFromBech32(request.ValidatorNew)
 
-	_, err := k.stakingKeeper.BeginRedelegation(ctx, nftAddress, validatorSrcAddress, validatorNEwAddress, sdk.NewDecCoinFromCoin(request.Amount).Amount)
+	_, err := k.stakingKeeper.BeginRedelegation(
+		ctx,
+		nftAddress,
+		validatorSrcAddress,
+		validatorNEwAddress,
+		sdk.NewDecCoinFromCoin(request.Amount).Amount,
+	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to begin redelegation")
 	}
@@ -44,7 +50,7 @@ func (k msgServer) validateIsNFT(ctx sdk.Context, address string) error {
 func (k msgServer) Undelegate(goctx context.Context, request *types.MsgUndelegate) (*types.MsgUndelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
-	nft, ok := k.GetNFT(ctx, request.Address)
+	nft, ok := k.GetNFT(ctx, request.Nft)
 	if !ok {
 		return nil, types.ErrNFTNotFound
 	}
@@ -58,7 +64,7 @@ func (k msgServer) Undelegate(goctx context.Context, request *types.MsgUndelegat
 		return nil, err
 	}
 
-	nftAddress, _ := sdk.AccAddressFromBech32(request.Address)
+	nftAddress, _ := sdk.AccAddressFromBech32(request.Nft)
 
 	_, found := k.stakingKeeper.GetValidator(ctx, valAddr)
 	if !found {
@@ -76,9 +82,15 @@ func (k msgServer) Undelegate(goctx context.Context, request *types.MsgUndelegat
 func (k msgServer) Delegate(goctx context.Context, msg *types.MsgDelegate) (*types.MsgDelegateResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 	valAddr, _ := sdk.ValAddressFromBech32(msg.Validator)
-	nftAddress, _ := sdk.AccAddressFromBech32(msg.Address)
+	nftAddress, _ := sdk.AccAddressFromBech32(msg.Nft)
 	delegator, _ := sdk.AccAddressFromBech32(msg.Creator)
-	if err := k.DelegateNFT(ctx, nftAddress, delegator, valAddr, msg.Amount.Amount, false); err != nil {
+	if err := k.DelegateNFT(ctx,
+		nftAddress,
+		delegator,
+		valAddr,
+		msg.Amount.Amount,
+		false,
+	); err != nil {
 		return nil, errors.Wrap(err, "failed to delegate NFT")
 	}
 

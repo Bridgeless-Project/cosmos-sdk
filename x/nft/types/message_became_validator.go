@@ -40,7 +40,7 @@ func NewMsgBecameValidator(
 		Pubkey:            pkAny,
 		Commission:        commission,
 		MinSelfDelegation: minSelfDelegation,
-		NftAddresses:      nftAddresses,
+		Nfts:              nftAddresses,
 	}, nil
 }
 
@@ -115,7 +115,7 @@ func (msg MsgBecameValidator) ValidateBasic() error {
 	}
 
 	nftsMap := make(map[string]interface{})
-	for _, nftAddr := range msg.NftAddresses {
+	for _, nftAddr := range msg.Nfts {
 		if _, ok := nftsMap[nftAddr]; ok {
 			return errors.Wrapf(sdkerrors.ErrInvalidRequest, "duplicate NFT address: %s", nftAddr)
 		}
