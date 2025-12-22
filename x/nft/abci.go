@@ -29,8 +29,15 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			nft.StartVestingBlock = currentBlockHeight
 		}
 
-		if nft.IsFrozen {
+		// if nft vested full amount skip it
+		if nft.AvailableToWithdraw.Amount.GTE(nft.TokenAmount.Amount) {
 			continue
+		}
+
+		// if nft was frozen but token amount increased then unfroze the NFT and set the LastVestingBlock to current one
+		if nft.IsFrozen {
+			nft.IsFrozen = false
+			nft.LastVestingBlock = currentBlockHeight - params.VestingPeriod
 		}
 
 		if currentBlockHeight < nft.StartVestingBlock {
