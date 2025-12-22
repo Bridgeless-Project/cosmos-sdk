@@ -9,11 +9,6 @@ var _ StakingHooks = &MultiStakingHooks{}
 
 type MultiStakingHooks []StakingHooks
 
-// ProcessStakingRewardsWithdrawal is used by NFT module to withdraw staking rewards. It allows to avoid importing the distribution module there.
-// ProcessStakingRewardsWithdrawal is used by NFT module to withdraw staking rewards. It allows to avoid importing the distribution module there.
-func (h MultiStakingHooks) ProcessStakingRewardsWithdrawal(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) (sdk.Coins, error) {
-	return nil, nil
-}
 func NewMultiStakingHooks(hooks ...StakingHooks) MultiStakingHooks {
 	return hooks
 }
@@ -117,4 +112,9 @@ func (h MultiStakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.V
 		}
 	}
 	return nil
+}
+
+// ProcessStakingRewardsWithdrawal is used by NFT module to withdraw staking rewards. It allows to avoid importing the distribution module there.
+func (h MultiStakingHooks) ProcessStakingRewardsWithdrawal(_ sdk.Context, _ sdk.AccAddress, _ sdk.ValAddress) (sdk.Coins, error) {
+	return nil, nil
 }
