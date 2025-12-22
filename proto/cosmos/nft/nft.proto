@@ -34,6 +34,9 @@ message NFT {
   bool is_frozen = 11;
 
   int64 total_vesting_time = 12;
+
+  cosmos.base.v1beta1.Coin token_amount = 13 [(gogoproto.nullable) = false];
+
 }
 
 message Owner {
