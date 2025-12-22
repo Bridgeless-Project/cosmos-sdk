@@ -23075,6 +23075,9 @@ paths:
                     format: int64
                   is_frozen:
                     type: boolean
+                  total_vesting_time:
+                    type: string
+                    format: int64
                 description: NFT defines the NFT.
         default:
           description: An unexpected error response.
@@ -23335,6 +23338,9 @@ paths:
                       format: int64
                     is_frozen:
                       type: boolean
+                    total_vesting_time:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -23959,6 +23965,9 @@ paths:
                       format: int64
                     is_frozen:
                       type: boolean
+                    total_vesting_time:
+                      type: string
+                      format: int64
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -24267,7 +24276,7 @@ paths:
                     format: int64
                   vesting_periods_limit:
                     type: string
-                    format: uint64
+                    format: int64
                   nft_token_amount:
                     type: string
                   batch_size:
@@ -47757,6 +47766,9 @@ definitions:
         format: int64
       is_frozen:
         type: boolean
+      total_vesting_time:
+        type: string
+        format: int64
     description: NFT defines the NFT.
   cosmos.nft.Params:
     type: object
@@ -47778,7 +47790,7 @@ definitions:
         format: int64
       vesting_periods_limit:
         type: string
-        format: uint64
+        format: int64
       nft_token_amount:
         type: string
       batch_size:
@@ -47848,6 +47860,9 @@ definitions:
               format: int64
             is_frozen:
               type: boolean
+            total_vesting_time:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47935,6 +47950,9 @@ definitions:
               format: int64
             is_frozen:
               type: boolean
+            total_vesting_time:
+              type: string
+              format: int64
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -48053,6 +48071,9 @@ definitions:
             format: int64
           is_frozen:
             type: boolean
+          total_vesting_time:
+            type: string
+            format: int64
         description: NFT defines the NFT.
   cosmos.nft.QueryParamsResponse:
     type: object
@@ -48078,7 +48099,7 @@ definitions:
             format: int64
           vesting_periods_limit:
             type: string
-            format: uint64
+            format: int64
           nft_token_amount:
             type: string
           batch_size:

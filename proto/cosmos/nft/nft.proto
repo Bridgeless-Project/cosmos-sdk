@@ -32,6 +32,8 @@ message NFT {
   int64 vesting_periods_limit = 10;
 
   bool is_frozen = 11;
+
+  int64 total_vesting_time = 12;
 }
 
 message Owner {

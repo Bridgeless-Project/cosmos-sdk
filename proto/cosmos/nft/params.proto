@@ -14,7 +14,7 @@ message Params {
   uint64 nft_sequence = 4;
   int64 total_vesting_time = 5;
   int64 vesting_period = 6;
-  uint64 vesting_periods_limit = 7;
+  int64 vesting_periods_limit = 7;
   string nft_token_amount = 8;
   uint64 batch_size = 9;
   uint64 batch_index = 10;
