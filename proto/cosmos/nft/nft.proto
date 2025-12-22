@@ -28,6 +28,10 @@ message NFT {
   string denom = 8;
 
   int64 start_vesting_block = 9;
+
+  int64 vesting_periods_limit = 10;
+
+  bool is_frozen = 11;
 }
 
 message Owner {

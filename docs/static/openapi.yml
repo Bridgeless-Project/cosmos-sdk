@@ -22985,6 +22985,9 @@ paths:
                       custom method
 
                       signatures required by gogoproto.
+                  start_height:
+                    type: string
+                    format: uint64
             description: >-
               QueryParamsResponse is the response type for the Query/Params RPC
               method.
@@ -23067,6 +23070,11 @@ paths:
                   start_vesting_block:
                     type: string
                     format: int64
+                  vesting_periods_limit:
+                    type: string
+                    format: int64
+                  is_frozen:
+                    type: boolean
                 description: NFT defines the NFT.
         default:
           description: An unexpected error response.
@@ -23322,6 +23330,11 @@ paths:
                     start_vesting_block:
                       type: string
                       format: int64
+                    vesting_periods_limit:
+                      type: string
+                      format: int64
+                    is_frozen:
+                      type: boolean
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -23941,6 +23954,11 @@ paths:
                     start_vesting_block:
                       type: string
                       format: int64
+                    vesting_periods_limit:
+                      type: string
+                      format: int64
+                    is_frozen:
+                      type: boolean
                   description: NFT defines the NFT.
               pagination:
                 type: object
@@ -32763,6 +32781,8 @@ definitions:
       denom:
         type: string
   cosmos.accumulator.MsgAddAdminResponse:
+    type: object
+  cosmos.accumulator.MsgBurnTokensResponse:
     type: object
   cosmos.accumulator.Params:
     type: object
@@ -47631,6 +47651,9 @@ definitions:
 
           NOTE: The amount field is an Int which implements the custom method
           signatures required by gogoproto.
+      start_height:
+        type: string
+        format: uint64
     description: Params holds parameters for the mint module.
   cosmos.mint.v1beta1.QueryParamsResponse:
     type: object
@@ -47667,7 +47690,12 @@ definitions:
               method
 
               signatures required by gogoproto.
+          start_height:
+            type: string
+            format: uint64
     description: QueryParamsResponse is the response type for the Query/Params RPC method.
+  cosmos.nft.MsgBecameValidatorResponse:
+    type: object
   cosmos.nft.MsgDelegateResponse:
     type: object
   cosmos.nft.MsgMintResponse:
@@ -47724,6 +47752,11 @@ definitions:
       start_vesting_block:
         type: string
         format: int64
+      vesting_periods_limit:
+        type: string
+        format: int64
+      is_frozen:
+        type: boolean
     description: NFT defines the NFT.
   cosmos.nft.Params:
     type: object
@@ -47810,6 +47843,11 @@ definitions:
             start_vesting_block:
               type: string
               format: int64
+            vesting_periods_limit:
+              type: string
+              format: int64
+            is_frozen:
+              type: boolean
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -47892,6 +47930,11 @@ definitions:
             start_vesting_block:
               type: string
               format: int64
+            vesting_periods_limit:
+              type: string
+              format: int64
+            is_frozen:
+              type: boolean
           description: NFT defines the NFT.
       pagination:
         type: object
@@ -48005,6 +48048,11 @@ definitions:
           start_vesting_block:
             type: string
             format: int64
+          vesting_periods_limit:
+            type: string
+            format: int64
+          is_frozen:
+            type: boolean
         description: NFT defines the NFT.
   cosmos.nft.QueryParamsResponse:
     type: object
@@ -48040,6 +48088,48 @@ definitions:
             type: string
             format: uint64
     description: QueryParamsResponse is response type for the Query/Params RPC method.
+  cosmos.staking.v1beta1.CommissionRates:
+    type: object
+    properties:
+      rate:
+        type: string
+        description: rate is the commission rate charged to delegators, as a fraction.
+      max_rate:
+        type: string
+        description: >-
+          max_rate defines the maximum commission rate which validator can ever
+          charge, as a fraction.
+      max_change_rate:
+        type: string
+        description: >-
+          max_change_rate defines the maximum daily increase of the validator
+          commission, as a fraction.
+    description: >-
+      CommissionRates defines the initial commission rates to be used for
+      creating
+
+      a validator.
+  cosmos.staking.v1beta1.Description:
+    type: object
+    properties:
+      moniker:
+        type: string
+        description: moniker defines a human-readable name for the validator.
+      identity:
+        type: string
+        description: >-
+          identity defines an optional identity signature (ex. UPort or
+          Keybase).
+      website:
+        type: string
+        description: website defines an optional website link.
+      security_contact:
+        type: string
+        description: security_contact defines an optional email for security contact.
+      details:
+        type: string
+        description: details define other optional details.
+    description: Description defines a validator description.
   cosmos.params.v1beta1.ParamChange:
     type: object
     properties:
@@ -48379,27 +48469,6 @@ definitions:
         format: date-time
         description: update_time is the last time the commission rate was changed.
     description: Commission defines commission parameters for a given validator.
-  cosmos.staking.v1beta1.CommissionRates:
-    type: object
-    properties:
-      rate:
-        type: string
-        description: rate is the commission rate charged to delegators, as a fraction.
-      max_rate:
-        type: string
-        description: >-
-          max_rate defines the maximum commission rate which validator can ever
-          charge, as a fraction.
-      max_change_rate:
-        type: string
-        description: >-
-          max_change_rate defines the maximum daily increase of the validator
-          commission, as a fraction.
-    description: >-
-      CommissionRates defines the initial commission rates to be used for
-      creating
-
-      a validator.
   cosmos.staking.v1beta1.Delegation:
     type: object
     properties:
@@ -48464,27 +48533,6 @@ definitions:
     description: |-
       DelegationResponse is equivalent to Delegation except that it contains a
       balance in addition to shares which is more suitable for client responses.
-  cosmos.staking.v1beta1.Description:
-    type: object
-    properties:
-      moniker:
-        type: string
-        description: moniker defines a human-readable name for the validator.
-      identity:
-        type: string
-        description: >-
-          identity defines an optional identity signature (ex. UPort or
-          Keybase).
-      website:
-        type: string
-        description: website defines an optional website link.
-      security_contact:
-        type: string
-        description: security_contact defines an optional email for security contact.
-      details:
-        type: string
-        description: details define other optional details.
-    description: Description defines a validator description.
   cosmos.staking.v1beta1.HistoricalInfo:
     type: object
     properties:

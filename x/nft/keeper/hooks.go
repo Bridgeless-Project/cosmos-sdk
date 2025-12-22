@@ -24,6 +24,7 @@ func (h Hooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Ad
 		return nil
 	}
 
+	// TODO: Frozen limmtis nft vesting
 	if !sender.Equals(sdk.MustAccAddressFromBech32(nft.Owner)) {
 		return sdkerrors.Wrap(types.ErrNFTInvalidOwner, "sender is not the owner of the NFT")
 	}
