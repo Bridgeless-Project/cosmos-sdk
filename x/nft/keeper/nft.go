@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"math"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -159,4 +161,39 @@ func (k Keeper) GetAllOwnersWithPagination(ctx sdk.Context, pagination *query.Pa
 
 	return owners, pageRes, nil
 
+}
+
+func (k Keeper) GetNftBatchIndex(ctx sdk.Context, nftAddress string) int64 {
+	params := k.GetParams(ctx)
+	nftBatchIndex := params.BatchIndex
+
+	for {
+		nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: nftBatchIndex * params.BatchSize})
+		if len(nfts) == 0 {
+			nftBatchIndex = 0
+			continue
+		}
+
+		for _, nft := range nfts {
+			if nft.Address == nftAddress {
+				return int64(nftBatchIndex)
+			}
+		}
+
+		nftBatchIndex++
+	}
+
+}
+
+func (k Keeper) GetNftBatchBlockDistance(ctx sdk.Context, nftAddress string) int64 {
+	currentBatchIndex := int64(k.GetParams(ctx).BatchIndex)
+	nftBatchIndex := k.GetNftBatchIndex(ctx, nftAddress)
+
+	totalBatches := int64(math.Ceil(float64(len(k.GetNFTs(ctx))) / float64(k.GetParams(ctx).BatchSize)))
+
+	if nftBatchIndex > currentBatchIndex {
+		return nftBatchIndex - currentBatchIndex
+	}
+
+	return (totalBatches - currentBatchIndex) + nftBatchIndex
 }
