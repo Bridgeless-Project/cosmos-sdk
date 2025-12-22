@@ -29,11 +29,11 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			nft.StartVestingBlock = currentBlockHeight
 		}
 
-		if currentBlockHeight < nft.StartVestingBlock {
+		if nft.IsFrozen {
 			continue
 		}
 
-		if nft.VestingPeriodsCount >= int64(params.VestingPeriodsLimit) {
+		if currentBlockHeight < nft.StartVestingBlock {
 			continue
 		}
 
@@ -43,7 +43,7 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 		}
 
 		// if vesting time has passed skip the nft
-		if currentBlockHeight-nft.StartVestingBlock > params.TotalVestingTime {
+		if currentBlockHeight-nft.StartVestingBlock > nft.TotalVestingTime {
 			continue
 		}
 
@@ -54,17 +54,27 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 
 		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingPeriod), big.NewInt(params.VestingPeriod))
 
-		if nft.VestingPeriodsCount+passedPeriods.Int64() > int64(params.VestingPeriodsLimit) {
-			passedPeriods = big.NewInt(int64(params.VestingPeriodsLimit) - nft.VestingPeriodsCount)
+		if nft.VestingPeriodsCount+passedPeriods.Int64() > nft.VestingPeriodsLimit {
+			passedPeriods = big.NewInt(nft.VestingPeriodsLimit - nft.VestingPeriodsCount)
+		}
+
+		rewardToUnlock := nft.RewardPerPeriod.Amount.Mul(sdk.NewIntFromBigInt(passedPeriods))
+
+		if nft.TokenAmount.Sub(nft.AvailableToWithdraw).IsLT(nft.RewardPerPeriod) {
+			rewardToUnlock = nft.TokenAmount.Sub(nft.AvailableToWithdraw).Amount
 		}
 
 		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
 			nft.Denom,
-			nft.RewardPerPeriod.Amount.Mul(sdk.NewIntFromBigInt(passedPeriods)),
+			rewardToUnlock,
 		),
 		)
 
 		nft.VestingPeriodsCount += passedPeriods.Int64()
+		if nft.VestingPeriodsCount == nft.VestingPeriodsLimit {
+			nft.IsFrozen = true
+		}
+
 		nft.LastVestingBlock = currentBlockHeight
 
 		k.SetNFT(ctx, nft)
