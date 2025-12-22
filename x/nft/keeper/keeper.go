@@ -28,6 +28,7 @@ type (
 		bankKeeper        types.BankKeeper
 		stakingKeeper     types.StakingKeeper
 		accumulatorKeeper types.AccumulatorKeeper
+		hooks             types.NFTHooks
 	}
 )
 
@@ -53,6 +54,7 @@ func NewKeeper(
 		stakingKeeper:     stakingKeeper,
 		accumulatorKeeper: accumulatorKeeper,
 	}
+
 }
 
 func (k Keeper) Logger(ctx sdk.Context) log.Logger {
@@ -183,4 +185,13 @@ func (k *Keeper) DelegateNFT(
 	}
 
 	return nil
+}
+
+func (k *Keeper) SetHooks(sh types.NFTHooks) *Keeper {
+	if k.hooks != nil {
+		panic("cannot set bank hooks twice")
+	}
+
+	k.hooks = sh
+	return k
 }

@@ -20,7 +20,8 @@ var _ banktypes.BankHooks = Hooks{}
 func (k Keeper) Hooks() Hooks { return Hooks{k} }
 
 // BeforeSendTokenToAddress handles cases when recipient is a NFT
-func (h Hooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Address, amt sdk.Coins) error {
+func (h Hooks) BeforeSendTokenToAddress(_ sdk.Context, _, _ sdk.Address, _ sdk.Coins) error {
+	// this hook is ignored
 	return nil
 }
 

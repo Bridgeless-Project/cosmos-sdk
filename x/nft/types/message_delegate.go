@@ -11,11 +11,11 @@ const (
 
 var _ sdk.Msg = &MsgDelegate{}
 
-func NewMsgDelegate(creator, validator, address string, amount sdk.Coin) *MsgDelegate {
+func NewMsgDelegate(creator, validator, nft string, amount sdk.Coin) *MsgDelegate {
 	return &MsgDelegate{
 		Creator:   creator,
 		Validator: validator,
-		Address:   address,
+		Nft:       nft,
 		Amount:    amount,
 	}
 }
@@ -47,7 +47,7 @@ func (msg *MsgDelegate) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 
-	_, err = sdk.AccAddressFromBech32(msg.Address)
+	_, err = sdk.AccAddressFromBech32(msg.Nft)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
 	}

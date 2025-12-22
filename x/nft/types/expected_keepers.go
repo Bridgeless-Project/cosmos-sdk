@@ -50,3 +50,7 @@ type StakingKeeper interface {
 	SetNewValidatorByPowerIndex(ctx sdk.Context, validator stakingtypes.Validator)
 	AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) error
 }
+
+type NFTHooks interface {
+	ProcessStakingRewardsWithdrawal(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) (sdk.Coins, error)
+}

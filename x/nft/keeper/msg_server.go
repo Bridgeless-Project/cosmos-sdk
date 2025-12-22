@@ -4,6 +4,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
+var _ types.MsgServer = msgServer{}
+
 type msgServer struct {
 	Keeper
 }
@@ -13,5 +15,3 @@ type msgServer struct {
 func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
-
-var _ types.MsgServer = msgServer{}

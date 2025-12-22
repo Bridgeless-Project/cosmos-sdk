@@ -14,10 +14,10 @@ const (
 
 var _ sdk.Msg = &MsgMint{}
 
-func NewMsgMint(creator, address, metadataUri string, startVestingBlock int64) *MsgMint {
+func NewMsgMint(creator, owner, metadataUri string, startVestingBlock int64) *MsgMint {
 	return &MsgMint{
 		Creator:           creator,
-		Owner:             address,
+		Owner:             owner,
 		StartVestingBlock: startVestingBlock,
 		NftMetadataUri:    metadataUri,
 	}

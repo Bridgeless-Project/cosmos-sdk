@@ -23929,7 +23929,7 @@ paths:
           type: boolean
       tags:
         - Query
-  /cosmos/nft/owners/{owner}:
+  /cosmos/nft/owners/{owner}/nfts:
     get:
       operationId: CosmosNftGetAllNFTsByOwner
       responses:
@@ -47757,6 +47757,8 @@ definitions:
   cosmos.nft.MsgRedelegateResponse:
     type: object
   cosmos.nft.MsgSendResponse:
+    type: object
+  cosmos.nft.MsgStakingWithdrawalRewardsResponse:
     type: object
   cosmos.nft.MsgUndelegateResponse:
     type: object
