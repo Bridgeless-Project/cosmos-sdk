@@ -2,6 +2,7 @@ package keeper
 
 import (
 	sdkerrors "cosmossdk.io/errors"
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
@@ -46,7 +47,19 @@ func (h Hooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, am
 
 	// get count of additional periods
 	additionalPeriods := amt.AmountOf(nft.Denom).Quo(nft.RewardPerPeriod.Amount)
-	nft.VestingPeriodsCount += additionalPeriods.Int64()
+	if !amt.AmountOf(nft.Denom).Mod(nft.RewardPerPeriod.Amount).IsZero() {
+		// if nft funded not with multiple of reward per period we must include this not full period
+		additionalPeriods = additionalPeriods.Add(math.NewInt(1))
+	}
+
+	nft.VestingPeriodsLimit += additionalPeriods.Int64()
+	ok, tokenToAdd := amt.Find(nft.Denom)
+	if !ok {
+		return sdkerrors.Wrapf(types.ErrInvalidAmount, "token to add with denom %s doesn't exist", nft.Denom)
+	}
+
+	nft.TokenAmount = nft.TokenAmount.Add(tokenToAdd)
+	nft.IsFrozen = false
 	h.k.SetNFT(ctx, nft)
 
 	return nil
