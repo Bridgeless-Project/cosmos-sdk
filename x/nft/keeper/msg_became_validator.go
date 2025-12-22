@@ -41,7 +41,7 @@ func (m msgServer) BecameValidator(goCtx context.Context, msg *types.MsgBecameVa
 	amount := sdk.NewInt(0)
 	nfts := make([]types.NFT, 0)
 
-	for _, nftAddress := range msg.NftAddresses {
+	for _, nftAddress := range msg.Nfts {
 		nft, ok := m.GetNFT(ctx, nftAddress)
 		if !ok {
 			return nil, types.ErrNFTNotFound

@@ -8,20 +8,20 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
-func (k msgServer) Withdraw(goctx context.Context, request *types.MsgWithdrawal) (*types.MsgWithdrawalResponse, error) {
+func (k msgServer) Withdraw(goctx context.Context, msg *types.MsgWithdrawal) (*types.MsgWithdrawalResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goctx)
 
-	nft, ok := k.GetNFT(ctx, request.Address)
+	nft, ok := k.GetNFT(ctx, msg.Nft)
 	if !ok {
 		return nil, types.ErrNFTNotFound
 	}
 
-	if nft.Owner != request.Creator {
+	if nft.Owner != msg.Creator {
 		return nil, types.ErrNFTInvalidOwner
 	}
 
-	nftAddress, _ := sdk.AccAddressFromBech32(request.Address)
-	ownerAddress, _ := sdk.AccAddressFromBech32(request.Creator)
+	nftAddress, _ := sdk.AccAddressFromBech32(msg.Nft)
+	ownerAddress, _ := sdk.AccAddressFromBech32(msg.Creator)
 	if k.IsDelegated(ctx, nftAddress) {
 		return nil, types.ErrNFTIsDelegated
 	}
