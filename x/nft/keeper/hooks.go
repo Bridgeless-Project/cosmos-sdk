@@ -2,11 +2,10 @@ package keeper
 
 import (
 	"math"
+	"math/big"
 
-	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
 // Wrapper struct
@@ -35,23 +34,24 @@ func (h Hooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, am
 	}
 
 	// get count of additional periods
-	additionalPeriods := math.Ceil(float64(amt.AmountOf(nft.Denom).Int64()) / float64(nft.RewardPerPeriod.Amount.Int64()))
+	periodsToAddFloat, _ := new(big.Int).Quo(
+		new(big.Int).SetInt64(amt.AmountOf(nft.Denom).Int64()),
+		new(big.Int).SetInt64(nft.RewardPerPeriod.Amount.Int64()),
+	).Float64()
+
+	additionalPeriods := math.Ceil(periodsToAddFloat)
 
 	nft.VestingPeriodsLimit += int64(additionalPeriods)
-	ok, tokenToAdd := amt.Find(nft.Denom)
-	if !ok {
-		return sdkerrors.Wrapf(types.ErrInvalidAmount, "token to add with denom %s doesn't exist", nft.Denom)
-	}
 
-	nft.TokenAmount = nft.TokenAmount.Add(tokenToAdd)
+	nft.TokenAmount = nft.TokenAmount.Add(sdk.NewCoin(nft.Denom, amt.AmountOf(nft.Denom)))
 
 	blockDistanceFromLastVesting := ctx.BlockHeight() - nft.LastVestingBlock
 
 	// timeToRestartVesting includes time to get to batch where nft will be processed and covers the time was spent after last vesting block
-	timeToRestartVesting := h.k.GetNftBatchBlockDistance(ctx, nft.Address) + blockDistanceFromLastVesting
+	timeToRestartVesting := h.k.GetNftBatchBlockDistance(ctx, nft.Address) + uint64(blockDistanceFromLastVesting)
 
 	// adding the time of vesting
-	nft.TotalVestingTime += int64(additionalPeriods)*params.VestingPeriod + timeToRestartVesting
+	nft.TotalVestingTime += int64(additionalPeriods)*params.VestingPeriod + int64(timeToRestartVesting)
 
 	h.k.SetNFT(ctx, nft)
 

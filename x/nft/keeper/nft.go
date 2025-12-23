@@ -157,12 +157,16 @@ func (k Keeper) GetAllOwnersWithPagination(ctx sdk.Context, pagination *query.Pa
 
 }
 
-func (k Keeper) GetNftBatchIndex(ctx sdk.Context, nftAddress string) int64 {
+func (k Keeper) GetBatchIndexByNFTAddress(ctx sdk.Context, nftAddress string) uint64 {
 	params := k.GetParams(ctx)
 	nftBatchIndex := params.BatchIndex
 
 	for {
-		nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: nftBatchIndex * params.BatchSize})
+		nfts, _, _ := k.GetNFTsWithPagination(
+			ctx,
+			&query.PageRequest{Limit: params.BatchSize, Offset: nftBatchIndex * params.BatchSize},
+		)
+
 		if len(nfts) == 0 {
 			nftBatchIndex = 0
 			continue
@@ -170,7 +174,7 @@ func (k Keeper) GetNftBatchIndex(ctx sdk.Context, nftAddress string) int64 {
 
 		for _, nft := range nfts {
 			if nft.Address == nftAddress {
-				return int64(nftBatchIndex)
+				return nftBatchIndex
 			}
 		}
 
@@ -179,15 +183,15 @@ func (k Keeper) GetNftBatchIndex(ctx sdk.Context, nftAddress string) int64 {
 
 }
 
-func (k Keeper) GetNftBatchBlockDistance(ctx sdk.Context, nftAddress string) int64 {
-	currentBatchIndex := int64(k.GetParams(ctx).BatchIndex)
-	nftBatchIndex := k.GetNftBatchIndex(ctx, nftAddress)
+func (k Keeper) GetNftBatchBlockDistance(ctx sdk.Context, nftAddress string) uint64 {
+	currentBatchIndex := k.GetParams(ctx).BatchIndex
+	nftBatchIndex := k.GetBatchIndexByNFTAddress(ctx, nftAddress)
 
-	totalBatches := int64(math.Ceil(float64(len(k.GetNFTs(ctx))) / float64(k.GetParams(ctx).BatchSize)))
+	totalBatches := uint64(math.Ceil(float64(len(k.GetNFTs(ctx))) / float64(k.GetParams(ctx).BatchSize)))
 
 	if nftBatchIndex > currentBatchIndex {
 		return nftBatchIndex - currentBatchIndex
 	}
 
-	return (totalBatches - currentBatchIndex) + nftBatchIndex
+	return (nftBatchIndex + totalBatches - currentBatchIndex) % totalBatches
 }
