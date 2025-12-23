@@ -46,9 +46,15 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 		nftOwnerStore := prefix.NewStore(ctx.KVStore(storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
 		ownerBranchStore := prefix.NewStore(nftOwnerStore, types.KeyPrefix(oldNft.Owner))
 		ownerBranchStore.Delete(types.NFTOwnerKey(
-			newNft.Owner,
+			oldNft.Owner,
 		))
 
+		data := cdc.MustMarshal(&types.Owner{
+			Address:    newNft.Owner,
+			NftAddress: newNft.Address,
+		})
+
+		ownerBranchStore.Set(types.NFTOwnerKey(oldNft.Address), data)
 		store.Set(types.NFTKey(oldNft.Address), cdc.MustMarshal(&newNft))
 	}
 
