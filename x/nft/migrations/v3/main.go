@@ -13,6 +13,7 @@ import (
 
 func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.BinaryCodec, params types.Params) error {
 	store := prefix.NewStore(ctx.KVStore(storeKey), types.KeyPrefix(types.NFTKeyPrefix))
+
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
@@ -41,6 +42,12 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 			TotalVestingTime:    params.TotalVestingTime,
 			TokenAmount:         sdk.NewCoin(oldNft.Denom, nftTokensValue),
 		}
+
+		nftOwnerStore := prefix.NewStore(ctx.KVStore(storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
+		ownerBranchStore := prefix.NewStore(nftOwnerStore, types.KeyPrefix(oldNft.Owner))
+		ownerBranchStore.Delete(types.NFTOwnerKey(
+			newNft.Owner,
+		))
 
 		store.Set(types.NFTKey(oldNft.Address), cdc.MustMarshal(&newNft))
 	}
