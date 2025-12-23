@@ -15,7 +15,14 @@ import (
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyBeginBlocker)
 	params := k.GetParams(ctx)
-	nfts, _, _ := k.GetNFTsWithPagination(ctx, &query.PageRequest{Limit: params.BatchSize, Offset: params.BatchIndex * params.BatchSize})
+	nfts, _, _ := k.GetNFTsWithPagination(
+		ctx,
+		&query.PageRequest{
+			Limit:  params.BatchSize,
+			Offset: params.BatchIndex * params.BatchSize,
+		},
+	)
+
 	if len(nfts) == 0 {
 		params.BatchIndex = 0
 		k.SetParams(ctx, params)

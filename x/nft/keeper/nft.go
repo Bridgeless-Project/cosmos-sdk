@@ -164,7 +164,10 @@ func (k Keeper) GetBatchIndexByNFTAddress(ctx sdk.Context, nftAddress string) ui
 	for {
 		nfts, _, _ := k.GetNFTsWithPagination(
 			ctx,
-			&query.PageRequest{Limit: params.BatchSize, Offset: nftBatchIndex * params.BatchSize},
+			&query.PageRequest{
+				Limit:  params.BatchSize,
+				Offset: nftBatchIndex * params.BatchSize,
+			},
 		)
 
 		if len(nfts) == 0 {
