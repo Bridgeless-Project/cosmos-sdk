@@ -28,6 +28,15 @@ message NFT {
   string denom = 8;
 
   int64 start_vesting_block = 9;
+
+  int64 vesting_periods_limit = 10;
+
+  bool is_frozen = 11;
+
+  int64 total_vesting_time = 12;
+
+  cosmos.base.v1beta1.Coin token_amount = 13 [(gogoproto.nullable) = false];
+
 }
 
 message Owner {

@@ -47,7 +47,7 @@ func (k Keeper) GetVestingPeriod(ctx sdk.Context) (vestingPeriod int64) {
 	return
 }
 
-func (k Keeper) GetVestingPeriodsLimit(ctx sdk.Context) (vestingPeriodLimit uint64) {
+func (k Keeper) GetVestingPeriodsLimit(ctx sdk.Context) (vestingPeriodLimit int64) {
 	k.paramstore.Get(ctx, []byte(types.ParamVestingPeriodsLimitKey), &vestingPeriodLimit)
 	return
 }

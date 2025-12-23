@@ -21,8 +21,8 @@ func NewParams(
 	moduleAdmin,
 	bondDenom,
 	prefix string,
-	sequence,
-	vestingPeriodsLimit,
+	sequence uint64,
+	vestingPeriodsLimit int64,
 	batchSize,
 	batchIndex uint64,
 	vestingTime,
@@ -181,9 +181,13 @@ func validateVestingTime(i interface{}) error {
 }
 
 func validateVestingCount(i interface{}) error {
-	_, ok := i.(uint64)
+	val, ok := i.(int64)
 	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting count type: %T", i)
+		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting limit type: %T", i)
+	}
+
+	if val < 0 {
+		return errorsmod.Wrap(ErrInvalidVestingPeriodsLimit, "negative vesting periods limit")
 	}
 
 	return nil
