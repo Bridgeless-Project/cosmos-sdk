@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"math"
 	"math/big"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -34,14 +33,15 @@ func (h Hooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, am
 	}
 
 	// get count of additional periods
-	periodsToAddFloat, _ := new(big.Int).Quo(
-		new(big.Int).SetInt64(amt.AmountOf(nft.Denom).Int64()),
-		new(big.Int).SetInt64(nft.RewardPerPeriod.Amount.Int64()),
-	).Float64()
+	amount := amt.AmountOf(nft.Denom).BigInt()
+	reward := nft.RewardPerPeriod.Amount.BigInt()
 
-	additionalPeriods := math.Ceil(periodsToAddFloat)
+	full := new(big.Int)
+	temp := new(big.Int).Add(amount, reward)
+	temp.Sub(temp, big.NewInt(1))
+	full.Quo(temp, reward)
 
-	nft.VestingPeriodsLimit += int64(additionalPeriods)
+	nft.VestingPeriodsLimit += full.Int64()
 
 	nft.TokenAmount = nft.TokenAmount.Add(sdk.NewCoin(nft.Denom, amt.AmountOf(nft.Denom)))
 
@@ -51,7 +51,7 @@ func (h Hooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, am
 	timeToRestartVesting := h.k.GetNftBatchBlockDistance(ctx, nft.Address) + uint64(blockDistanceFromLastVesting)
 
 	// adding the time of vesting
-	nft.TotalVestingTime += int64(additionalPeriods)*params.VestingPeriod + int64(timeToRestartVesting)
+	nft.TotalVestingTime += full.Int64()*params.VestingPeriod + int64(timeToRestartVesting)
 
 	h.k.SetNFT(ctx, nft)
 
