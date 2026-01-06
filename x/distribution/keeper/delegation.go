@@ -2,6 +2,7 @@ package keeper
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	distributiontypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
@@ -65,7 +66,6 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 	stake := startingInfo.Stake
 	params := k.GetParams(ctx)
 	_, isNFTstake := k.nftKeeper.GetNFT(ctx, del.GetDelegatorAddr().String())
-
 	wrapStake := func(stake sdk.Dec) sdk.Dec {
 		if isNFTstake {
 			return stake.Add(stake.Mul(params.NftProposerReward))
@@ -73,6 +73,7 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 		return stake
 	}
 
+	isEndingPeriodProcessed := false
 	// Iterate through slashes and withdraw with calculated staking for
 	// distribution periods. These period offsets are dependent on *when* slashes
 	// happen - namely, in BeginBlock, after rewards are allocated...
@@ -90,10 +91,11 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 				if event.ValidatorPeriod > startingPeriod {
 					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
 
-					// Note: It is necessary to truncate so we don't allow withdrawing
-					// more rewards than owed.
+					//Note: It is necessary to truncate so we don't allow withdrawing
+					//more rewards than owed.
 					stake = stake.MulTruncate(sdk.OneDec().Sub(event.Fraction))
 					startingPeriod = event.ValidatorPeriod
+					isEndingPeriodProcessed = true
 				}
 				return false
 			},
@@ -139,7 +141,11 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 	}
 
 	// calculate rewards for final period
-	rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
+	// to prevent double calculation after validator slashed. It breaks the ability to withdraw rewards if validator was slashed
+	// it works because the ending period is already processed on the Itarator above
+	if !isEndingPeriodProcessed {
+		rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
+	}
 	return rewards
 }
 
