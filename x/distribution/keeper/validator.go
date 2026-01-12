@@ -70,6 +70,9 @@ func (k Keeper) IncrementValidatorPeriod(ctx sdk.Context, val stakingtypes.Valid
 	k.SetValidatorHistoricalRewards(ctx, val.GetOperator(), rewards.Period, types.NewValidatorHistoricalRewards(historical.Add(current...), 1))
 
 	// set current rewards, incrementing period by 1
+	//TODO: Why +1? Why do we need to set empty Dec here?
+
+	// can we just delete it?
 	k.SetValidatorCurrentRewards(ctx, val.GetOperator(), types.NewValidatorCurrentRewards(sdk.DecCoins{}, rewards.Period+1))
 
 	return rewards.Period
@@ -107,13 +110,13 @@ func (k Keeper) updateValidatorSlashFraction(ctx sdk.Context, valAddr sdk.ValAdd
 	val := k.stakingKeeper.Validator(ctx, valAddr)
 
 	// increment current period
-	newPeriod := k.IncrementValidatorPeriod(ctx, val)
+	currentPeriod := k.IncrementValidatorPeriod(ctx, val)
 
 	// increment reference count on period we need to track
-	k.incrementReferenceCount(ctx, valAddr, newPeriod)
+	k.incrementReferenceCount(ctx, valAddr, currentPeriod)
 
-	slashEvent := types.NewValidatorSlashEvent(newPeriod, fraction)
+	slashEvent := types.NewValidatorSlashEvent(currentPeriod, fraction)
 	height := uint64(ctx.BlockHeight())
 
-	k.SetValidatorSlashEvent(ctx, valAddr, height, newPeriod, slashEvent)
+	k.SetValidatorSlashEvent(ctx, valAddr, height, currentPeriod, slashEvent)
 }

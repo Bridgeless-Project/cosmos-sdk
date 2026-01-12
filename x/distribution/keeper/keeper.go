@@ -185,9 +185,7 @@ func (k Keeper) FundCommunityPool(ctx sdk.Context, amount sdk.Coins, sender sdk.
 // FundCommunityPoolFromModule is used to send tokens to community pool from other modules
 func (k Keeper) FundCommunityPoolFromModule(ctx sdk.Context, amount sdk.Coins, senderModuleName string) error {
 	if err := k.bankKeeper.SendCoinsFromModuleToModule(ctx, senderModuleName, types.ModuleName, amount); err != nil {
-		err = sdkerrors.Wrap(err, "failed to fund community pool")
-		k.Logger(ctx).Error(err.Error())
-		return err
+		return sdkerrors.Wrap(err, "failed to fund community pool")
 	}
 	feePool := k.GetFeePool(ctx)
 	k.Logger(ctx).Info(fmt.Sprintf("amount of tokens in community pool before slashing is %s", feePool.CommunityPool.String()))
