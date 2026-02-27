@@ -2,6 +2,7 @@ package v2
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
@@ -19,7 +20,10 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 
 	for ; iterator.Valid(); iterator.Next() {
 		var nft types.NFT
-		cdc.MustUnmarshal(iterator.Value(), &nft)
+		if err := cdc.Unmarshal(iterator.Value(), &nft); err != nil {
+			ctx.Logger().Error("failed to unmarshal NFT during migration, skipping", "key", string(iterator.Key()), "error", err)
+			continue
+		}
 
 		nftOwnerStore := prefix.NewStore(ctx.KVStore(storeKey), types.KeyPrefix(types.NFTByOwnerKeyPrefix))
 		ownerBranchStore := prefix.NewStore(nftOwnerStore, types.KeyPrefix(nft.Owner))

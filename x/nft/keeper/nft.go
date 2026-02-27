@@ -32,7 +32,10 @@ func (k Keeper) GetNFT(
 		return val, false
 	}
 
-	k.cdc.MustUnmarshal(b, &val)
+	if err := k.cdc.Unmarshal(b, &val); err != nil {
+		k.Logger(ctx).Error("failed to unmarshal NFT", "address", address, "error", err)
+		return val, false
+	}
 	return val, true
 }
 
@@ -56,7 +59,11 @@ func (k Keeper) GetNFTs(ctx sdk.Context) (list []types.NFT) {
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.NFT
-		k.cdc.MustUnmarshal(iterator.Value(), &val)
+		err := k.cdc.Unmarshal(iterator.Value(), &val)
+		if err != nil {
+			k.Logger(ctx).Error("failed to unmarshal NFT, skipping", "key", string(iterator.Key()), "error", err)
+			continue
+		}
 		list = append(list, val)
 	}
 
@@ -71,7 +78,10 @@ func (k Keeper) GetNFTsWithPagination(ctx sdk.Context, pagination *query.PageReq
 
 	pageRes, err := query.Paginate(nftStore, pagination, func(key []byte, value []byte) error {
 		var nft types.NFT
-		k.cdc.MustUnmarshal(value, &nft)
+		if err := k.cdc.Unmarshal(value, &nft); err != nil {
+			k.Logger(ctx).Error("failed to unmarshal NFT, skipping", "key", string(key), "error", err)
+			return nil
+		}
 
 		nfts = append(nfts, nft)
 		return nil
