@@ -53,7 +53,7 @@ func CmdDelegate() *cobra.Command {
 
 func CmdUndelegate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "undelegate [from_key_or_address] [validator] [nft_address] [amount]",
+		Use:   "undelegate [from_key_or_address] [validator] [nft_address] [share]",
 		Short: "Undelegate nft to validator",
 		Args:  cobra.ExactArgs(4),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -64,16 +64,11 @@ func CmdUndelegate() *cobra.Command {
 				return err
 			}
 
-			coins, err := sdk.ParseCoinNormalized(args[3])
-			if err != nil {
-				return err
-			}
-
 			msg := types.NewMsgUndelegate(
 				clientCtx.GetFromAddress().String(),
 				args[1],
 				args[2],
-				coins,
+				args[3],
 			)
 			if err = msg.ValidateBasic(); err != nil {
 				return err
@@ -88,8 +83,9 @@ func CmdUndelegate() *cobra.Command {
 
 func CmdRedelegate() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "redelegate [from_key_or_address] [new_validator] [old_validator] [nft_address] [amount]",
+		Use:   "redelegate [from_key_or_address] [new_validator] [old_validator] [nft_address] [share]",
 		Short: "redelegate stacked nft to another validator",
+		Args:  cobra.ExactArgs(5),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := cmd.Flags().Set(flags.FlagFrom, args[0])
 			if err != nil {
@@ -100,16 +96,12 @@ func CmdRedelegate() *cobra.Command {
 				return err
 			}
 
-			coins, err := sdk.ParseCoinNormalized(args[3])
-			if err != nil {
-				return err
-			}
 			msg := types.NewMsgRedelegate(
 				clientCtx.GetFromAddress().String(),
 				args[1],
 				args[2],
 				args[3],
-				coins,
+				args[4],
 			)
 			if err = msg.ValidateBasic(); err != nil {
 				return err

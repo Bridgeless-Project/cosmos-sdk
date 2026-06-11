@@ -23,13 +23,17 @@ func (k msgServer) Redelegate(goctx context.Context, request *types.MsgRedelegat
 	nftAddress, _ := sdk.AccAddressFromBech32(request.Nft)
 	validatorSrcAddress, _ := sdk.ValAddressFromBech32(request.ValidatorSrc)
 	validatorNEwAddress, _ := sdk.ValAddressFromBech32(request.ValidatorNew)
+	share, err := sdk.NewDecFromStr(request.Share)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode share")
+	}
 
-	_, err := k.stakingKeeper.BeginRedelegation(
+	_, err = k.stakingKeeper.BeginRedelegation(
 		ctx,
 		nftAddress,
 		validatorSrcAddress,
 		validatorNEwAddress,
-		sdk.NewDecCoinFromCoin(request.Amount).Amount,
+		share,
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to begin redelegation")
@@ -71,7 +75,11 @@ func (k msgServer) Undelegate(goctx context.Context, request *types.MsgUndelegat
 		return nil, types.ErrValidatorNotFound
 	}
 
-	_, err = k.stakingKeeper.Undelegate(ctx, nftAddress, valAddr, sdk.NewDecCoinFromCoin(request.Amount).Amount)
+	share, err := sdk.NewDecFromStr(request.Share)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to decode share")
+	}
+	_, err = k.stakingKeeper.Undelegate(ctx, nftAddress, valAddr, share)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to undelegate tokens")
 	}

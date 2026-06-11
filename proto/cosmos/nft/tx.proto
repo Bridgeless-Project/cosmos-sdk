@@ -55,7 +55,7 @@ message MsgUndelegate {
   string creator = 1;
   string nft = 2;
   string validator = 3;
-  cosmos.base.v1beta1.Coin amount = 4 [(gogoproto.nullable) = false];
+  string share  = 4;
 }
 
 message MsgUndelegateResponse {}
@@ -74,7 +74,7 @@ message MsgRedelegate {
   string nft = 2;
   string validatorSrc = 3;
   string validatorNew = 4;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  string share  = 5;
 }
 
 message MsgRedelegateResponse {}

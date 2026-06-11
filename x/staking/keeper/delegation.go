@@ -711,7 +711,7 @@ func (k Keeper) Unbond(
 	}
 
 	// call the before-delegation-modified hook
-	if err := k.BeforeDelegationSharesModified(ctx, delAddr, valAddr); err != nil {
+	if err = k.BeforeDelegationSharesModified(ctx, delAddr, valAddr); err != nil {
 		return amount, err
 	}
 

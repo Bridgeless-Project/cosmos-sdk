@@ -12,14 +12,14 @@ const (
 var _ sdk.Msg = &MsgRedelegate{}
 
 func NewMsgRedelegate(
-	creator, validatorNew, validatorSrc, nft string, amount sdk.Coin,
+	creator, validatorNew, validatorSrc, nft string, share string,
 ) *MsgRedelegate {
 	return &MsgRedelegate{
 		Creator:      creator,
 		ValidatorNew: validatorNew,
 		ValidatorSrc: validatorSrc,
 		Nft:          nft,
-		Amount:       amount,
+		Share:        share,
 	}
 }
 
@@ -63,6 +63,15 @@ func (msg *MsgRedelegate) ValidateBasic() error {
 	_, err = sdk.ValAddressFromBech32(msg.ValidatorNew)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid new validator address (%s)", err)
+	}
+
+	share, err := sdk.NewDecFromStr(msg.Share)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid share address (%s)", err)
+	}
+
+	if !share.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "share must be positive")
 	}
 
 	return nil

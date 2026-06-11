@@ -73,7 +73,6 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 		return stake
 	}
 
-	isEndingPeriodProcessed := false
 	// Iterate through slashes and withdraw with calculated staking for
 	// distribution periods. These period offsets are dependent on *when* slashes
 	// happen - namely, in BeginBlock, after rewards are allocated...
@@ -88,15 +87,17 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 	if endingHeight > startingHeight {
 		k.IterateValidatorSlashEventsBetween(ctx, del.GetValidatorAddr(), startingHeight, endingHeight,
 			func(height uint64, event distributiontypes.ValidatorSlashEvent) (stop bool) {
-				if event.ValidatorPeriod > startingPeriod {
+				// from Merge PR #3333: F1 storage efficiency improvements
+				endingPeriod := event.ValidatorPeriod // shadow outer arg
+				if endingPeriod > startingPeriod {
 					rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
 
 					//Note: It is necessary to truncate so we don't allow withdrawing
 					//more rewards than owed.
 					stake = stake.MulTruncate(sdk.OneDec().Sub(event.Fraction))
-					startingPeriod = event.ValidatorPeriod
-					isEndingPeriodProcessed = true
+					startingPeriod = endingPeriod
 				}
+
 				return false
 			},
 		)
@@ -141,11 +142,14 @@ func (k Keeper) CalculateDelegationRewards(ctx sdk.Context, val stakingtypes.Val
 	}
 
 	// calculate rewards for final period
-	// to prevent double calculation after validator slashed. It breaks the ability to withdraw rewards if validator was slashed
-	// it works because the ending period is already processed on the Itarator above
-	if !isEndingPeriodProcessed {
-		rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
-	}
+
+	//// to prevent double calculation after validator slashed. It breaks the ability to withdraw rewards if validator was slashed
+	//// it works because the ending period is already processed on the Itarator above
+	//if !isEndingPeriodProcessed {
+	//	rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
+	//}
+	rewards = rewards.Add(k.calculateDelegationRewardsBetween(ctx, val, startingPeriod, endingPeriod, wrapStake(stake))...)
+
 	return rewards
 }
 

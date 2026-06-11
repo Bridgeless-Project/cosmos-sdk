@@ -831,23 +831,23 @@ func RegisterQueryHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Query_Accounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "accounts"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Accounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "accounts"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Account_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "accounts", "address"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Account_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "accounts", "address"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_AccountAddressByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "address_by_id", "id"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_AccountAddressByID_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "address_by_id", "id"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Params_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "params"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_ModuleAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "module_accounts"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ModuleAccounts_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "module_accounts"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_ModuleAccountByName_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "module_accounts", "name"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_ModuleAccountByName_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "module_accounts", "name"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_Bech32Prefix_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "bech32"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_Bech32Prefix_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"cosmos", "auth", "v1beta1", "bech32"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_AddressBytesToString_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "bech32", "address_bytes"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_AddressBytesToString_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "bech32", "address_bytes"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Query_AddressStringToBytes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "bech32", "address_string"}, "", runtime.AssumeColonVerbOpt(false)))
+	pattern_Query_AddressStringToBytes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"cosmos", "auth", "v1beta1", "bech32", "address_string"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
