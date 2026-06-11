@@ -38,6 +38,9 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgBecameValidator:
 			res, err := msgServer.BecameValidator(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgStakingWithdrawalRewards:
+			res, err := msgServer.StakingWithdrawalRewards(ctx, msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		}
 
 		return nil, nil

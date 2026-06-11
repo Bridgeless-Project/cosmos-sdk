@@ -13,6 +13,15 @@ import (
 func (m msgServer) StakingWithdrawalRewards(goCtx context.Context, msg *types.MsgStakingWithdrawalRewards) (*types.MsgStakingWithdrawalRewardsResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
+	nft, found := m.GetNFT(ctx, msg.Nft)
+	if !found {
+		return nil, types.ErrNFTNotFound
+	}
+
+	if msg.Creator != nft.Owner {
+		return nil, types.ErrUnauthorizedNFTCreator
+	}
+	
 	valAddr, err := sdk.ValAddressFromBech32(msg.Validator)
 	if err != nil {
 		return nil, err

@@ -11,12 +11,12 @@ const (
 
 var _ sdk.Msg = &MsgUndelegate{}
 
-func NewMsgUndelegate(creator, validator, address string, amount sdk.Coin) *MsgUndelegate {
+func NewMsgUndelegate(creator, validator, address string, share string) *MsgUndelegate {
 	return &MsgUndelegate{
 		Creator:   creator,
 		Nft:       address,
 		Validator: validator,
-		Amount:    amount,
+		Share:     share,
 	}
 }
 
@@ -57,5 +57,13 @@ func (msg *MsgUndelegate) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid validator address (%s)", err)
 	}
 
+	share, err := sdk.NewDecFromStr(msg.Share)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid share address (%s)", err)
+	}
+
+	if !share.IsPositive() {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidCoins, "share must be positive")
+	}
 	return nil
 }
