@@ -170,14 +170,6 @@ func (k BaseSendKeeper) SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAd
 		k.ak.SetAccount(ctx, k.ak.NewAccountWithAddress(ctx, toAddr))
 	}
 
-	// update nft vesting params
-	if k.hooks != nil {
-		err = k.hooks.AfterSendTokenToAddress(ctx, toAddr, amt)
-		if err != nil {
-			return err
-		}
-	}
-
 	// bech32 encoding is expensive! Only do it once for fromAddr
 	fromAddrString := fromAddr.String()
 	ctx.EventManager().EmitEvents(sdk.Events{

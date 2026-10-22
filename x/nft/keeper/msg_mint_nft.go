@@ -24,12 +24,19 @@ func (m msgServer) Mint(goctx context.Context, msg *types.MsgMint) (*types.MsgMi
 	totalVestingTime := big.NewInt(params.TotalVestingTime)
 
 	vestingPeriodsCount := new(big.Int).Div(totalVestingTime, vestingPeriod)
+	if vestingPeriodsCount.Sign() <= 0 {
+		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "total vesting time is less than the vesting period")
+	}
+
 	nftTokenAnount, ok := new(big.Int).SetString(params.NftTokenAmount, 10)
 	if !ok {
 		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "invalid NFT cost")
 	}
 
 	vestingRewardPerPeriod := new(big.Int).Div(nftTokenAnount, vestingPeriodsCount)
+	if vestingRewardPerPeriod.Sign() <= 0 {
+		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "NFT token amount is less than the number of vesting periods")
+	}
 
 	totalNftTokenAmount := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAnount))
 

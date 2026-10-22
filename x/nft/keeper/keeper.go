@@ -83,6 +83,14 @@ func (k Keeper) IsDelegated(ctx sdk.Context, nftAddress sdk.AccAddress) bool {
 	return len(k.stakingKeeper.GetAllDelegatorDelegations(ctx, nftAddress)) > 0
 }
 
+// HasStake returns true if the NFT has delegations, unbonding delegations or redelegations.
+// Tokens of such an NFT are not on its balance and can not be withdrawn or closed yet.
+func (k Keeper) HasStake(ctx sdk.Context, nftAddress sdk.AccAddress) bool {
+	return k.IsDelegated(ctx, nftAddress) ||
+		len(k.stakingKeeper.GetUnbondingDelegations(ctx, nftAddress, 1)) > 0 ||
+		len(k.stakingKeeper.GetRedelegations(ctx, nftAddress, 1)) > 0
+}
+
 func (k Keeper) IsModuleAdmin(ctx sdk.Context, address string) bool {
 	params := k.GetParams(ctx)
 
@@ -121,17 +129,15 @@ func (k *Keeper) CreateNft(ctx sdk.Context, owner string, startVestingBlock int6
 	}
 
 	newNft := types.NFT{
-		Address:             nftAddress,
-		Owner:               owner,
-		Uri:                 uri,
-		RewardPerPeriod:     sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewIntFromBigInt(vestingPeriodReward)),
-		AvailableToWithdraw: sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
-		Denom:               k.GetBondDenom(ctx),
-		StartVestingBlock:   startVestingBlock,
-		VestingPeriodsLimit: k.GetVestingPeriodsLimit(ctx),
-		IsFrozen:            false,
-		TotalVestingTime:    k.GetVestingTime(ctx),
-		TokenAmount:         tokenAmount,
+		Address:           nftAddress,
+		Owner:             owner,
+		Uri:               uri,
+		RewardPerPeriod:   sdk.NewCoin(k.GetBondDenom(ctx), sdk.NewIntFromBigInt(vestingPeriodReward)),
+		Denom:             k.GetBondDenom(ctx),
+		StartVestingBlock: startVestingBlock,
+		TokenAmount:       tokenAmount,
+		UnlockedAmount:    sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
+		WithdrawnAmount:   sdk.NewCoin(k.GetBondDenom(ctx), sdk.ZeroInt()),
 	}
 
 	return &newNft, sequence, nil

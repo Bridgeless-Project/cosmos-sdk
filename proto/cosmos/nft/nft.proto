@@ -11,32 +11,30 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/nft/types";
 
 // NFT defines the NFT.
 message NFT {
+
   string address = 1;
 
   string owner = 2;
 
   string uri = 3;
 
+  // reward_per_period is the unlock step in tokens per vesting period.
   cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
 
-  int64 vesting_periods_count  = 5;
+  int64 last_vesting_block = 5;
 
-  cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
+  string denom = 6;
 
-  int64 last_vesting_block = 7;
+  int64 start_vesting_block = 7;
 
-  string denom = 8;
+  // token_amount is the vesting entitlement (100%); only MsgTopUp changes it.
+  cosmos.base.v1beta1.Coin token_amount = 8 [(gogoproto.nullable) = false];
 
-  int64 start_vesting_block = 9;
+  // unlocked_amount is the cumulative amount unlocked so far (never decreases on withdrawal).
+  cosmos.base.v1beta1.Coin unlocked_amount = 9 [(gogoproto.nullable) = false];
 
-  int64 vesting_periods_limit = 10;
-
-  bool is_frozen = 11;
-
-  int64 total_vesting_time = 12;
-
-  cosmos.base.v1beta1.Coin token_amount = 13 [(gogoproto.nullable) = false];
-
+  // withdrawn_amount is the cumulative amount withdrawn by the owner before the full unlock.
+  cosmos.base.v1beta1.Coin withdrawn_amount = 10 [(gogoproto.nullable) = false];
 }
 
 message Owner {

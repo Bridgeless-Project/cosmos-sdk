@@ -29,4 +29,5 @@ var (
 	ErrMinSelfDelegation          = sdkerrors.Register(ModuleName, 1120, "min self delegation not met")
 	ErrEmptyNftMetadataUri        = sdkerrors.Register(ModuleName, 1121, "empty nft metadata uri")
 	ErrInvalidVestingPeriodsLimit = sdkerrors.Register(ModuleName, 1122, "invalid vesting period limit")
+	ErrNFTFullyUnlocked           = sdkerrors.Register(ModuleName, 1123, "NFT is fully unlocked")
 )

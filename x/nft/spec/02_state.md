@@ -12,17 +12,25 @@ The NFT object contains specific information to describe a token:
 
 ```protobuf
 message NFT {
+  reserved 5, 6, 10, 11, 12;
   string address = 1;
   string owner = 2;
   string  uri = 3;
   cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
-  int64 vesting_periods_count  = 5;
-  cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
   int64 last_vesting_block = 7;
   string denom = 8;
   int64 start_vesting_block = 9;
+  cosmos.base.v1beta1.Coin token_amount = 13 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin unlocked_amount = 14 [(gogoproto.nullable) = false];
+  cosmos.base.v1beta1.Coin withdrawn_amount = 15 [(gogoproto.nullable) = false];
 }
 ```
+
+- `token_amount` is the vesting entitlement (100%). Only `MsgTopUp` changes it.
+- `unlocked_amount` is the cumulative unlocked amount; it never decreases on withdrawal. `unlock% = unlocked_amount / token_amount`.
+- `withdrawn_amount` is the cumulative amount withdrawn before the full unlock.
+- `reward_per_period` is the unlock step in tokens per vesting period.
+- The NFT is fully unlocked when `unlocked_amount >= token_amount`.
 
 There are several commands to update the NFT store:
 

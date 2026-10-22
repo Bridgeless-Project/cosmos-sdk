@@ -11,10 +11,11 @@ const (
 
 var _ sdk.Msg = &MsgWithdrawal{}
 
-func NewMsgWithdrawal(creator, address string) *MsgWithdrawal {
+func NewMsgWithdrawal(creator, address string, amount sdk.Coin) *MsgWithdrawal {
 	return &MsgWithdrawal{
 		Creator: creator,
 		Nft:     address,
+		Amount:  amount,
 	}
 }
 
@@ -48,6 +49,10 @@ func (msg *MsgWithdrawal) ValidateBasic() error {
 	_, err = sdk.AccAddressFromBech32(msg.Nft)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid account address (%s)", err)
+	}
+
+	if !msg.Amount.IsValid() || !msg.Amount.IsPositive() {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidCoins, "invalid amount %s", msg.Amount)
 	}
 
 	return nil

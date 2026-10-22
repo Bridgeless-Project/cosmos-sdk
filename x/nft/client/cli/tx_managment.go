@@ -7,15 +7,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 	"github.com/spf13/cobra"
 )
 
 func CmdWithdrawal() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "withdrawal [from_key_or_address] [nft_address]",
-		Short: "Withdrawal allowed nft amount",
-		Args:  cobra.ExactArgs(2),
+		Use:   "withdrawal [from_key_or_address] [nft_address] [amount]",
+		Short: "Withdraw the amount from nft, not more than the unlocked part (the whole balance once fully unlocked)",
+		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			cmd.Flags().Set(flags.FlagFrom, args[0])
@@ -24,9 +25,15 @@ func CmdWithdrawal() *cobra.Command {
 				return err
 			}
 
+			amount, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
 			msg := types.NewMsgWithdrawal(
 				clientCtx.GetFromAddress().String(),
 				args[1],
+				amount,
 			)
 			if err = msg.ValidateBasic(); err != nil {
 				return err
@@ -108,5 +115,58 @@ func CmdMint() *cobra.Command {
 
 	flags.AddTxFlagsToCmd(cmd)
 
+	return cmd
+}
+
+func CmdTopUp() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "top-up [from_key_or_address] [nft_address] [amount]",
+		Short: "top up nft token amount, the vesting time grows proportionally",
+		Args:  cobra.ExactArgs(3),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.Flags().Set(flags.FlagFrom, args[0])
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			amount, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgTopUp(clientCtx.GetFromAddress().String(), args[1], amount)
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+	return cmd
+}
+
+func CmdClose() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "close [admin_key_or_address] [nft_address]",
+		Short: "close nft: send all its tokens to the owner and delete it (module admin only)",
+		Args:  cobra.ExactArgs(2),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cmd.Flags().Set(flags.FlagFrom, args[0])
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgClose(clientCtx.GetFromAddress().String(), args[1])
+			if err = msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
 	return cmd
 }

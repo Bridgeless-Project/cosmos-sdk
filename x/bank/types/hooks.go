@@ -22,13 +22,3 @@ func (h MultiBankHooks) BeforeSendTokenToAddress(ctx sdk.Context, sender, receiv
 
 	return nil
 }
-
-func (h MultiBankHooks) AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, coins sdk.Coins) error {
-	for i := range h {
-		if err := h[i].AfterSendTokenToAddress(ctx, receiver, coins); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
