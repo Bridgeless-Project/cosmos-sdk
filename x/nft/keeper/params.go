@@ -36,22 +36,6 @@ func (k Keeper) GetNftSequence(ctx sdk.Context) (seq uint64) {
 	return
 }
 
-func (k Keeper) GetVestingTime(ctx sdk.Context) (vestingTime int64) {
-	k.paramstore.Get(ctx, []byte(types.ParamsNftTotalVestingTimeKey), &vestingTime)
-	return
-}
-
-func (k Keeper) GetVestingPeriod(ctx sdk.Context) (vestingPeriod int64) {
-	k.paramstore.Get(ctx, []byte(types.ParamsNftVestingPeriodKey), &vestingPeriod)
-
-	return
-}
-
-func (k Keeper) GetVestingPeriodsLimit(ctx sdk.Context) (vestingPeriodLimit int64) {
-	k.paramstore.Get(ctx, []byte(types.ParamVestingPeriodsLimitKey), &vestingPeriodLimit)
-	return
-}
-
 func (k Keeper) GetNFTToeknAmount(ctx sdk.Context) (nftTokenAmount string) {
 	k.paramstore.Get(ctx, []byte(types.ParamNftTokenAmountKey), &nftTokenAmount)
 	return

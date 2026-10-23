@@ -22,23 +22,21 @@ func NewParams(
 	bondDenom,
 	prefix string,
 	sequence uint64,
-	vestingPeriodsLimit int64,
 	batchSize,
 	batchIndex uint64,
 	vestingTime,
 	vestingPeriod int64,
 	nftCost string) Params {
 	return Params{
-		ModuleAdmin:         moduleAdmin,
-		BondDenom:           bondDenom,
-		Prefix:              prefix,
-		NftSequence:         sequence,
-		TotalVestingTime:    vestingTime,
-		VestingPeriod:       vestingPeriod,
-		NftTokenAmount:      nftCost,
-		VestingPeriodsLimit: vestingPeriodsLimit,
-		BatchSize:           batchSize,
-		BatchIndex:          batchIndex,
+		ModuleAdmin:      moduleAdmin,
+		BondDenom:        bondDenom,
+		Prefix:           prefix,
+		NftSequence:      sequence,
+		TotalVestingTime: vestingTime,
+		VestingPeriod:    vestingPeriod,
+		NftTokenAmount:   nftCost,
+		BatchSize:        batchSize,
+		BatchIndex:       batchIndex,
 	}
 }
 
@@ -48,7 +46,6 @@ func DefaultParams() Params {
 		"",
 		sdk.DefaultBondDenom,
 		"prefix",
-		0,
 		0,
 		1,
 		0,
@@ -65,7 +62,6 @@ func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 		paramtypes.NewParamSetPair([]byte(ParamPrefixKey), &p.Prefix, validatePrefix),
 		paramtypes.NewParamSetPair([]byte(ParamNftSequenceKey), &p.NftSequence, validateNftSequence),
 		paramtypes.NewParamSetPair([]byte(ParamsNftTotalVestingTimeKey), &p.TotalVestingTime, validateVestingTime),
-		paramtypes.NewParamSetPair([]byte(ParamVestingPeriodsLimitKey), &p.VestingPeriodsLimit, validateVestingCount),
 		paramtypes.NewParamSetPair([]byte(ParamNftTokenAmountKey), &p.NftTokenAmount, validateNftCost),
 		paramtypes.NewParamSetPair([]byte(ParamBatchIndexKey), &p.BatchIndex, validateBatchIndex),
 		paramtypes.NewParamSetPair([]byte(ParamBatchSizeKey), &p.BatchSize, validateBatchSize),
@@ -99,10 +95,6 @@ func (p Params) Validate() error {
 		return errorsmod.Wrap(err, "invalid nft token amount")
 	}
 
-	if err := validateVestingCount(p.VestingPeriodsLimit); err != nil {
-		return errorsmod.Wrap(err, "invalid vesting period")
-	}
-
 	if err := validateBatchSize(p.BatchSize); err != nil {
 		return errorsmod.Wrap(err, "invalid batch size")
 	}
@@ -113,6 +105,10 @@ func (p Params) Validate() error {
 
 	if err := validateVestingPeriod(p.VestingPeriod); err != nil {
 		return errorsmod.Wrap(err, "invalid vesting period")
+	}
+
+	if p.TotalVestingTime < p.VestingPeriod {
+		return errorsmod.Wrap(ErrInvalidVestingPeriod, "total vesting time is less than the vesting period")
 	}
 
 	return nil
@@ -173,21 +169,8 @@ func validateVestingTime(i interface{}) error {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting time type: %T", i)
 	}
 
-	if time == 0 {
-		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting time")
-	}
-
-	return nil
-}
-
-func validateVestingCount(i interface{}) error {
-	val, ok := i.(int64)
-	if !ok {
-		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting limit type: %T", i)
-	}
-
-	if val < 0 {
-		return errorsmod.Wrap(ErrInvalidVestingPeriodsLimit, "negative vesting periods limit")
+	if time <= 0 {
+		return errorsmod.Wrap(ErrInvalidVestingPeriod, "vesting time must be positive")
 	}
 
 	return nil
@@ -238,8 +221,8 @@ func validateVestingPeriod(i interface{}) error {
 		return errorsmod.Wrapf(sdkerrors.ErrInvalidType, "invalid vesting period type: %T", i)
 	}
 
-	if period == 0 {
-		return errorsmod.Wrap(ErrInvalidVestingPeriod, "zero vesting period")
+	if period <= 0 {
+		return errorsmod.Wrap(ErrInvalidVestingPeriod, "vesting period must be positive")
 	}
 
 	return nil

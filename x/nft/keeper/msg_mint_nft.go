@@ -20,6 +20,10 @@ func (m msgServer) Mint(goctx context.Context, msg *types.MsgMint) (*types.MsgMi
 		return nil, sdkerrors.Wrapf(errors.ErrUnauthorized, "invalid NFT creator %s", msg.Creator)
 	}
 
+	if params.VestingPeriod <= 0 {
+		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "vesting period must be positive")
+	}
+
 	vestingPeriod := big.NewInt(params.VestingPeriod)
 	totalVestingTime := big.NewInt(params.TotalVestingTime)
 
@@ -28,17 +32,13 @@ func (m msgServer) Mint(goctx context.Context, msg *types.MsgMint) (*types.MsgMi
 		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "total vesting time is less than the vesting period")
 	}
 
-	nftTokenAnount, ok := new(big.Int).SetString(params.NftTokenAmount, 10)
+	nftTokenAmount, ok := new(big.Int).SetString(params.NftTokenAmount, 10)
 	if !ok {
 		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "invalid NFT cost")
 	}
 
-	vestingRewardPerPeriod := new(big.Int).Div(nftTokenAnount, vestingPeriodsCount)
-	if vestingRewardPerPeriod.Sign() <= 0 {
-		return nil, sdkerrors.Wrap(errors.ErrInvalidRequest, "NFT token amount is less than the number of vesting periods")
-	}
-
-	totalNftTokenAmount := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAnount))
+	vestingRewardPerPeriod := new(big.Int).Div(nftTokenAmount, vestingPeriodsCount)
+	totalNftTokenAmount := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAmount))
 
 	nft, sequence, err := m.CreateNft(ctx, msg.Owner, msg.StartVestingBlock, vestingRewardPerPeriod, msg.NftMetadataUri, totalNftTokenAmount)
 	if err != nil {
@@ -57,12 +57,12 @@ func (m msgServer) Mint(goctx context.Context, msg *types.MsgMint) (*types.MsgMi
 		return nil, sdkerrors.Wrap(types.ErrInvalidBalance, "balance not found")
 	}
 
-	if balance.Amount.LT(sdk.NewIntFromBigInt(nftTokenAnount)) {
+	if balance.Amount.LT(sdk.NewIntFromBigInt(nftTokenAmount)) {
 		return nil, sdkerrors.Wrapf(types.ErrInvalidBalance, "insufficient pool balance, NFT cost is %s, balance: %s",
 			params.NftTokenAmount, balance.Amount.String())
 	}
 
-	coinsToDistribute := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAnount))
+	coinsToDistribute := sdk.NewCoin(params.BondDenom, sdk.NewIntFromBigInt(nftTokenAmount))
 
 	err = m.accumulatorKeeper.DistributeToAccount(
 		ctx,

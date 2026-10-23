@@ -44,10 +44,7 @@ func (k msgServer) Withdraw(goctx context.Context, msg *types.MsgWithdrawal) (*t
 		return nil, errors.Wrapf(types.ErrInvalidAmount, "amount %s exceeds the withdrawable limit %s", amount, limit)
 	}
 
-	if !nft.IsFullyUnlocked() {
-		nft.WithdrawnAmount = nft.WithdrawnAmount.Add(msg.Amount)
-	}
-
+	nft.WithdrawnAmount = nft.WithdrawnAmount.Add(msg.Amount)
 	err := k.DistributeToAddress(ctx, sdk.NewCoins(sdk.NewCoin(nft.Denom, amount)), ownerAddress, nftAddress)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to distribute to address")
