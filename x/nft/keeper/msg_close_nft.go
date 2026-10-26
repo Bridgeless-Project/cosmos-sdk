@@ -43,6 +43,17 @@ func (k msgServer) Close(goctx context.Context, msg *types.MsgClose) (*types.Msg
 		}
 	}
 
+	k.removeNFTWithEvent(ctx, nft, balances)
+
+	return new(types.MsgCloseResponse), nil
+}
+
+// removeEmptyNFT removes an NFT whose balance has been fully withdrawn.
+func (k Keeper) removeEmptyNFT(ctx sdk.Context, nft types.NFT) {
+	k.removeNFTWithEvent(ctx, nft, sdk.NewCoins())
+}
+
+func (k Keeper) removeNFTWithEvent(ctx sdk.Context, nft types.NFT, amount sdk.Coins) {
 	k.RemoveOwnerNft(ctx, nft.Owner, nft.Address)
 	k.RemoveNFT(ctx, nft.Address)
 
@@ -51,9 +62,7 @@ func (k msgServer) Close(goctx context.Context, msg *types.MsgClose) (*types.Msg
 			types.EventTypeNFTClosed,
 			sdk.NewAttribute(types.AttributeKeyNFT, nft.Address),
 			sdk.NewAttribute(types.AttributeKeyOwner, nft.Owner),
-			sdk.NewAttribute(sdk.AttributeKeyAmount, balances.String()),
+			sdk.NewAttribute(sdk.AttributeKeyAmount, amount.String()),
 		),
 	)
-
-	return new(types.MsgCloseResponse), nil
 }

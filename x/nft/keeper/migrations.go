@@ -3,6 +3,7 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	v2 "github.com/cosmos/cosmos-sdk/x/nft/migrations/v2"
+	v3 "github.com/cosmos/cosmos-sdk/x/nft/migrations/v3"
 )
 
 type Migrator struct {
@@ -21,4 +22,8 @@ func (m Migrator) Migrate1to2(ctx sdk.Context) error {
 	}
 
 	return nil
+}
+
+func (m Migrator) Migrate2to3(ctx sdk.Context) error {
+	return v3.MigrateStore(ctx, m.keeper.storeKey, m.keeper.cdc)
 }

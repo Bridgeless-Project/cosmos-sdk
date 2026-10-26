@@ -1,0 +1,36 @@
+syntax = "proto3";
+package cosmos.nft.migrations.v3;
+
+import "gogoproto/gogo.proto";
+import "cosmos/base/v1beta1/coin.proto";
+
+option go_package = "github.com/cosmos/cosmos-sdk/x/nft/migrations/v3/types";
+
+// NFT is the legacy (pre-v3) NFT layout, used only to decode old state during migration.
+message NFT {
+  string address = 1;
+
+  string owner = 2;
+
+  string uri = 3;
+
+  cosmos.base.v1beta1.Coin reward_per_period = 4 [(gogoproto.nullable) = false];
+
+  int64 vesting_periods_count = 5;
+
+  cosmos.base.v1beta1.Coin available_to_withdraw = 6 [(gogoproto.nullable) = false];
+
+  int64 last_vesting_block = 7;
+
+  string denom = 8;
+
+  int64 start_vesting_block = 9;
+
+  int64 vesting_periods_limit = 10;
+
+  bool is_frozen = 11;
+
+  int64 total_vesting_time = 12;
+
+  cosmos.base.v1beta1.Coin token_amount = 13 [(gogoproto.nullable) = false];
+}

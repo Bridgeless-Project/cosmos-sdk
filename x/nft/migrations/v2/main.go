@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	v3types "github.com/cosmos/cosmos-sdk/x/nft/migrations/v3/types"
 	"github.com/cosmos/cosmos-sdk/x/nft/types"
 )
 
@@ -19,7 +20,8 @@ func MigrateStore(ctx sdk.Context, storeKey storetypes.StoreKey, cdc codec.Binar
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var nft types.NFT
+		// decode with the legacy layout: v2 runs before the v3 store rewrite
+		var nft v3types.NFT
 		if err := cdc.Unmarshal(iterator.Value(), &nft); err != nil {
 			ctx.Logger().Error("failed to unmarshal NFT during migration, skipping", "key", string(iterator.Key()), "error", err)
 			continue

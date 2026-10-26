@@ -50,6 +50,13 @@ func (k msgServer) Withdraw(goctx context.Context, msg *types.MsgWithdrawal) (*t
 		return nil, errors.Wrap(err, "failed to distribute to address")
 	}
 
+	// nothing left on the NFT and nothing staked: remove it
+	if k.bankKeeper.GetAllBalances(ctx, nftAddress).IsZero() && !k.HasStake(ctx, nftAddress) {
+		k.removeEmptyNFT(ctx, nft)
+
+		return new(types.MsgWithdrawalResponse), nil
+	}
+
 	k.SetNFT(ctx, nft)
 
 	return new(types.MsgWithdrawalResponse), nil
