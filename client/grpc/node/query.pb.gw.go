@@ -145,7 +145,7 @@ func RegisterServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Service_Config_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"cosmos", "base", "node", "v1beta1", "config"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_Service_Config_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"cosmos", "base", "node", "v1beta1", "config"}, "", runtime.AssumeColonVerbOpt(false)))
 )
 
 var (
