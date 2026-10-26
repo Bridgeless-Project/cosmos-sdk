@@ -24,6 +24,8 @@ func GetTxCmd() *cobra.Command {
 		CmdDelegate(),
 		CmdSend(),
 		CmdWithdrawal(),
+		CmdTopUp(),
+		CmdClose(),
 		CmdUndelegate(),
 		CmdRedelegate(),
 		CmdMint(),

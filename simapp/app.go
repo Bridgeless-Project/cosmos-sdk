@@ -274,10 +274,6 @@ func NewSimApp(
 		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	app.BankKeeper = app.BankKeeper.SetHooks(
-		banktypes.NewMultiBankHooks(app.NFTKeeper.Hooks()),
-	)
-
 	app.AccumulatorKeeper = accumulatorkeeper.NewKeeper(
 		appCodec,
 		keys[accumulatortypes.StoreKey],

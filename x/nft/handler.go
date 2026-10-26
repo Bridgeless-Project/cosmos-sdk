@@ -28,6 +28,12 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 		case *types.MsgWithdrawal:
 			res, err := msgServer.Withdraw(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgTopUp:
+			res, err := msgServer.TopUp(ctx, msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgClose:
+			res, err := msgServer.Close(ctx, msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgRedelegate:
 			res, err := msgServer.Redelegate(ctx, msg)
 			return sdk.WrapServiceResult(ctx, res, err)

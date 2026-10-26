@@ -20,10 +20,13 @@ const (
 	ParamNftSequenceKey          = "nftSequence"
 	ParamsNftTotalVestingTimeKey = "totalVestingTime"
 	ParamsNftVestingPeriodKey    = "nftVestingPeriod"
-	ParamVestingPeriodsLimitKey  = "vestingPeriodsLimitKey"
 	ParamNftTokenAmountKey       = "nftTokenAmount"
 	ParamBatchIndexKey           = "batchIndex"
 	ParamBatchSizeKey            = "batchSize"
+
+	EventTypeNFTClosed = "nft_closed"
+	AttributeKeyNFT    = "nft"
+	AttributeKeyOwner  = "owner"
 )
 
 func KeyPrefix(p string) []byte {

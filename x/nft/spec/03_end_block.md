@@ -11,20 +11,28 @@ The `EndBlocker` function is responsible for updating the vesting state of each 
 
 Each NFT contains vesting information structured as follows:
 
-- **Vesting Periods Count**: The current count of how many periods have vested.
-- **Available to Withdraw**: The amount available for withdrawal.
-- **Last Vesting Time**: The block of the last vesting event.
-- **Start Vesting Time** The start block of the vesting.
+- **Token Amount**: the fixed vesting entitlement (100%), changed only by `MsgTopUp`.
+- **Unlocked Amount**: the cumulative unlocked amount (`unlock% = unlocked / token amount`).
+- **Reward Per Period**: the fixed unlock step in tokens.
+- **Last Vesting Block**: the block of the last vesting event.
+- **Start Vesting Block**: the start block of the vesting.
+
+Balance changes of the NFT address (rewards, undelegations, bank transfers) do not affect the vesting.
 
 ## Purpose of EndBlocker
 
-The `EndBlocker` function updates the vesting state for each NFT, ensuring that the available amount to withdraw is updated based on the vesting schedule.
+The `EndBlocker` unlocks tokens of each NFT in batches according to the vesting schedule.
 
 ### Key Steps
 
-1. **Retrieve NFTs**: The function retrieves all NFTs.
-2. **Check Vesting Period**: It checks if the current block time is greater than or equal to the last vesting time plus the vesting period.
-3. **Check Vesting Counter**: It ensures that the vesting counter has not reached the maximum number of vesting periods.
-4. **Update Available Amount**: If both conditions are met, it calculates the new available amount to withdraw based on the reward per period and updates the `Available to Withdraw` field.
-5. **Increment Counter**: It increments the vesting counter and updates the last vesting time.
+1. **Retrieve NFTs**: The function retrieves the current batch of NFTs.
+2. **Skip fully unlocked NFTs**: if `unlocked_amount >= token_amount`, the NFT is skipped.
+3. **Check Start and Period**: the NFT is skipped until the start vesting block is reached and a full vesting period has passed since the last vesting block.
+4. **Unlock**: it unlocks `min(reward_per_period × passed_periods, token_amount − unlocked_amount)`, so the last period unlocks only the remainder and the unlock ends exactly at 100%.
+5. **Update Last Vesting Block**: it sets the last vesting block to the current one.
 
+## Withdrawal limit
+
+- Before the full unlock the owner can withdraw `min(unlocked_amount − withdrawn_amount, balance)`.
+- After the full unlock the owner can withdraw any part of the whole NFT balance, including rewards and donations.
+- A delegated NFT can not be withdrawn.

@@ -303,6 +303,10 @@ service Msg {
 
   rpc Withdraw (MsgWithdrawal) returns (MsgWithdrawalResponse);
 
+  rpc TopUp(MsgTopUp) returns (MsgTopUpResponse);
+
+  rpc Close(MsgClose) returns (MsgCloseResponse);
+
   rpc Undelegate(MsgUndelegate) returns (MsgUndelegateResponse);
 
   rpc Delegate(MsgDelegate) returns (MsgDelegateResponse);
@@ -329,16 +333,50 @@ message MsgSendResponse {}
 
 #### Withdrawal
 
-This message is used to withdraw available(unlocked) nft amount 
+This message is used to withdraw the amount from the nft. Only the owner can send it, and the nft must not be delegated.
+Before the full unlock the amount can not exceed `min(unlocked_amount − withdrawn_amount, balance)`; once the nft is fully unlocked
+the amount can be any part of the nft balance, including rewards and donations.
 
 ```protobuf
 message MsgWithdrawal {
   string creator = 1;
-  string address = 2;
-  cosmos.base.v1beta1.Coin amount = 5 [(gogoproto.nullable) = false];
+  string nft = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
 }
 
 message MsgWithdrawalResponse {}
+```
+
+#### TopUp
+
+This message is used to top up the nft. Only the owner can send it. The amount is transferred from the owner to the nft
+and `token_amount` grows by it. The unlock step and the already unlocked amount stay the same, so the vesting time grows
+proportionally to the top-up. The message is rejected if the nft is fully unlocked. Any other transfer to the nft
+address (rewards, undelegation, bank send) is a donation and does not change the vesting.
+
+```protobuf
+message MsgTopUp {
+  string creator = 1;
+  string nft = 2;
+  cosmos.base.v1beta1.Coin amount = 3 [(gogoproto.nullable) = false];
+}
+
+message MsgTopUpResponse {}
+```
+
+#### Close
+
+This message is used by the module admin to close the nft: the whole nft balance is sent to the owner without waiting
+for the end of vesting and the nft is deleted. It is rejected if the nft has delegations, unbonding delegations or
+redelegations (the tokens can not be withdrawn because the nft is delegated).
+
+```protobuf
+message MsgClose {
+  string creator = 1;
+  string nft = 2;
+}
+
+message MsgCloseResponse {}
 ```
 
 #### Delegate
@@ -428,11 +466,29 @@ bridgeless-cored tx nft send bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridg
 #### Withdrawal
 
 
-This command is used to withdraw available vested nft amount
+This command is used to withdraw the amount from the nft (not more than the unlocked part, or any part of the balance once fully unlocked)
 
 Usage example:
 ```
-bridgeless-cored tx nft withdrawal bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridge1yyxxs2jt6ygrxqm8sl0danzdfnwl9ugyellmnkj6ru64ltfv3ngsvntsh
+bridgeless-cored tx nft withdrawal bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridge1yyxxs2jt6ygrxqm8sl0danzdfnwl9ugyellmnkj6ru64ltfv3ngsvntsh 1000abridge
+```
+
+#### Top up
+
+This command is used to top up the nft token amount (the vesting time grows proportionally)
+
+Usage example:
+```
+bridgeless-cored tx nft top-up bridge103n4cmjt2je8nqcxg9y9desyhy6m57u52kkuc4 bridge1yyxxs2jt6ygrxqm8sl0danzdfnwl9ugyellmnkj6ru64ltfv3ngsvntsh 1000abridge
+```
+
+#### Close
+
+This command is used by the module admin to send all nft tokens to the owner and delete the nft
+
+Usage example:
+```
+bridgeless-cored tx nft close bridge1admin... bridge1yyxxs2jt6ygrxqm8sl0danzdfnwl9ugyellmnkj6ru64ltfv3ngsvntsh
 ```
 
 #### Delegate

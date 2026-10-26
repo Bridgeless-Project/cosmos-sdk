@@ -1,7 +1,6 @@
 package nft
 
 import (
-	"math/big"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/telemetry"
@@ -36,15 +35,9 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			nft.StartVestingBlock = currentBlockHeight
 		}
 
-		// if nft vested full amount skip it
-		if nft.AvailableToWithdraw.Amount.GTE(nft.TokenAmount.Amount) {
+		// if nft is fully unlocked skip it
+		if nft.IsFullyUnlocked() {
 			continue
-		}
-
-		// if nft was frozen but token amount increased then unfroze the NFT and set the LastVestingBlock to current one
-		if nft.IsFrozen {
-			nft.IsFrozen = false
-			nft.LastVestingBlock = currentBlockHeight - params.VestingPeriod
 		}
 
 		if currentBlockHeight < nft.StartVestingBlock {
@@ -56,39 +49,18 @@ func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
 			continue
 		}
 
-		// if vesting time has passed skip the nft
-		if currentBlockHeight-nft.StartVestingBlock > nft.TotalVestingTime {
-			continue
-		}
-
 		currentVestingPeriod := currentBlockHeight - nft.LastVestingBlock
 		if nft.LastVestingBlock == 0 {
 			currentVestingPeriod = params.VestingPeriod
 		}
 
-		passedPeriods := big.NewInt(0).Div(big.NewInt(currentVestingPeriod), big.NewInt(params.VestingPeriod))
+		passedPeriods := sdk.NewInt(currentVestingPeriod / params.VestingPeriod)
 
-		if nft.VestingPeriodsCount+passedPeriods.Int64() > nft.VestingPeriodsLimit {
-			passedPeriods = big.NewInt(nft.VestingPeriodsLimit - nft.VestingPeriodsCount)
-		}
+		// unlock a fixed step per period, the last period unlocks only the remainder so the unlock ends exactly at 100%
+		remainder := nft.TokenAmount.Amount.Sub(nft.UnlockedAmount.Amount)
+		toUnlock := sdk.MinInt(nft.RewardPerPeriod.Amount.Mul(passedPeriods), remainder)
 
-		rewardToUnlock := nft.RewardPerPeriod.Amount.Mul(sdk.NewIntFromBigInt(passedPeriods))
-
-		if nft.TokenAmount.Sub(nft.AvailableToWithdraw).IsLT(nft.RewardPerPeriod) {
-			rewardToUnlock = nft.TokenAmount.Sub(nft.AvailableToWithdraw).Amount
-		}
-
-		nft.AvailableToWithdraw = nft.AvailableToWithdraw.Add(sdk.NewCoin(
-			nft.Denom,
-			rewardToUnlock,
-		),
-		)
-
-		nft.VestingPeriodsCount += passedPeriods.Int64()
-		if nft.VestingPeriodsCount == nft.VestingPeriodsLimit {
-			nft.IsFrozen = true
-		}
-
+		nft.UnlockedAmount = nft.UnlockedAmount.Add(sdk.NewCoin(nft.Denom, toUnlock))
 		nft.LastVestingBlock = currentBlockHeight
 
 		k.SetNFT(ctx, nft)

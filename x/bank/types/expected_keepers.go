@@ -29,5 +29,4 @@ type AccountKeeper interface {
 
 type BankHooks interface {
 	BeforeSendTokenToAddress(ctx sdk.Context, sender, receiver sdk.Address, amt sdk.Coins) error
-	AfterSendTokenToAddress(ctx sdk.Context, receiver sdk.Address, amt sdk.Coins) error
 }
